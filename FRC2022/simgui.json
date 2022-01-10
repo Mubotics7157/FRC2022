@@ -1,0 +1,16 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/AnalogGyro[1]": "Gyro",
+      "/SmartDashboard/minimap": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/minimap": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  }
+}
