@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import frc.robot.Robot;
 import frc.util.Threading.Threaded;
 
 public class Intake extends Threaded {
@@ -21,7 +22,6 @@ public class Intake extends Threaded {
 
     DoubleSolenoid intakeSolenoid;
 
-    LED led = new LED();
 
     private enum IntakeState{
         CHEW,
@@ -54,6 +54,8 @@ public class Intake extends Threaded {
                 ejectAll();
                 break;
         }
+        if(Robot.isSimulation())
+            shooter.simPeriodic();
     }
 
     public synchronized void retractIntake(){
@@ -84,10 +86,6 @@ public class Intake extends Threaded {
     }
 
     private void oneButtonShot(){
-        double RPM = 1000;
-        shooter.rev(RPM);
-        //if(shooter.atSpeed(RPM))
-          /// indexerMotor.set(ControlMode.PercentOutput, -1);
     }
 
 
@@ -112,6 +110,7 @@ public class Intake extends Threaded {
         intakeState = IntakeState.SLURP;
     }
     
-    private void updateLED(){
+    public synchronized void initSim(){
+        shooter.initSim();
     }
 }
