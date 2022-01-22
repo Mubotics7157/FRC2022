@@ -1,26 +1,16 @@
 package frc.Subystem.SwerveDrive;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.DriveConstants;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
-    Pose2d[] modulePoses = {
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d()
-    };
+
     SwerveModules frontLeft = new SwerveModules(8, 1, 0);
     SwerveModules backLeft = new SwerveModules(2,3,4);
     SwerveModules frontRight = new SwerveModules(4, 5, 8);
@@ -31,15 +21,17 @@ public class SwerveDrive extends Threaded{
         backLeft,
         backRight
     };
+
+    private AnalogGyro navX = new AnalogGyro(0);
+    AnalogGyroSim navXSim = new AnalogGyroSim(navX);
+
     double [] angles= new double[4];
     double[]speeds = new double[4];
     ModuleHelper helper = new ModuleHelper();
-    private final AnalogGyro navX = new AnalogGyro(0);
-    AnalogGyroSim navXSim = new AnalogGyroSim(navX);
-    Field2d field = new Field2d();
-    SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.DriveConstants.SWERVE_KINEMATICS, Rotation2d.fromDegrees(navX.getAngle()));
     double yawVal = 0;
     private static SwerveDrive instance;
+
+    SwerveState swerveState = SwerveState.FIELD_ORIENTED;
 
     public static SwerveDrive getInstance(){
         if(instance==null)
@@ -47,10 +39,34 @@ public class SwerveDrive extends Threaded{
         return instance;
     }
 
+    public enum SwerveState{
+        REGULAR,
+        FIELD_ORIENTED,
+        VISION,
+        CARGO
+    }
+
     @Override
     public void update() {
-        updateOdometry();
-        updateFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
+        SwerveState snapSwerveState;
+        synchronized(this){
+            snapSwerveState = swerveState;
+        }
+        switch(snapSwerveState){
+            case REGULAR:
+                SmartDashboard.putString("Swerve State", "Driver Oriented");
+                break;
+            case FIELD_ORIENTED:
+                SmartDashboard.putString("Swerve State", "Field Oriented");
+                updateFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
+                break;
+            case VISION:
+                SmartDashboard.putString("Swerve State", "Vision Tracking");
+                break;
+            case CARGO:
+                SmartDashboard.putString("Swerve State", "Cargo Tracking");
+                break;
+        }
 
     if(Robot.isSimulation())
         updateSim();
@@ -71,12 +87,7 @@ public class SwerveDrive extends Threaded{
     frontRight.updateSim();
     backLeft.updateSim();
     backRight.updateSim();
-    SwerveModuleState[] moduleStates = {
-      frontLeft.getState(),
-      frontRight.getState(),
-      backLeft.getState(),
-      backRight.getState()
-    };
+    SwerveModuleState[] moduleStates = getModuleStates();
 
     var chassisSpeed = Constants.DriveConstants.SWERVE_KINEMATICS.toChassisSpeeds(moduleStates);
     double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
@@ -85,17 +96,21 @@ public class SwerveDrive extends Threaded{
     navXSim.setAngle(-Units.radiansToDegrees(yawVal));
     }
 
-    private void updateOdometry(){
-        odometry.update(Rotation2d.fromDegrees(navX.getAngle()), frontLeft.getState(),frontRight.getState(),backLeft.getState(),backRight.getState());
-        SmartDashboard.putData(field);
-        field.setRobotPose(odometry.getPoseMeters());
-        for (int i = 0; i < DriveConstants.MODULE_POSITIONS.length; i++) {
-            Translation2d modulePositionFromChassis = DriveConstants.MODULE_POSITIONS[i]
-            .rotateBy(Rotation2d.fromDegrees(navX.getAngle()))
-            .plus(odometry.getPoseMeters().getTranslation());
-
-            modulePoses[i] = new Pose2d(modulePositionFromChassis, modules[i].getState().angle.plus(odometry.getPoseMeters().getRotation()));
-        }
-       field.getObject("Modules").setPoses(modulePoses);
+    public synchronized SwerveModules[] getModules(){
+        return modules;
     }
+
+    public SwerveModuleState[] getModuleStates(){
+        SwerveModuleState[] states = {frontLeft.getState(),frontRight.getState(),backLeft.getState(),backRight.getState()};
+        return states;
+    }
+
+    public synchronized Rotation2d getDriveHeading(){
+        return navX.getRotation2d();
+    }
+
+    public synchronized void setFieldOriented(){
+        swerveState = SwerveState.FIELD_ORIENTED;
+    }
+
 }
