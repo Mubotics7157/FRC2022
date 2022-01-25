@@ -23,6 +23,7 @@ public class SwerveModules {
     TalonFX driveMotor;
     CANCoder absEncoder;
     PIDController turnPID = new PIDController(1, 0, 0); // use internal PID later
+    PIDController drivePID = new PIDController(1, 0, 0); // use internal PID later
 
     double turn=0;
     double drive=0;
@@ -60,16 +61,26 @@ public class SwerveModules {
         turnMotor.set(ControlMode.PercentOutput,turn);
     }
 
+    public void setState(SwerveModuleState state){
+        SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
+
+        double turnSignal = turnPID.calculate(getAbsHeading().getRadians(), optimizedState.angle.getRadians());
+        double driveSignal = drivePID.calculate(getVelocity(), optimizedState.speedMetersPerSecond);
+        set(driveSignal,turnSignal);
+    }
+
         public void updateSim(){
         driveSim.setInputVoltage(drive*RobotController.getBatteryVoltage());
         turnSim.setInputVoltage(turn*RobotController.getBatteryVoltage());
+        //driveSim.setInputVoltage(driveMotor.getMotorOutputVoltage());
+        //turnSim.setInputVoltage(turnMotor.getMotorOutputVoltage());
 
         turnSim.update(.02);
         driveSim.update(.02);
 
-        double turnVelStepsPerDecisec = turnSim.getAngularVelocityRPM()*2048/600 *12.8;
+        double turnVelStepsPerDecisec = turnSim.getAngularVelocityRPM()*2048/600*12.8;
         double turnSteps = turnVelStepsPerDecisec*10*.02;
-        double driveVelStepsPerDecisec = driveSim.getAngularVelocityRPM()*2048/600 *6.75;
+        double driveVelStepsPerDecisec = driveSim.getAngularVelocityRPM()*2048/600*6.75;
         double driveSteps = driveVelStepsPerDecisec*10*.02;
         absEncoderSim.setVelocity((int)turnVelStepsPerDecisec);
         absEncoderSim.addPosition((int)turnSteps);
@@ -85,11 +96,15 @@ public class SwerveModules {
     }
 
     public SwerveModuleState getState(){
-        return new SwerveModuleState(CommonConversions.stepsPerDecisecToMetersPerSec(driveMotor.getSelectedSensorVelocity()), getAbsHeading()); //why so slow?
+        return new SwerveModuleState(getVelocity(), getAbsHeading()); //why so slow?
     }
 
     private Rotation2d getAbsHeading(){
         return Rotation2d.fromDegrees(absEncoder.getAbsolutePosition());
+    }
+
+    private double getVelocity(){
+        return CommonConversions.stepsPerDecisecToMetersPerSec(driveMotor.getSelectedSensorVelocity());
     }
 
 }

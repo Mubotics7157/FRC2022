@@ -56,4 +56,8 @@ public class SwerveTracker extends Threaded{
     public synchronized void setOdometry(Pose2d pose){
         odometry.resetPosition(pose, pose.getRotation());
     }
+
+    public synchronized Pose2d getOdometry(){
+        return odometry.getPoseMeters();
+    }
 }
