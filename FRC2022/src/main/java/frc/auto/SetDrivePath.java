@@ -3,6 +3,7 @@ package frc.auto;
 import java.util.ArrayList;
 
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.SwerveDrive.SwerveDrive;
 
 
@@ -42,6 +43,6 @@ public class SetDrivePath extends AutoCommand {
 	@Override
 	public void start() {
 		SwerveDrive.getInstance().setAutoPath(robotPath, triggers);
+		SmartDashboard.putString("test", "hi");
 	}
-
 }

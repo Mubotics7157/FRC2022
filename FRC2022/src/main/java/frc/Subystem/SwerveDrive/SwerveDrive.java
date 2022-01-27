@@ -1,6 +1,5 @@
 package frc.Subystem.SwerveDrive;
 
-import static edu.wpi.first.wpilibj.util.ErrorMessages.requireNonNullParam;
 
 import java.util.ArrayList;
 
@@ -11,8 +10,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -44,13 +45,16 @@ public class SwerveDrive extends Threaded{
     ModuleHelper helper = new ModuleHelper();
     double yawVal = 0;
 
-    PIDController fwdController;
-    PIDController strController;
-    ProfiledPIDController rotController;
+    PIDController fwdController = new PIDController(1, 0, 0);
+    PIDController strController = new PIDController(1, 0, 0);
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(3*Math.PI,3*Math.PI);
+    ProfiledPIDController rotController = new ProfiledPIDController(5, 0, 0,rotProfile);
+    //rotControler.enableContinuousInput(-Math.PI,Math.PI);
     SynchronousPID turnPID;
 
+    HolonomicDriveController controller = new HolonomicDriveController(strController, fwdController, rotController);
+
     Timer autoTimer = new Timer();
-    HolonomicDriveController controller;
 
     Trajectory currTrajectory;
     private ArrayList<PathTrigger> triggers = new ArrayList<>();
@@ -58,7 +62,7 @@ public class SwerveDrive extends Threaded{
 
     private static SwerveDrive instance;
 
-    SwerveState swerveState = SwerveState.FIELD_ORIENTED;
+    private SwerveState swerveState = SwerveState.FIELD_ORIENTED;
 
     public static SwerveDrive getInstance(){
         if(instance==null)
@@ -151,9 +155,8 @@ public class SwerveDrive extends Threaded{
 				break;
 			}
 		}
-   
       Trajectory.State desiredPose = currTrajectory.sample(currentTime);
-      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose, Rotation2d.fromDegrees(0));
+      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose, getDriveHeading());
       SwerveModuleState[] moduleStates = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
       SmartDashboard.putNumber("desired poseX", desiredPose.poseMeters.getX());
       SmartDashboard.putNumber("desired poseY", desiredPose.poseMeters.getY());
@@ -226,18 +229,20 @@ public class SwerveDrive extends Threaded{
 
     public synchronized void setAutoPath(Trajectory desiredTrajectory){
         autoTimer.reset();
-        autoTimer.start();;
+        autoTimer.start();
         currTrajectory = desiredTrajectory;
         swerveState = SwerveState.AUTO;
         updateAuto();
     }
 
-    public synchronized void setAutoPath(Trajectory desiredTrajectory,ArrayList<PathTrigger> triggers){
+    public void setAutoPath(Trajectory desiredTrajectory,ArrayList<PathTrigger> triggers){
         autoTimer.reset();
         autoTimer.start();
         currTrajectory = desiredTrajectory;
         this.triggers = triggers;
+        synchronized(this){
         swerveState = SwerveState.AUTO;
+        }
         updateAuto();
     }
 

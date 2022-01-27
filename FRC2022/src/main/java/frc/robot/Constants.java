@@ -78,7 +78,7 @@ public class Constants {
             BACK_RIGHT_MODULE_POSITION
         };
 
-        public static final double MAX_SPEED_AUTO = 0;
+        public static final double MAX_SPEED_AUTO = 2;
         public static final double MAX_VOLTAGE_AUTO = 9;
 
         public static final double MAX_ACCEL_AUTO = 2;
@@ -86,6 +86,13 @@ public class Constants {
 
         public static final SwerveDriveKinematics SWERVE_KINEMATICS = new SwerveDriveKinematics(FRONT_LEFT_MODULE_POSITION,FRONT_RIGHT_MODULE_POSITION,BACK_LEFT_MODULE_POSITION,BACK_RIGHT_MODULE_POSITION);
 
+    }
+
+    public static class ModuleConstants{
+        public static final double kS = 0;
+        public static final double kV = 0;
+        public static final double kA = 0;
+        public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(kS,kV,kA);
     }
 
 }

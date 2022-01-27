@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.auto.AutoRoutine;
@@ -39,12 +40,17 @@ public void autonomousInit() {
     auto = new Thread(option);
     auto.start();
 }
+
+@Override
+public void autonomousPeriodic() {
+  SmartDashboard.putBoolean("auto", auto.isInterrupted());
+}
   @Override
   public void teleopInit() {
     if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    swerve.setFieldOriented();
+    SwerveDrive.getInstance().setFieldOriented();
   }
   @Override
   public void teleopPeriodic() {

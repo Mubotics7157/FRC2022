@@ -1,13 +1,12 @@
 package frc.util;
 
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 
 public class CommonConversions {
   
      public static double stepsToMeters(double steps){
-      return steps*((.1524 * Math.PI) / (2048* Constants.PhysicalConstants.GEAR_RATIO));
-
-
+      return steps*((.1524 * Math.PI) / (2048* Constants.DriveConstants.GEAR_RATIO));
   }
 
 
@@ -26,7 +25,7 @@ public class CommonConversions {
    * @return encoder units
    */
   public static double metersToSteps(double meters) {
-    return (meters / 0.1524 / Math.PI) *2048*Constants.PhysicalConstants.GEAR_RATIO;
+    return (meters / 0.1524 / Math.PI) *2048*Constants.DriveConstants.GEAR_RATIO;
   }
 
 
@@ -37,6 +36,26 @@ public class CommonConversions {
    */
   public static double metersPerSecToStepsPerDecisec(double metersPerSec) {
     return metersToSteps(metersPerSec) * .1d;
+  }
+
+  public static double stepsPerDecisecToRPM(double stepsPerDecisec){
+    double tangentialVelocity = stepsPerDecisecToMetersPerSec(stepsPerDecisec);
+    double angularVelRadPerSec = tangentialVelocity/(DriveConstants.WHEEL_DIAMETER_METERS/2);
+    return angularVelRadPerSec * (Math.PI/30);
+  }
+
+  public static double RPMToStepsPerDecisec(double RPM){
+    double tangentialVelocity = (Constants.DriveConstants.WHEEL_DIAMETER_METERS/2) * (Math.PI/30) * RPM;
+    return metersPerSecToStepsPerDecisec(tangentialVelocity);
+  }
+
+  public static double radiansToSteps(double rad){
+    double radPerStep = (((2*Math.PI)/Constants.DriveConstants.GEAR_RATIO)) / 2048;
+    return rad/radPerStep;
+  }
+
+  public static double radPerSecToMetersPerSec(double radPerSec){
+    return (DriveConstants.WHEEL_DIAMETER_METERS/2) * radPerSec;
   }
 
 }

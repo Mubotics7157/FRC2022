@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.SwerveDrive.ModuleHelper;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.util.CommonConversions;
@@ -46,8 +48,8 @@ public class Drive extends Threaded {
     DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(
             LinearSystemId.identifyDrivetrainSystem(Constants.DriveConstants.kV, Constants.DriveConstants.kA,
                     Constants.DriveConstants.kVAngular, Constants.DriveConstants.kAAngular),
-            DCMotor.getFalcon500(2), Constants.PhysicalConstants.GEAR_RATIO,
-            Constants.PhysicalConstants.TRACK_WIDTH_METERS, Constants.PhysicalConstants.WHEEL_DIAMETER_METERS, null);
+            DCMotor.getFalcon500(2), Constants.DriveConstants.GEAR_RATIO,
+            Constants.DriveConstants.TRACK_WIDTH_METERS, Constants.DriveConstants.WHEEL_DIAMETER_METERS, null);
 
     public Drive(){
         if(Robot.isReal()){
@@ -95,9 +97,9 @@ public class Drive extends Threaded {
         driveSim = new DifferentialDrivetrainSim(
             LinearSystemId.identifyDrivetrainSystem(Constants.DriveConstants.kV, Constants.DriveConstants.kA, Constants.DriveConstants.kVAngular, Constants.DriveConstants.kAAngular),
             DCMotor.getFalcon500(2),
-            Constants.PhysicalConstants.GEAR_RATIO,
-            Constants.PhysicalConstants.TRACK_WIDTH_METERS,
-            Constants.PhysicalConstants.WHEEL_DIAMETER_METERS,
+            Constants.DriveConstants.GEAR_RATIO,
+            Constants.DriveConstants.TRACK_WIDTH_METERS,
+            Constants.DriveConstants.WHEEL_DIAMETER_METERS,
             VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
         );
     }
@@ -106,6 +108,7 @@ public class Drive extends Threaded {
         TELEOP,
         VISION_TRACKING,
         AUTO,
+        SWERVE_TEST,
         DONE
     }
 
@@ -127,8 +130,13 @@ public class Drive extends Threaded {
                 updateVisionTracking();
                 SmartDashboard.putString("Drive State", "vision tracking");
                 break;
+
+            case SWERVE_TEST:
+                updateSwerve();
+                SmartDashboard.putString("Drive State", "swerve");
+                break;
         }
-        
+
     }
 
     public static Drive getInstance(){
@@ -143,12 +151,20 @@ public class Drive extends Threaded {
         }
     }
 
+    public synchronized void setSwerve(){
+        driveState = DriveState.SWERVE_TEST;
+    }
+
     public synchronized void setTracking(){
         driveState = DriveState.VISION_TRACKING;
     }
 
     private void updateTeleop(){
-        tankDriveTeleOp(Robot.operator.getLeftY(), Robot.operator.getLeftY());
+        tankDriveTeleOp(Robot.operator.getLeftY(), Robot.operator.getRightY());
+    }
+
+    private void updateSwerve(){
+        testSwerveMath(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
     }
 
     private void tankDriveTeleOp(double leftSpeed, double rightSpeed){
@@ -354,7 +370,7 @@ public class Drive extends Threaded {
         }
 
         else{
-        double delta_v = (Constants.PhysicalConstants.TRACK_WIDTH_FEET/12) * velocityVector.dtheta / 2d;
+        double delta_v = (Constants.DriveConstants.TRACK_WIDTH_FEET/12) * velocityVector.dtheta / 2d;
         l = velocityVector.dx + delta_v;
         r = velocityVector.dx - delta_v;
         }
@@ -467,5 +483,14 @@ public class Drive extends Threaded {
     leftSimCollection.setBusVoltage(RobotController.getBatteryVoltage());
     rightSimCollection.setBusVoltage(RobotController.getBatteryVoltage());
   }
-}    
+  public synchronized Pose2d getSimPose(){
+      return driveSim.getPose();
+  }
 
+  public synchronized void testSwerveMath(double strafe, double forward, double rotation){
+    ModuleHelper helper = new ModuleHelper();
+    helper.transformFieldCentric(forward, strafe, getHeading());
+    //helper.updateTranslationalVectors(rotation);
+    double [] speeds = helper.calculateWheelSignals();
+  }
+}    

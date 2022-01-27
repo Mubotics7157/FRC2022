@@ -8,8 +8,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import frc.Subystem.RobotTracker;
 import frc.Subystem.SwerveDrive.SwerveDrive;
+import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.robot.Constants;
 
 public class DriveToPoints extends AutoCommand {
@@ -39,7 +39,7 @@ public class DriveToPoints extends AutoCommand {
 		Translation2d end = points.get(points.size()-1);
 		points.remove(end);
 		Trajectory drivePath = TrajectoryGenerator.generateTrajectory(
-			RobotTracker.getInstance().getOdometry(),
+			SwerveTracker.getInstance().getOdometry(),
 			points,
 			new Pose2d(end, endAngle),
 			config

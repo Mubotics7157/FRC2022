@@ -9,7 +9,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
-import frc.Subystem.RobotTracker;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 
@@ -20,7 +21,7 @@ public class AutoRoutineGenerator {
 
 	public static AutoRoutine simpleLineTest(){
 		TrajectoryConfig config = createConfig(.5, .5, false);
-		RobotTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
 		Trajectory move = TrajectoryGenerator.generateTrajectory(
 			List.of(
 			new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(0)),
@@ -30,7 +31,7 @@ public class AutoRoutineGenerator {
 
 		initialDrive = new AutoRoutine();
 		Pose2d startPos = new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(0));
-		RobotTracker.getInstance().setOdometry(startPos);
+		SwerveTracker.getInstance().setOdometry(startPos);
 		initialDrive.addCommands(new SetDrivePath(move,true));
 		return initialDrive;
 	}
