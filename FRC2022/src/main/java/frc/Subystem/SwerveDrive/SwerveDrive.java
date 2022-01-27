@@ -16,10 +16,12 @@ import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.VisionManager;
 import frc.auto.PathTrigger;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
+import frc.util.SynchronousPID;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
 
@@ -45,9 +47,9 @@ public class SwerveDrive extends Threaded{
     PIDController fwdController;
     PIDController strController;
     ProfiledPIDController rotController;
+    SynchronousPID turnPID;
 
     Timer autoTimer = new Timer();
-    //HolonomicDriveController autoController = new HolonomicDriveController(requireNonNullParam(fwdController,"y Controller","SwerveDrive"), requireNonNullParam(strController, "x Controller", "SwerveDrive"), requireNonNullParam(rotController, "theta Controller", "SwerveDrive"));
     HolonomicDriveController controller;
 
     Trajectory currTrajectory;
@@ -70,6 +72,7 @@ public class SwerveDrive extends Threaded{
         VISION,
         CARGO,
         AUTO,
+        HEADING_LOCK,
         DONE
     }
 
@@ -85,11 +88,12 @@ public class SwerveDrive extends Threaded{
                 break;
             case FIELD_ORIENTED:
                 SmartDashboard.putString("Swerve State", "Field Oriented");
+                updateFieldOriented();
                 //updateFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
-                updateWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX());
                 break;
             case VISION:
                 SmartDashboard.putString("Swerve State", "Vision Tracking");
+                updateVisionTracking();
                 break;
             case CARGO:
                 SmartDashboard.putString("Swerve State", "Cargo Tracking");
@@ -107,7 +111,7 @@ public class SwerveDrive extends Threaded{
         updateSim();
     }
 
-    private void updateFieldOriented(double fwd, double str, double rot){
+    /*private void updateFieldOriented(double fwd, double str, double rot){
         helper.updateTranslationalVectors(fwd, str, navX.getAngle(), rot);
         speeds = helper.calculateWheelSignals();
         angles = helper.calculateAzimuthAngles();
@@ -115,30 +119,25 @@ public class SwerveDrive extends Threaded{
         frontRight.set(speeds[1], angles[1]);
         backLeft.set(speeds[2], angles[2]);
         backRight.set(speeds[3], angles[3]);
+    }*/
+
+    private void updateFieldOriented(){
+        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX());
     }
 
-    private void updateWPIFieldOriented(double fwd, double str, double rot){
-        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(str*DriveConstants.MAX_SPEED_TELE, fwd*DriveConstants.MAX_SPEED_TELE, rot*DriveConstants.kMaxModuleAngularSpeedRadiansPerSecond, getDriveHeading()));
-        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_SPEED_TELE);
-        frontLeft.setState(states[0]);
-        frontRight.setState(states[1]);
-        backLeft.setState(states[2]);
-        backRight.setState(states[3]);
-
-    }
 
     public void updateSim(){
-    frontLeft.updateSim();
-    frontRight.updateSim();
-    backLeft.updateSim();
-    backRight.updateSim();
-    SwerveModuleState[] moduleStates = getModuleStates();
+        frontLeft.updateSim();
+        frontRight.updateSim();
+        backLeft.updateSim();
+        backRight.updateSim();
+        SwerveModuleState[] moduleStates = getModuleStates();
 
-    var chassisSpeed = Constants.DriveConstants.SWERVE_KINEMATICS.toChassisSpeeds(moduleStates);
-    double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
+        var chassisSpeed = Constants.DriveConstants.SWERVE_KINEMATICS.toChassisSpeeds(moduleStates);
+        double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
 
-    yawVal += chassisRotationSpeed * 0.02;
-    navXSim.setAngle(-Units.radiansToDegrees(yawVal));
+        yawVal += chassisRotationSpeed * 0.02;
+        navXSim.setAngle(-Units.radiansToDegrees(yawVal));
     }
 
     private void updateAuto(){
@@ -161,15 +160,46 @@ public class SwerveDrive extends Threaded{
       SmartDashboard.putNumber("desired angle", desiredPose.poseMeters.getRotation().getDegrees());
       boolean isFinished= autoTimer.advanceIfElapsed(currTrajectory.getTotalTimeSeconds());
       if(isFinished){
-          
+          swerveState = SwerveState.DONE;
       }
       frontLeft.setState(moduleStates[0]);
       frontRight.setState(moduleStates[1]);
       backLeft.setState(moduleStates[2]);
       backRight.setState(moduleStates[3]);
-      
     }
 
+    private void updateVisionTracking(){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
+        SmartDashboard.putNumber("Yaw error", error);
+        double deltaSpeed = turnPID.update(error);
+        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
+        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
+    }
+
+    private void updateCargoLock(){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
+        SmartDashboard.putNumber("Yaw error", error);
+        double deltaSpeed = turnPID.update(error);
+        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
+        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
+
+    }
+
+    private void setModuleStates(SwerveModuleState[] states){
+        frontLeft.setState(states[0]);
+        frontRight.setState(states[1]);
+        backLeft.setState(states[2]);
+        backRight.setState(states[3]);
+        
+    }
+
+    private void driveWPIFieldOriented(double fwd, double str, double rot){
+        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(str*DriveConstants.MAX_SPEED_TELE, fwd*DriveConstants.MAX_SPEED_TELE, rot*DriveConstants.kMaxModuleAngularSpeedRadiansPerSecond, getDriveHeading()));
+        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_SPEED_TELE);
+        setModuleStates(states);
+    }
     public synchronized SwerveModules[] getModules(){
         return modules;
     }
@@ -204,12 +234,26 @@ public class SwerveDrive extends Threaded{
 
     public synchronized void setAutoPath(Trajectory desiredTrajectory,ArrayList<PathTrigger> triggers){
         autoTimer.reset();
-        autoTimer.start();;
+        autoTimer.start();
         currTrajectory = desiredTrajectory;
         this.triggers = triggers;
         swerveState = SwerveState.AUTO;
         updateAuto();
     }
+
+    public synchronized void setCargoLock(){
+        swerveState = SwerveState.CARGO;
+    }
+
+    public synchronized void setVisionTracking(){
+        swerveState = SwerveState.VISION;
+    }
+
+    public synchronized void setLockedHeading(){
+        wantedHeading = getDriveHeading();
+        swerveState = SwerveState.HEADING_LOCK;
+    }
+
 }
 /*1150
 1480

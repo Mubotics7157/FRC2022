@@ -15,7 +15,7 @@ public class Constants {
     public static class DriveConstants{
         public static final double STICK_DEADBAND = 0.1;
         public static final double MAX_SPEED_TELE = 3;
-  public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
+    public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
         // voltage needed to overcome the motor's static friction
         public static final double kS = .755;
         // voltage needed to induce a acceleration at the motor shaft
