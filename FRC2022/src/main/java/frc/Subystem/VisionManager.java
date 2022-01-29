@@ -101,7 +101,7 @@ public class VisionManager extends Threaded{
         synchronized(this){
             snapVisionState = visionState;
         }
-        simVision.processFrame(Drive.getInstance().getSimPose());
+        //simVision.processFrame(Drive.getInstance().getSimPose());
 
         switch(snapVisionState){
             case OFF:
