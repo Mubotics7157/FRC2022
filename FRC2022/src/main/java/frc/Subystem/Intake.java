@@ -27,6 +27,7 @@ public class Intake extends Threaded {
     IntakeState intakeState;
 
     Shooter shooter = new Shooter();
+    Climb climber = new Climb();
 
     private DigitalInput beamBreak;
 
@@ -53,7 +54,8 @@ public class Intake extends Threaded {
         SWALLOW,
         SLURP,
         SPIT,
-        VOMIT
+        VOMIT,
+        EXTEND
     }
     @Override
     public void update() {
@@ -73,11 +75,13 @@ public class Intake extends Threaded {
                 runBoth();
                 break;
             case SPIT:
-                oneButtonShot(true);
+                oneButtonShot(true,true);
                 break;
             case VOMIT:
                 ejectAll();
                 break;
+            case EXTEND:
+
         }
         if(Robot.isSimulation())
             shooter.simPeriodic();
@@ -93,6 +97,10 @@ public class Intake extends Threaded {
 
     private void index(){
         indexerMotor.set(ControlMode.PercentOutput, -1);
+    }
+
+    private void climb(){
+        climber.climb(Robot.operator.getRawAxis(1));
     }
 
     private void runBoth(){
