@@ -18,6 +18,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ModuleConstants;
 import frc.util.CommonConversions;
 
@@ -62,15 +63,15 @@ public class SwerveModules {
         drive = driveSignal;
         driveMotor.set(ControlMode.PercentOutput,drive);
         turn =  turnPID.calculate(getAbsHeading().getRadians(), angleRad);
+        SmartDashboard.putNumber("turn val", turn);
         turnMotor.set(ControlMode.PercentOutput,turn);
     }
 
     public void setState(SwerveModuleState state){
         SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
 
-        double turnSignal = turnPID.calculate(getAbsHeading().getRadians(), optimizedState.angle.getRadians());
         double driveSignal = drivePID.calculate(getDriveVelocity(), optimizedState.speedMetersPerSecond);
-        set(driveSignal,turnSignal);
+        set(driveSignal,state.angle.getRadians());
     }
 
     private void setVelocity(double driveSetpoint, double turnSetpoint, double dt){

@@ -92,8 +92,9 @@ public class SwerveDrive extends Threaded{
                 break;
             case FIELD_ORIENTED:
                 SmartDashboard.putString("Swerve State", "Field Oriented");
-                updateFieldOriented();
                 //updateFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
+                //driveWPIFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRawAxis(2));
+                updateFieldOriented();
                 break;
             case VISION:
                 SmartDashboard.putString("Swerve State", "Vision Tracking");
@@ -107,6 +108,7 @@ public class SwerveDrive extends Threaded{
                 SmartDashboard.putString("Swerve State", "Auto");
                 break;
             case DONE:
+                updateDone();
                 SmartDashboard.putString("Swerve State", "Done");
                 break;
         }
@@ -115,7 +117,7 @@ public class SwerveDrive extends Threaded{
         updateSim();
     }
 
-    /*private void updateFieldOriented(double fwd, double str, double rot){
+    private void updateFieldOriented(double fwd, double str, double rot){
         helper.updateTranslationalVectors(fwd, str, navX.getAngle(), rot);
         speeds = helper.calculateWheelSignals();
         angles = helper.calculateAzimuthAngles();
@@ -123,10 +125,10 @@ public class SwerveDrive extends Threaded{
         frontRight.set(speeds[1], angles[1]);
         backLeft.set(speeds[2], angles[2]);
         backRight.set(speeds[3], angles[3]);
-    }*/
+    }
 
     private void updateFieldOriented(){
-        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX());
+        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRawAxis(2));
     }
 
 
@@ -148,6 +150,8 @@ public class SwerveDrive extends Threaded{
     
         double currentTime = autoTimer.get();
         SmartDashboard.putBoolean("finished", isFinished());
+        SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
+        SmartDashboard.putNumber("elapsed time", autoTimer.get());
         while (!triggers.isEmpty()) {
 			if (triggers.get(0).getPercentage() <= getPathPercentage()) {
         triggers.remove(0).playTrigger();
@@ -195,13 +199,21 @@ public class SwerveDrive extends Threaded{
         frontRight.setState(states[1]);
         backLeft.setState(states[2]);
         backRight.setState(states[3]);
-        
+    }
+
+    private void updateDone(){
+        driveWPIFieldOriented(0, 0, 0);
     }
 
     private void driveWPIFieldOriented(double fwd, double str, double rot){
         var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(str*DriveConstants.MAX_SPEED_TELE, fwd*DriveConstants.MAX_SPEED_TELE, rot*DriveConstants.kMaxModuleAngularSpeedRadiansPerSecond, getDriveHeading()));
         DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_SPEED_TELE);
-        setModuleStates(states);
+        //setModuleStates(states);
+        SmartDashboard.putNumber("desired angle", states[0].angle.getDegrees());
+        frontLeft.setState(states[0]);
+        frontRight.setState(states[1]);
+        backLeft.setState(states[2]);
+        backRight.setState(states[3]);
     }
     public synchronized SwerveModules[] getModules(){
         return modules;
