@@ -88,6 +88,11 @@ public class Constants {
         public static final double TOLERANCE_RPM = 100;
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
-        
+
+    }
+
+    public static final class IntakeConstants{
+        public static final int DEVICE_ID_INTAKE = 0;
+        public static final double OPEN_LOOP_RAMP = .2;
     }
 }

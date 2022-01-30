@@ -2,6 +2,7 @@ package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
+import frc.robot.Constants.IntakeConstants;
 import frc.util.LidarLite;
 import frc.util.Shooting.ShotGenerator;
 import frc.util.Shooting.ShotGenerator.ShooterSpeed;
@@ -47,6 +49,18 @@ public class Intake extends Threaded {
         matches.addColorMatch(Color.kRed);
         matches.addColorMatch(Color.kBlack);
         matches.addColorMatch(Color.kGray);
+
+        intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+        intakeMotor.enableVoltageCompensation(true);
+        intakeMotor.enableCurrentLimit(true);
+
+        TalonSRXConfiguration intakeConfig = new TalonSRXConfiguration();
+        intakeConfig.openloopRamp = IntakeConstants.OPEN_LOOP_RAMP;
+        intakeConfig.voltageCompSaturation = 8;
+        intakeConfig.peakCurrentLimit = 0;
+        intakeConfig.peakOutputForward = .7;
+        intakeConfig.peakOutputReverse = -.7;
+        intakeMotor.configAllSettings(intakeConfig);
     }
 
     private enum IntakeState{
@@ -83,8 +97,6 @@ public class Intake extends Threaded {
             case EXTEND:
 
         }
-        if(Robot.isSimulation())
-            shooter.simPeriodic();
     }
 
     public synchronized void retractIntake(){
@@ -119,18 +131,23 @@ public class Intake extends Threaded {
     }
 
     private void oneButtonShot(boolean overrideTarmacShot,boolean high){
+        ShooterSpeed desiredShot; 
+        double arbtirarySpeed;
         if(overrideTarmacShot&&onTarmacLine()){
             if(high){
-                shooter.atSpeed(1500);
+                arbtirarySpeed = 1500;
             }
             else
-                shooter.atSpeed(1200);
+                arbtirarySpeed = 1200;
         }
 
         else{
-            ShooterSpeed desiredShot = shotGen.getShot(lidar.getDistance(), high); 
-            shooter.atSpeed(desiredShot.speedRPM);
+            desiredShot = shotGen.getShot(lidar.getDistance(), high); 
+            arbtirarySpeed = desiredShot.speedRPM;
         }
+
+        if(shooter.atSpeed(arbtirarySpeed))
+            index();
     }
 
 
@@ -155,9 +172,6 @@ public class Intake extends Threaded {
         intakeState = IntakeState.SLURP;
     }
     
-    public synchronized void initSim(){
-        shooter.initSim();
-    }
 
     public boolean onTarmacLine(){
         if(getCurrentColor()==Color.kRed || getCurrentColor()==Color.kBlue)
