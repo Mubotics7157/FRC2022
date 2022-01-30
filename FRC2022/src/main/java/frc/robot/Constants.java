@@ -1,6 +1,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -93,6 +96,11 @@ public class Constants {
         public static final double kV = 0;
         public static final double kA = 0;
         public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(kS,kV,kA);
+
+        public static final double CLOSED_LOOP_RAMP_RATE  = .2;
+        public static final double OPEN_LOOP_RAMP_RATE  = .25;
     }
+
+
 
 }

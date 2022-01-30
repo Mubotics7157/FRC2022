@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.simpleLineTest();
+    AutoRoutine option = AutoRoutineGenerator.bouncePath();
     auto = new Thread(option);
     auto.start();
 }
@@ -50,7 +50,7 @@ public void autonomousPeriodic() {
     if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    SwerveDrive.getInstance().setFieldOriented();
+    //SwerveDrive.getInstance().setFieldOriented();
   }
   @Override
   public void teleopPeriodic() {
