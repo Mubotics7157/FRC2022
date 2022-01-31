@@ -97,7 +97,7 @@ public class SwerveModules {
 
         double driveSignal = drivePID.calculate(getDriveVelocity(), optimizedState.speedMetersPerSecond);
         //driveMotor.set(ControlMode.Velocity, CommonConversions.stepsPerDecisecToMetersPerSec(optimizedState.speedMetersPerSecond));
-        set(driveSignal,state.angle.getRadians());
+        set(driveSignal,optimizedState.angle.getRadians());
     }
 
     private void setVelocity(double driveSetpoint, double turnSetpoint, double dt){

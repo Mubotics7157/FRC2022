@@ -18,7 +18,13 @@
     },
     "windows": {
       "/SmartDashboard/Field": {
-        "image": "C:\\Users\\60002\\Downloads\\943832ba4bc1a7285a02d3e911f96917f60d514b.jpeg",
+        "bottom": 900,
+        "height": 8.229599952697754,
+        "image": "C:\\Users\\60002\\PathWeaver\\Games\\RapidReact\\2022-field.png",
+        "left": 74,
+        "right": 1774,
+        "top": 50,
+        "width": 16.459199905395508,
         "window": {
           "visible": true
         }

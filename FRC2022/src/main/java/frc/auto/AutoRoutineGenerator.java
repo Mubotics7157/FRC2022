@@ -74,6 +74,26 @@ public class AutoRoutineGenerator {
 		return initialDrive;
 	}
 
+	public static AutoRoutine niceSideBlue2BallRoutine(){
+		TrajectoryConfig config = createConfig(.5, .5, false);
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		Trajectory move = TrajectoryGenerator.generateTrajectory(
+			List.of(
+			new Pose2d(7.814,2.482,new Rotation2d(0.045, 0.529)),
+			new Pose2d(7.632,0.365,new Rotation2d(0.272, 0.711)),
+			new Pose2d(6.377,0.607,new Rotation2d(0.955, -0.519)),
+			new Pose2d(5.076,1.832,new Rotation2d(0.499, -1.165))
+
+		),
+		config);
+
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = new Pose2d(new Translation2d(7.723,-5.899),new Rotation2d(.121, 1.573));
+		SwerveTracker.getInstance().setOdometry(startPos);
+		initialDrive.addCommands(new SetDrivePath(move,true));
+		return initialDrive;
+	}
+
 
     private static TrajectoryConfig createConfig(double velocity, double accel, boolean reversed) {
 		TrajectoryConfig config = new TrajectoryConfig(velocity, accel);

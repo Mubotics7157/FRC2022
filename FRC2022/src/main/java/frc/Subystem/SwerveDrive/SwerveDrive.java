@@ -13,7 +13,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -62,7 +61,7 @@ public class SwerveDrive extends Threaded{
 
     private static SwerveDrive instance;
 
-    private SwerveState swerveState = SwerveState.REGULAR;
+    private SwerveState swerveState = SwerveState.ROBOT_ORIENTED;
 
     public static SwerveDrive getInstance(){
         if(instance==null)
@@ -71,12 +70,11 @@ public class SwerveDrive extends Threaded{
     }
 
     public enum SwerveState{
-        REGULAR,
+        ROBOT_ORIENTED,
         FIELD_ORIENTED,
         VISION,
         CARGO,
         AUTO,
-        HEADING_LOCK,
         DONE
     }
 
@@ -87,14 +85,12 @@ public class SwerveDrive extends Threaded{
             snapSwerveState = swerveState;
         }
         switch(snapSwerveState){
-            case REGULAR:
+            case ROBOT_ORIENTED:
                 updateRobotOriented();
                 SmartDashboard.putString("Swerve State", "Driver Oriented");
                 break;
             case FIELD_ORIENTED:
                 SmartDashboard.putString("Swerve State", "Field Oriented");
-                //updateFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
-                //driveWPIFieldOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRawAxis(2));
                 updateFieldOriented();
                 break;
             case VISION:
@@ -118,15 +114,6 @@ public class SwerveDrive extends Threaded{
         updateSim();
     }
 
-    private void updateFieldOriented(double fwd, double str, double rot){
-        helper.updateTranslationalVectors(fwd, str, navX.getAngle(), rot);
-        speeds = helper.calculateWheelSignals();
-        angles = helper.calculateAzimuthAngles();
-        frontLeft.set(speeds[0], angles[0]);
-        frontRight.set(speeds[1], angles[1]);
-        backLeft.set(speeds[2], angles[2]);
-        backRight.set(speeds[3], angles[3]);
-    }
 
     private void updateFieldOriented(){
         driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRawAxis(2));
@@ -161,7 +148,7 @@ public class SwerveDrive extends Threaded{
 			}
 		}
       Trajectory.State desiredPose = currTrajectory.sample(currentTime);
-      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose, desiredPose.poseMeters.getRotation());
+      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose, Rotation2d.fromDegrees(0));
       SwerveModuleState[] moduleStates = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
       SmartDashboard.putNumber("desired poseX", desiredPose.poseMeters.getX());
       SmartDashboard.putNumber("desired poseY", desiredPose.poseMeters.getY());
@@ -252,6 +239,10 @@ public class SwerveDrive extends Threaded{
         swerveState = SwerveState.FIELD_ORIENTED;
     }
 
+    public synchronized void setRobotOriented(){
+        swerveState = SwerveState.ROBOT_ORIENTED;
+    }
+
     public synchronized void setAutoPath(Trajectory desiredTrajectory){
         autoTimer.reset();
         autoTimer.start();
@@ -279,14 +270,4 @@ public class SwerveDrive extends Threaded{
         swerveState = SwerveState.VISION;
     }
 
-    public synchronized void setLockedHeading(){
-        wantedHeading = getDriveHeading();
-        swerveState = SwerveState.HEADING_LOCK;
-    }
-
 }
-/*1150
-1480
-
-
-8in 7 in compression*/

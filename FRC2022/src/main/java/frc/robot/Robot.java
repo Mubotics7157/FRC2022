@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.bouncePath();
+    AutoRoutine option = AutoRoutineGenerator.niceSideBlue2BallRoutine();
     auto = new Thread(option);
     auto.start();
 }
