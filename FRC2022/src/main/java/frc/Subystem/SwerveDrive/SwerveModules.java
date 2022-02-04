@@ -30,7 +30,7 @@ public class SwerveModules {
     TalonFX turnMotor;
     TalonFX driveMotor;
     CANCoder absEncoder;
-    PIDController turnPID = new PIDController(1, 0, 0); // use internal PID later
+    PIDController turnPID = new PIDController(4, 0, 0); // use internal PID later
     PIDController drivePID = new PIDController(8, 0, 0); // use internal PID later
 
     double turn=0;
@@ -100,7 +100,7 @@ public class SwerveModules {
         set(driveSignal,optimizedState.angle.getRadians());
     }
 
-    private void setVelocity(double driveSetpoint, double turnSetpoint, double dt){
+    private void setVelocity(double driveSetpoint, double dt){
         double actualDriveVel = getDriveVelocity();
         double driveAccelSetpoint = (driveSetpoint-actualDriveVel)/dt;
         double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint, driveAccelSetpoint);
@@ -110,11 +110,14 @@ public class SwerveModules {
         } 
         else 
             driveMotor.set(ControlMode.Velocity, driveSetpoint,DemandType.ArbitraryFeedForward,driveFFVolts/12);
-        
-        if(turnSetpoint==0)
-            turnMotor.set(ControlMode.PercentOutput, 0);
-        else
-            turnMotor.set(ControlMode.Position, CommonConversions.radiansToSteps(turnSetpoint));
+    }
+
+    private void setTurnRad(double turnSetpointRad){
+        double turnSteps = CommonConversions.radiansToSteps(turnSetpointRad-getAbsHeading().getRadians());
+        double currPosition = getIntegratedHeading().getRadians();
+        double setpointSteps = currPosition+turnSteps;
+
+        turnMotor.set(ControlMode.MotionMagic,setpointSteps);
     }
 
         public void updateSim(){
@@ -147,6 +150,10 @@ public class SwerveModules {
 
     private Rotation2d getAbsHeading(){
         return Rotation2d.fromDegrees(absEncoder.getAbsolutePosition());
+    }
+
+    private Rotation2d getIntegratedHeading(){
+        return new Rotation2d(CommonConversions.stepsToRadians(turnMotor.getSelectedSensorPosition()));
     }
 
     private double getDriveVelocity(){

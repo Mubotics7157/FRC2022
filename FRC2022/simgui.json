@@ -18,6 +18,10 @@
     },
     "windows": {
       "/SmartDashboard/Field": {
+        "Robot": {
+          "length": 0.7599999904632568,
+          "width": 0.7599999904632568
+        },
         "bottom": 900,
         "height": 8.229599952697754,
         "image": "C:\\Users\\60002\\PathWeaver\\Games\\RapidReact\\2022-field.png",

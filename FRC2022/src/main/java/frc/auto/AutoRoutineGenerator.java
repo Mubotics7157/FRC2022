@@ -2,6 +2,8 @@ package frc.auto;
 
 import java.util.List;
 
+import com.pathplanner.lib.PathPlanner;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -37,63 +39,74 @@ public class AutoRoutineGenerator {
 		return initialDrive;
 	}
 
-	public static AutoRoutine bouncePath(){
-		TrajectoryConfig config = createConfig(1.5, 1.5, false);
+	public static AutoRoutine niceSideBlue5BallRoutine(){
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory part1 = TrajectoryGenerator.generateTrajectory(
-			List.of(
-				new Pose2d(Units.inchesToMeters(30), Units.inchesToMeters(90), new Rotation2d(Units.degreesToRadians(0))),
-                new Pose2d(Units.inchesToMeters(90), Units.inchesToMeters(150), new Rotation2d(Units.degreesToRadians(90)))
-		), config);
-
-		Trajectory part2 = TrajectoryGenerator.generateTrajectory(
-			List.of(
-                new Pose2d(Units.inchesToMeters(90), Units.inchesToMeters(150), new Rotation2d(Units.degreesToRadians(90))),
-                new Pose2d(Units.inchesToMeters(105), Units.inchesToMeters(90), new Rotation2d(Units.degreesToRadians(-250))),
-                new Pose2d(Units.inchesToMeters(120), Units.inchesToMeters(60), new Rotation2d(Units.degreesToRadians(-240))),
-                new Pose2d(Units.inchesToMeters(150), Units.inchesToMeters(30), new Rotation2d(Units.degreesToRadians(-180))),
-                new Pose2d(Units.inchesToMeters(180), Units.inchesToMeters(60), new Rotation2d(Units.degreesToRadians(-90)))
-		), config);
-
-		Trajectory part3 = TrajectoryGenerator.generateTrajectory(List.of(
-			    new Pose2d(Units.inchesToMeters(180), Units.inchesToMeters(150), new Rotation2d(Units.degreesToRadians(-90))),
-                new Pose2d(Units.inchesToMeters(210), Units.inchesToMeters(30), new Rotation2d(Units.degreesToRadians(0))),
-                new Pose2d(Units.inchesToMeters(255), Units.inchesToMeters(30), new Rotation2d(Units.degreesToRadians(0))),
-                new Pose2d(Units.inchesToMeters(270), Units.inchesToMeters(60), new Rotation2d(Units.degreesToRadians(90))),
-                new Pose2d(Units.inchesToMeters(270), Units.inchesToMeters(150), new Rotation2d(Units.degreesToRadians(90)))
-		), config);
-		Trajectory part4 = TrajectoryGenerator.generateTrajectory(List.of(
-			    new Pose2d(Units.inchesToMeters(270), Units.inchesToMeters(150), new Rotation2d(Units.degreesToRadians(90))),
-                new Pose2d(Units.inchesToMeters(330), Units.inchesToMeters(90), new Rotation2d(Units.degreesToRadians(-180)))
-		), config);
+		Trajectory move = PathPlanner.loadPath("BegBlueNiceStart", 3, 3,true);
+		Trajectory move2 = PathPlanner.loadPath("BlueNiceStartSecCycle", 3, 3,true);
 
 		initialDrive = new AutoRoutine();
-		Pose2d startPos = new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(0));
+		Pose2d startPos = move.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(part1, true),new SetDrivePath(part2,true),new SetDrivePath(part3,true), new SetDrivePath(part4,true));
+		initialDrive.addCommands(new SetDrivePath(move,true),new SetDrivePath(move2,true));
 		return initialDrive;
 	}
 
-	public static AutoRoutine niceSideBlue2BallRoutine(){
-		TrajectoryConfig config = createConfig(.5, .5, false);
+	public static AutoRoutine niceSideBlue3BallRoutine(){
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = TrajectoryGenerator.generateTrajectory(
-			List.of(
-			new Pose2d(7.814,2.482,new Rotation2d(0.045, 0.529)),
-			new Pose2d(7.632,0.365,new Rotation2d(0.272, 0.711)),
-			new Pose2d(6.377,0.607,new Rotation2d(0.955, -0.519)),
-			new Pose2d(5.076,1.832,new Rotation2d(0.499, -1.165))
-
-		),
-		config);
+		Trajectory move = PathPlanner.loadPath("BegBlueNiceStart", 3, 3,true);
 
 		initialDrive = new AutoRoutine();
-		Pose2d startPos = new Pose2d(new Translation2d(7.723,-5.899),new Rotation2d(.121, 1.573));
+		Pose2d startPos = move.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(startPos);
 		initialDrive.addCommands(new SetDrivePath(move,true));
 		return initialDrive;
 	}
 
+	public static AutoRoutine niceSideRed5BallRoutine(){
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		Trajectory move = PathPlanner.loadPath("AltRedStart", 3, 3,true);
+		Trajectory move2 = PathPlanner.loadPath("BegRedNiceStart", 3, 3,true);
+
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = move.getInitialPose();
+		SwerveTracker.getInstance().setOdometry(startPos);
+		initialDrive.addCommands(new SetDrivePath(move,true),new SetDrivePath(move2,true));
+		return initialDrive;
+
+	}
+
+	public static AutoRoutine niceSideRed3BallRoutine(){
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		Trajectory move = PathPlanner.loadPath("AltRedStart", 3, 3,false);
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = move.getInitialPose();
+		SwerveTracker.getInstance().setOdometry(startPos);
+		initialDrive.addCommands(new SetDrivePath(move,false));
+		return initialDrive;
+
+	}
+
+	public static AutoRoutine BadSideBlue4BallRoutine(){
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		Trajectory move = PathPlanner.loadPath("AltBlueBadStart4Leg1", 3, 3,false);
+		Trajectory move2 = PathPlanner.loadPath("AltBlueBadStart4Leg2", 3, 3,false);
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = move.getInitialPose();
+		SwerveTracker.getInstance().setOdometry(startPos);
+		initialDrive.addCommands(new SetDrivePath(move,true),new SetDrivePath(move2,false));
+		return initialDrive;
+	}
+
+	public static AutoRoutine BadSideRed4BallRoutine(){
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		Trajectory move = PathPlanner.loadPath("RedBadStartLeg1", 3, 3,true);
+		Trajectory move2 = PathPlanner.loadPath("RedBadStartLeg2", 3, 3,true);
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = move.getInitialPose();
+		SwerveTracker.getInstance().setOdometry(startPos);
+		initialDrive.addCommands(new SetDrivePath(move,false),new SetDrivePath(move2,false));
+		return initialDrive;
+	}
 
     private static TrajectoryConfig createConfig(double velocity, double accel, boolean reversed) {
 		TrajectoryConfig config = new TrajectoryConfig(velocity, accel);

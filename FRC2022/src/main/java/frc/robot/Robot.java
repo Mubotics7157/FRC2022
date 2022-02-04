@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,7 +37,7 @@ public class Robot extends TimedRobot {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.niceSideBlue2BallRoutine();
+    AutoRoutine option = AutoRoutineGenerator.BadSideRed4BallRoutine();
     auto = new Thread(option);
     auto.start();
 }
@@ -50,7 +51,10 @@ public void autonomousPeriodic() {
     if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    //SwerveDrive.getInstance().setFieldOriented();
+    if(RobotController.isBrownedOut())
+      SwerveDrive.getInstance().setRobotOriented();
+    else
+      SwerveDrive.getInstance().setFieldOriented();
   }
   @Override
   public void teleopPeriodic() {

@@ -3,6 +3,9 @@ package frc.Subystem.SwerveDrive;
 
 import java.util.ArrayList;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -28,7 +31,7 @@ public class SwerveDrive extends Threaded{
     SwerveModules frontLeft = new SwerveModules(8, 1, 0);
     SwerveModules backLeft = new SwerveModules(2,3,4);
     SwerveModules frontRight = new SwerveModules(4, 5, 8);
-    SwerveModules backRight = new SwerveModules(6, 7, 12);
+    SwerveModules backRight = new SwerveModules(6, 7, 13);
     SwerveModules[] modules = {
         frontLeft,
         frontRight,
@@ -56,6 +59,7 @@ public class SwerveDrive extends Threaded{
     Timer autoTimer = new Timer();
 
     Trajectory currTrajectory;
+    PathPlannerTrajectory currentPlannerTrajectory;
     private ArrayList<PathTrigger> triggers = new ArrayList<>();
     Rotation2d wantedHeading;
 
@@ -138,7 +142,7 @@ public class SwerveDrive extends Threaded{
     
         double currentTime = autoTimer.get();
         SmartDashboard.putBoolean("finished", isFinished());
-        SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
+        //SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
         SmartDashboard.putNumber("elapsed time", autoTimer.get());
         while (!triggers.isEmpty()) {
 			if (triggers.get(0).getPercentage() <= getPathPercentage()) {
@@ -148,7 +152,8 @@ public class SwerveDrive extends Threaded{
 			}
 		}
       Trajectory.State desiredPose = currTrajectory.sample(currentTime);
-      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose, Rotation2d.fromDegrees(0));
+      PathPlannerState state = (PathPlannerState)currTrajectory.sample(currentTime);
+      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose, state.holonomicRotation);
       SwerveModuleState[] moduleStates = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
       SmartDashboard.putNumber("desired poseX", desiredPose.poseMeters.getX());
       SmartDashboard.putNumber("desired poseY", desiredPose.poseMeters.getY());
@@ -163,6 +168,7 @@ public class SwerveDrive extends Threaded{
       backRight.setState(moduleStates[3]);
     }
 
+
     private void updateVisionTracking(){
         Rotation2d onTarget = new Rotation2d(0);
         double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
@@ -170,6 +176,17 @@ public class SwerveDrive extends Threaded{
         double deltaSpeed = turnPID.update(error);
         SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
         driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
+    }
+
+    private void updateTargetTracking(){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
+        double errorRad = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getRadians();
+        SmartDashboard.putNumber("Yaw error", error);
+        double deltaSpeed = turnPID.update(error);
+        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
+        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
+        driveRobotOriented(0, 0, deltaSpeed);
     }
 
     private void updateRobotOriented(){
