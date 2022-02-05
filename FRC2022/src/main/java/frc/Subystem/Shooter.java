@@ -5,9 +5,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.REVPhysicsSim;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
@@ -31,6 +28,9 @@ public class Shooter {
     final LinearQuadraticRegulator<N1,N1,N1> LQR = new LinearQuadraticRegulator<>(flywheelPlant, VecBuilder.fill(8), VecBuilder.fill(12), .02); // 2nd param is state excursion (rad/s) 3rd param is control effor (Volts)
     final LinearSystemLoop<N1,N1,N1> flywheelLoop = new LinearSystemLoop<>(flywheelPlant, LQR, flywheelObserver, 6, .02);
 
+    double lastRPM;
+
+
     public Shooter(){
         flywheel = new TalonFX(ShooterConstants.DEVICE_ID_SHOOTER);
        flywheel.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,20);
@@ -43,6 +43,7 @@ public class Shooter {
     }
 
     public boolean atSpeed(double setpoint){
+        lastRPM = setpoint;
         return Math.abs(setpoint - getShooterVelocity()) < ShooterConstants.TOLERANCE_RPM;
     }
 
@@ -61,6 +62,7 @@ public class Shooter {
         SmartDashboard.putNumber("desired RPM", setpointRPM);
 
     }
+
 
     
     private double getShooterVelocity(){
