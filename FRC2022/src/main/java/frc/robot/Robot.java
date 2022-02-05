@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.BadSideRed4BallRoutine();
+    AutoRoutine option = new AutoRoutineGenerator().niceSideBlue5BallRoutine();
     auto = new Thread(option);
     auto.start();
 }

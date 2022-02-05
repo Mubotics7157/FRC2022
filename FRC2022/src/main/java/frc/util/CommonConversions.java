@@ -54,6 +54,11 @@ public class CommonConversions {
     return rad/radPerStep;
   }
 
+  public static double stepsToRadians(double steps){
+    double radPerStep = (((2*Math.PI)/Constants.DriveConstants.GEAR_RATIO)) / 2048;
+    return steps*radPerStep;
+  }
+
   public static double radPerSecToMetersPerSec(double radPerSec){
     return (DriveConstants.WHEEL_DIAMETER_METERS/2) * radPerSec;
   }

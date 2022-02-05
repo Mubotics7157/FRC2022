@@ -3,6 +3,7 @@ package frc.Subystem.SwerveDrive;
 
 import java.util.ArrayList;
 
+
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
@@ -186,6 +187,16 @@ public class SwerveDrive extends Threaded{
         double deltaSpeed = turnPID.update(error);
         SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
         driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
+        driveRobotOriented(0, 0, deltaSpeed);
+    }
+
+    private void turnToTarget(){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
+        double errorRad = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getRadians();
+        SmartDashboard.putNumber("Yaw error", error);
+        double deltaSpeed = turnPID.update(errorRad);
+        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
         driveRobotOriented(0, 0, deltaSpeed);
     }
 

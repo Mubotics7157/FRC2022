@@ -53,6 +53,7 @@ public class SwerveModules {
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+        turnMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         TalonFXConfiguration turnConfig = new TalonFXConfiguration();
         driveConfig.slot0.kP = 1;
