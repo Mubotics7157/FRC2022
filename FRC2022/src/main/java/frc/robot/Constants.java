@@ -12,10 +12,11 @@ public class Constants {
 
     }
 
-    public static class DriveConstants{
+    public static class DiffDriveConstants{
+
         public static final double STICK_DEADBAND = 0.1;
         public static final double MAX_SPEED_TELE = 3;
-    public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
+        public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
         // voltage needed to overcome the motor's static friction
         public static final double kS = .755;
         // voltage needed to induce a acceleration at the motor shaft
@@ -48,9 +49,15 @@ public class Constants {
         public static final double TURN_P = -.008;
         public static final double TURN_I = 0;
         public static final double TURN_D = 0;
-        
 
-        public static final double GEAR_RATIO = 6.75;//6.88888888889;
+        public static final double GEAR_RATIO = 6.8888889;
+    }
+
+    public static class DriveConstants{
+        
+        public static final double MAX_SPEED_TELE = 3;
+
+        public static final double GEAR_RATIO = 6.75;
         
         public static final double WHEEL_DIAMETER_INCHES = 6d;
         public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES);
@@ -82,7 +89,6 @@ public class Constants {
     public static final class ShooterConstants{
         public static final int DEVICE_ID_SHOOTER = 0;
 
-        public static final double SHOOTER_MOI = .032; 
         public static final double GEARING = 22/12;
 
         public static final double TOLERANCE_RPM = 100;

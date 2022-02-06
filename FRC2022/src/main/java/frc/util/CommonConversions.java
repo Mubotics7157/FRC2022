@@ -4,8 +4,8 @@ import frc.robot.Constants;
 
 public class CommonConversions {
   
-     public static double stepsToMeters(double steps){
-      return steps*((.1524 * Math.PI) / (2048* Constants.DriveConstants.GEAR_RATIO));
+     public static double stepsToMeters(double steps, double GR){
+      return steps*((.1524 * Math.PI) / (2048* GR));
 
 
   }
@@ -16,8 +16,8 @@ public class CommonConversions {
    * @param stepsPerDecisec steps per decisecond
    * @return meters per second
    */
-  public static double stepsPerDecisecToMetersPerSec(double stepsPerDecisec) {
-    return stepsToMeters(stepsPerDecisec * 10);
+  public static double stepsPerDecisecToMetersPerSec(double stepsPerDecisec,double GR) {
+    return stepsToMeters(stepsPerDecisec * 10,GR);
   }
 
     /**
@@ -25,8 +25,8 @@ public class CommonConversions {
    * @param meters meters
    * @return encoder units
    */
-  public static double metersToSteps(double meters) {
-    return (meters / 0.1524 / Math.PI) *2048*Constants.DriveConstants.GEAR_RATIO;
+  public static double metersToSteps(double meters, double GR) {
+    return (meters / 0.1524 / Math.PI) *2048*GR;
   }
 
     /**
@@ -34,15 +34,15 @@ public class CommonConversions {
    * @param metersPerSec meters per second
    * @return encoder units per decisecond
    */
-  public static double metersPerSecToStepsPerDecisec(double metersPerSec) {
-    return metersToSteps(metersPerSec) * .1d;
+  public static double metersPerSecToStepsPerDecisec(double metersPerSec, double GR) {
+    return metersToSteps(metersPerSec,GR) * .1d;
   }
 
-  public static double RPMToStepsPerDecisec(double velRPM){
+  public static double RPMToStepsPerDecisec(double velRPM, double GR){
      return velRPM * 2048/600*1.83333;
   }
 
-  public static double stepsPerDecisecToRPM(double nativeVel){
+  public static double stepsPerDecisecToRPM(double nativeVel,double GR){
     return nativeVel/2048*600/1.83333;
   }
 
