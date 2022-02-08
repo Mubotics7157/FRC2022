@@ -2,6 +2,7 @@ package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -28,6 +29,7 @@ public class Shooter {
        config.slot0.kD = .036;
        config.slot0.kF = .05;
        flywheel.configAllSettings(config);
+       flywheel.setNeutralMode(NeutralMode.Coast);
     }
 
     public boolean atSpeed(double setpoint){
