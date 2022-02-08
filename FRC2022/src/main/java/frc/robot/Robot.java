@@ -7,11 +7,14 @@ package frc.robot;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.Subystem.Drive;
 import frc.Subystem.RobotTracker;
+import frc.Subystem.Serializer;
 import frc.util.Threading.ThreadScheduler;
 
 /**
@@ -23,17 +26,14 @@ public class Robot extends TimedRobot {
   public static Joystick leftStick = new Joystick(1);
   public static Joystick rightStick = new Joystick(1);
   public static final XboxController operator = new XboxController(0);
-  Drive drive = Drive.getInstance();
-  RobotTracker tracker = RobotTracker.getInstance();
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
+  Serializer serializer = Serializer.getInstance();
   
 @Override
 public void robotInit() {
-    drive.setPeriod(Duration.ofMillis(20));
-    tracker.setPeriod(Duration.ofMillis(5));
-    scheduler.schedule(drive, executor);
-    scheduler.schedule(tracker, executor);
+    serializer.setPeriod(Duration.ofMillis(20));
+    scheduler.schedule(serializer, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -41,10 +41,20 @@ public void robotInit() {
   @Override
   public void teleopInit() {
     scheduler.resume();
-    drive.setTeleop();
+    serializer.setOff();
   }
 @Override
 public void teleopPeriodic() {
+      if(operator.getRawButton(1)){
+        serializer.setIndexing();
+      }
+      else if(operator.getRawButton(2)){
+        serializer.setIntaking();
+      }
+      else if(operator.getRawButton(3))
+        serializer.setShooting();
+      else
+        serializer.setOff();
       //double throttle = -m_gamepad.getY(Hand.kLeft);
       //drive.tankDriveVelocity(throttle*10,throttle*10);
 }

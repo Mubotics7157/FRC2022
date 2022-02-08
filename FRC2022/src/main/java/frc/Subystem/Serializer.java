@@ -4,9 +4,11 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalSource;
@@ -23,8 +25,8 @@ import frc.util.Threading.Threaded;
 
 public class Serializer extends Threaded {
 
-    TalonSRX intakeMotor;
-    TalonSRX indexerMotor;
+    CANSparkMax intakeMotor;
+    CANSparkMax indexerMotor;
 
     IntakeState intakeState;
 
@@ -43,6 +45,14 @@ public class Serializer extends Threaded {
     boolean overrideTarmacShot;
     boolean atSpeed;
 
+    private static Serializer instance;
+
+    public static Serializer getInstance(){
+        if(instance==null)
+            instance = new Serializer();
+        return instance;
+    }
+
     LidarLite lidar = new LidarLite(new DigitalInput(0));
 
     public Serializer(){
@@ -51,7 +61,10 @@ public class Serializer extends Threaded {
         matches.addColorMatch(Color.kBlack);
         matches.addColorMatch(Color.kGray);
 
-        intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+        intakeMotor = new CANSparkMax(IntakeConstants.DEVICE_ID_INTAKE,MotorType.kBrushless);
+        indexerMotor = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+        intakeMotor.setInverted(true);
+        /*
         intakeMotor.enableVoltageCompensation(true);
         intakeMotor.enableCurrentLimit(true);
 
@@ -62,6 +75,7 @@ public class Serializer extends Threaded {
         intakeConfig.peakOutputForward = .7;
         intakeConfig.peakOutputReverse = -.7;
         intakeMotor.configAllSettings(intakeConfig);
+        */
     }
 
     private enum IntakeState{
@@ -82,17 +96,22 @@ public class Serializer extends Threaded {
         switch(snapIntakeState){
             case OFF:
                 SmartDashboard.putString("Intake State", "Off");
+                updateOff();
+                break;
             case CHEW:
+                SmartDashboard.putString("Intake State", "Intaking");
                 intake();
                 break;
             case SWALLOW:
+                SmartDashboard.putString("Intake State", "Indexer");
                 index();
                 break;
             case SLURP:
                 runBoth();
                 break;
             case SPIT:
-                oneButtonShot(true,true);
+                //oneButtonShot(true,true);
+                setArbitrary();
                 break;
             case VOMIT:
                 ejectAll();
@@ -107,11 +126,11 @@ public class Serializer extends Threaded {
     }
 
     private void intake(){
-        intakeMotor.set(ControlMode.PercentOutput, -1);
+        intakeMotor.set(-1);
     }
 
     private void index(){
-        indexerMotor.set(ControlMode.PercentOutput, -1);
+        indexerMotor.set(-1);
     }
 
     private void climb(){
@@ -119,18 +138,18 @@ public class Serializer extends Threaded {
     }
 
     private void runBoth(){
-        intakeMotor.set(ControlMode.PercentOutput, -1);
-        indexerMotor.set(ControlMode.PercentOutput, -1);
+        intakeMotor.set( -1);
+        indexerMotor.set(-1);
     }
 
     public synchronized void runAll(){
-        intakeMotor.set(ControlMode.PercentOutput, -1);
-        indexerMotor.set(ControlMode.PercentOutput, -1);
+        intakeMotor.set( -1);
+        indexerMotor.set( -1);
     }
 
     private void ejectAll(){
-        intakeMotor.set(ControlMode.PercentOutput, 1);
-        indexerMotor.set(ControlMode.PercentOutput, 1);
+        intakeMotor.set( 1);
+        indexerMotor.set( 1);
     }
 
     private void oneButtonShot(boolean overrideTarmacShot,boolean high){
@@ -165,10 +184,19 @@ public class Serializer extends Threaded {
 
     }
 
+    private void setArbitrary(){
+        shooter.rev(1450);
+    }
+
+    private void updateOff(){
+        indexerMotor.set(0);
+        intakeMotor.set(0);
+        shooter.rev(0);
+    }
 
     public synchronized void setIntaking(){
         intakeState = IntakeState.CHEW;
-        intakeSolenoid.set(Value.kForward);
+        //intakeSolenoid.set(Value.kForward);
     }
 
     public synchronized void setShooting(){

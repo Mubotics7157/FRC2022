@@ -2,16 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 public class Constants {
-
-    public static class PhysicalConstants{
-
-
-    }
-
     public static class DiffDriveConstants{
 
         public static final double STICK_DEADBAND = 0.1;
@@ -87,7 +80,7 @@ public class Constants {
     }
 
     public static final class ShooterConstants{
-        public static final int DEVICE_ID_SHOOTER = 0;
+        public static final int DEVICE_ID_SHOOTER = 3;
 
         public static final double GEARING = 22/12;
 
@@ -98,7 +91,8 @@ public class Constants {
     }
 
     public static final class IntakeConstants{
-        public static final int DEVICE_ID_INTAKE = 0;
+        public static final int DEVICE_ID_INTAKE = 5;
+        public static final int DEVICE_ID_INDEXER = 10;
         public static final double OPEN_LOOP_RAMP = .2;
     }
 }

@@ -1,4 +1,4 @@
-package frc.subsystems;
+package frc.Subystem;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -85,8 +86,6 @@ public class Drive extends Threaded {
 
 
         zeroEncoders();
-
-        );
 
 
     }
@@ -259,10 +258,6 @@ public class Drive extends Threaded {
           } 
         }
         tankDriveVelocity(deltaSpeed*Constants.DiffDriveConstants.MAX_SPEED_TELE,-deltaSpeed*Constants.DiffDriveConstants.MAX_SPEED_TELE);
-    }
-
-    public boolean isFinished(){
-        return driveState == DriveState.DONE;
     }
 
     /**
