@@ -1,9 +1,7 @@
 package frc.Subystem;
 
+
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
-import org.photonvision.SimVisionSystem;
-import org.photonvision.SimVisionTarget;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +10,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.util.Threading.Threaded;
 
@@ -61,6 +60,15 @@ public class VisionManager extends Threaded{
         }
         else
             return 0;
+    }
+
+    public synchronized double getDistance(){
+        var result = camera.getLatestResult();
+        double TargetPitch = result.getBestTarget().getPitch();
+        double yaw = getTargetYaw();
+       
+        double distance = Units.metersToInches(Constants.VisionConstants.CameraHeight - Constants.VisionConstants.TargetHeight)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CameraPitch + TargetPitch));
+
     }
 
     public synchronized Rotation2d getYawRotation2d(){

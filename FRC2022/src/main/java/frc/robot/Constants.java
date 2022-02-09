@@ -101,4 +101,14 @@ public class Constants {
         public static final int DEVICE_ID_INTAKE = 0;
         public static final double OPEN_LOOP_RAMP = .2;
     }
+    public static class VisionConstants{
+        public static final double CameraHeight = .21;
+        // ^^height of camera
+        public static final double TargetHeight = .025;
+        // ^^height of target 
+       //public static final double a2 = result.getBestTarget().getPitch();
+        // ^^angle of the target to the camera
+        public static final double CameraPitch = 1.5;
+        // ^^angle of camera to ground
+    }
 }
