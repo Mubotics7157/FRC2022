@@ -95,6 +95,15 @@ public class Constants {
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 
+        public static final double kV = 1.417;
+        public static final double kA = .279;
+        public static final double kS = .63461;
+
+        public static final double NORMAL_RATIO = 1;
+        public static final double FLOATY_RATIO = 1;
+
+        public static final double MAX_RPM = 2000;
+
     }
 
     public static final class IntakeConstants{

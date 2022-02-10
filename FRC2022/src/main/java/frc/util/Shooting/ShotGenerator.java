@@ -2,6 +2,8 @@ package frc.util.Shooting;
 
 import java.util.Arrays;
 
+import frc.robot.Constants.ShooterConstants;
+
 
 public class ShotGenerator {
     private enum HEIGHTS{
@@ -11,9 +13,11 @@ public class ShotGenerator {
 
     public class ShooterSpeed {
 
-        public final double speedRPM;
-        public ShooterSpeed(double speedRPM) { 
-            this.speedRPM = speedRPM;
+        public final double top;
+        public final double bot;
+        public ShooterSpeed(double top, double bot) { 
+            this.top = top;
+            this.bot = bot;
         } 
     }
 
@@ -53,6 +57,6 @@ public class ShotGenerator {
         }
 
         double rpm = interpolator.interpolate(distance);
-        return new ShooterSpeed(rpm);
+        return new ShooterSpeed(rpm/ShooterConstants.FLOATY_RATIO,rpm);
     }
 }

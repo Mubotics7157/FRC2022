@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.util.LidarLite;
 import frc.util.Shooting.ShotGenerator;
 import frc.util.Shooting.ShotGenerator.ShooterSpeed;
@@ -71,6 +72,7 @@ public class Serializer extends Threaded {
         SLURP,
         SPIT,
         VOMIT,
+        TUNE_SPEEDS,
         EXTEND
     }
     @Override
@@ -92,12 +94,14 @@ public class Serializer extends Threaded {
                 runBoth();
                 break;
             case SPIT:
-                oneButtonShot(true,true);
+                automatedShot();
                 break;
             case VOMIT:
                 ejectAll();
                 break;
-            case EXTEND:
+            case TUNE_SPEEDS:
+                automatedShot((int)(Robot.leftStick.getRawAxis(3)*ShooterConstants.MAX_RPM), (int)(Robot.rightStick.getRawAxis(3)*ShooterConstants.MAX_RPM));
+                break;
 
         }
     }
@@ -133,36 +137,28 @@ public class Serializer extends Threaded {
         indexerMotor.set(ControlMode.PercentOutput, 1);
     }
 
-    private void oneButtonShot(boolean overrideTarmacShot,boolean high){
-        ShooterSpeed desiredShot; 
-        double arbtirarySpeed;
-        if(overrideTarmacShot&&onTarmacLine()){
-            if(high){
-                arbtirarySpeed = 1500;
-            }
-            else
-                arbtirarySpeed = 1200;
-        }
 
-        else{
-            desiredShot = shotGen.getShot(lidar.getDistance(), high); 
-            arbtirarySpeed = desiredShot.speedRPM;
-        }
-
-        if(shooter.atSpeed(arbtirarySpeed))
-            index();
-    }
-
-    private void automatedShot(int RPM){
-        atSpeed = shooter.atSpeed(RPM);
-        shooter.rev(RPM);
-        if(RPM == 0)
-            shooter.rev(0);
+    private void automatedShot(int topRPM, int botRPM){
+        atSpeed = shooter.atSpeed(topRPM,botRPM);
+        if(topRPM == 0)
+            shooter.rev(0,0);
         else if(atSpeed)
             index();
         else
-        ejectAll();
+            holdAll();
 
+    }
+
+    private void automatedShot(){
+        ShooterSpeed speeds = shotGen.getShot(VisionManager.getInstance().getDistance(), true);
+        atSpeed = shooter.atSpeed(speeds.top, speeds.bot);
+
+        if(speeds.top == 0)
+            shooter.rev(0,0);
+        else if(atSpeed)
+            index();
+        else
+            holdAll();
     }
 
 
@@ -203,5 +199,10 @@ public class Serializer extends Threaded {
         SmartDashboard.putString("Current Color Sensed", result.color.toString());
         SmartDashboard.putNumber("Confidence", result.confidence);
         return result.color;
+    }
+
+    public void holdAll(){
+        intakeMotor.set(ControlMode.PercentOutput, 0);
+        indexerMotor.set(ControlMode.PercentOutput, 0);
     }
 }
