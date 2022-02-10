@@ -201,7 +201,7 @@ public class SwerveDrive extends Threaded{
     }
 
     private void updateRobotOriented(){
-        driveRobotOriented(Robot.operator.getLeftX(), Robot.operator.getLeftY(), Robot.operator.getRightX());
+        driveRobotOriented(-Robot.operator.getLeftX(), -Robot.operator.getLeftY(), Robot.operator.getRightX());
 
     }
 
@@ -226,15 +226,15 @@ public class SwerveDrive extends Threaded{
     }
 
     private void driveWPIFieldOriented(double fwd, double str, double rot){
-        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(str*DriveConstants.MAX_SPEED_TELE, fwd*DriveConstants.MAX_SPEED_TELE, rot*DriveConstants.kMaxModuleAngularSpeedRadiansPerSecond, getDriveHeading()));
-        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_SPEED_TELE);
+        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(str*DriveConstants.MAX_TANGENTIAL_VELOCITY, fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD, getDriveHeading()));
+        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
         SmartDashboard.putNumber("desired angle", states[0].angle.getDegrees());
     }
 
     private void driveRobotOriented(double fwd, double str, double rot){
-        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(new ChassisSpeeds(str*DriveConstants.MAX_SPEED_TELE, fwd*DriveConstants.MAX_SPEED_TELE, rot*DriveConstants.MAX_ANGULAR_VELOCITY));
-        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_SPEED_TELE);
+        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(new ChassisSpeeds(str*DriveConstants.MAX_TANGENTIAL_VELOCITY, fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY));
+        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
         SmartDashboard.putNumber("desired angle", states[0].angle.getDegrees());
         SmartDashboard.putNumber("actual angle", frontLeft.getState().angle.getDegrees());
