@@ -1,10 +1,14 @@
 package frc.Subystem;
 
 
+import org.opencv.photo.Photo;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -49,6 +53,9 @@ public class VisionManager extends Threaded{
             return new Rotation2d(0);
     }
 
+    public synchronized Translation2d getVisionTrans(){
+        return PhotonUtils.estimateCameraToTargetTranslation(getDistance(), getYawRotation2d());
+    }
 
     public static VisionManager getInstance(){
         if(instance == null)

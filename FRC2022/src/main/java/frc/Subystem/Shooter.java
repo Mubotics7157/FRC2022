@@ -42,7 +42,13 @@ public class Shooter {
         SmartDashboard.putNumber("Bot RPM", botSetpoint);
         return (Math.abs(topSetpoint - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(botSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
     }
+    
+    public boolean atSpeedRatio(double topSetpoint, double ratio){
 
+        rev(topSetpoint/ratio, topSetpoint);
+        SmartDashboard.putNumber("Top RPM", topSetpoint);
+        return (Math.abs(topSetpoint/ratio - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(topSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
+    }
     public void rev(double topSetpoint, double botSetpoint){
     /*
        flywheelLoop.setNextR(VecBuilder.fill(Units.rotationsPerMinuteToRadiansPerSecond(setpointRPM)));

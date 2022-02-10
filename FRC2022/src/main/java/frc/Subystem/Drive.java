@@ -1,6 +1,5 @@
-package frc.subsystems;
+package frc.Subystem;
 
-import java.util.ArrayList;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -9,12 +8,10 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -31,13 +28,11 @@ public class Drive extends Threaded {
     private TalonFX rightSlave;
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private Rotation2d desiredHeading;
     private DriveState driveState = DriveState.TELEOP;
     private static Drive instance;
 
 
     private SynchronousPID turnPID;
-    private SynchronousPID forwardPID;
 
     DifferentialDrivetrainSim driveSim;
 
@@ -85,8 +80,6 @@ public class Drive extends Threaded {
 
 
         zeroEncoders();
-
-        );
 
 
     }
@@ -208,44 +201,8 @@ public class Drive extends Threaded {
         
     }
 
-    /**
-   * controls the drivetrain at a given velocity during teleoperated control
-   * @param left left velocity of robot in meters/sec
-   * @param right right velocity of robot in meters/sec
-   * @param dt change in time
-   */
-    private void tankDriveVelocity(double leftSetpoint,double rightSetpoint,double dt){
-        //get actual velocities of the drivetrain, parameters are setpoints
-        double actualLeft = getLeftVelocity();
-        double actualRight = getRightVelocity();
-
-        SmartDashboard.putNumber("left Veloctiy", actualLeft);
-        SmartDashboard.putNumber("left setpoint", leftSetpoint);
-
-        //find acceleration setpoint using: a = dv/dt
-        //in this case dt is .2 because this runs every 20ms
-        double leftAccelSetpoint = (leftSetpoint - actualLeft)/dt;
-        double rightAccelSetpoint = (rightSetpoint-actualRight)/dt;
-
-        // calculate the voltage needed to get to velocity and acceleration setpoint
-        double leftFF = Constants.DiffDriveConstants.VELOCITY_FEED_FORWARD.calculate(leftSetpoint,leftAccelSetpoint);
-        double rightFF = Constants.DiffDriveConstants.VELOCITY_FEED_FORWARD.calculate(rightSetpoint, rightAccelSetpoint);
-
-        SmartDashboard.putNumber("error", Math.abs(actualLeft-leftSetpoint));
-
-        if(leftSetpoint == 0)
-            leftMaster.set(ControlMode.PercentOutput, 0);
-        else
-            leftMaster.set(ControlMode.Velocity,CommonConversions.metersPerSecToStepsPerDecisec(leftSetpoint,Constants.DiffDriveConstants.GEAR_RATIO), DemandType.ArbitraryFeedForward,leftFF/12); //divide by 12 bc feedforward returns voltage input to motor, dividing by 12 would make it in range of [-1,1]
-
-        if(rightSetpoint == 0)
-            rightMaster.set(ControlMode.PercentOutput, 0);
-        else
-            rightMaster.set(ControlMode.Velocity,CommonConversions.metersPerSecToStepsPerDecisec(rightSetpoint,Constants.DiffDriveConstants.GEAR_RATIO), DemandType.ArbitraryFeedForward,rightFF/12);
-    }
 
     private void updateVisionTracking(){
-        //double deltaSpeed = turnPID.calculate(-VisionManager.getInstance().getTargetYaw(), 0);
         Rotation2d onTarget = new Rotation2d(0);
         double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
         SmartDashboard.putNumber("Yaw error", error);
@@ -259,10 +216,6 @@ public class Drive extends Threaded {
           } 
         }
         tankDriveVelocity(deltaSpeed*Constants.DiffDriveConstants.MAX_SPEED_TELE,-deltaSpeed*Constants.DiffDriveConstants.MAX_SPEED_TELE);
-    }
-
-    public boolean isFinished(){
-        return driveState == DriveState.DONE;
     }
 
     /**

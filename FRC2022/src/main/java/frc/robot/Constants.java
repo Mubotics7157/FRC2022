@@ -104,6 +104,8 @@ public class Constants {
 
         public static final double MAX_RPM = 2000;
 
+        public static final double fps =  100;
+
     }
 
     public static final class IntakeConstants{
