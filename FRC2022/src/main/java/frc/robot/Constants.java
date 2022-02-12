@@ -91,8 +91,8 @@ public class Constants {
     }
 
     public static final class IntakeConstants{
-        public static final int DEVICE_ID_INTAKE = 5;
-        public static final int DEVICE_ID_INDEXER = 10;
+        public static final int DEVICE_ID_INTAKE = 18;
+        public static final int DEVICE_ID_INDEXER = 19;
         public static final double OPEN_LOOP_RAMP = .2;
     }
 }

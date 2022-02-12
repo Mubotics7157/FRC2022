@@ -23,17 +23,20 @@ import frc.util.Threading.ThreadScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  public static Joystick leftStick = new Joystick(1);
-  public static Joystick rightStick = new Joystick(1);
+  //public static Joystick leftStick = new Joystick(1);
+  //public static Joystick rightStick = new Joystick(1);
   public static final XboxController operator = new XboxController(0);
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
+  Drive drive = Drive.getInstance();
   Serializer serializer = Serializer.getInstance();
   
 @Override
 public void robotInit() {
     serializer.setPeriod(Duration.ofMillis(20));
+    drive.setPeriod(Duration.ofMillis(20));
     scheduler.schedule(serializer, executor);
+    scheduler.schedule(drive, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -42,6 +45,7 @@ public void robotInit() {
   public void teleopInit() {
     scheduler.resume();
     serializer.setOff();
+    Drive.getInstance().setTeleop();
   }
 @Override
 public void teleopPeriodic() {

@@ -25,7 +25,7 @@ public class Shooter {
        flywheel.enableVoltageCompensation(true);
        TalonFXConfiguration config = new TalonFXConfiguration();
        config.voltageCompSaturation = 11;
-       config.slot0.kP = .36;
+       config.slot0.kP = .16;
        config.slot0.kD = .036;
        config.slot0.kF = .05;
        flywheel.configAllSettings(config);

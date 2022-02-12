@@ -132,7 +132,7 @@ public class Drive extends Threaded {
     }
 
     private void updateTeleop(){
-        tankDriveTeleOp(Robot.operator.getRawAxis(5), Robot.operator.getRawAxis(1));
+        tankDriveTeleOp(-Robot.operator.getRawAxis(1), -Robot.operator.getRawAxis(5));
     }
 
 

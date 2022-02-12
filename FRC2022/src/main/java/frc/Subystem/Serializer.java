@@ -26,7 +26,9 @@ import frc.util.Threading.Threaded;
 public class Serializer extends Threaded {
 
     CANSparkMax intakeMotor;
-    CANSparkMax indexerMotor;
+    CANSparkMax elevator;
+    TalonSRX feeder;
+    TalonSRX topRoller;
 
     IntakeState intakeState;
 
@@ -62,7 +64,9 @@ public class Serializer extends Threaded {
         matches.addColorMatch(Color.kGray);
 
         intakeMotor = new CANSparkMax(IntakeConstants.DEVICE_ID_INTAKE,MotorType.kBrushless);
-        indexerMotor = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+        elevator = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+        feeder = new TalonSRX(5);
+        topRoller = new TalonSRX(2);
         intakeMotor.setInverted(true);
         /*
         intakeMotor.enableVoltageCompensation(true);
@@ -126,11 +130,14 @@ public class Serializer extends Threaded {
     }
 
     private void intake(){
-        intakeMotor.set(-1);
+        //intakeMotor.set(-1);
+        //topRoller.set(ControlMode.PercentOutput, -1);
+        runAll();
     }
 
     private void index(){
-        indexerMotor.set(-1);
+        elevator.set(-1);
+        feeder.set(ControlMode.PercentOutput, -1);
     }
 
     private void climb(){
@@ -139,17 +146,24 @@ public class Serializer extends Threaded {
 
     private void runBoth(){
         intakeMotor.set( -1);
-        indexerMotor.set(-1);
+        topRoller.set(ControlMode.PercentOutput, -1);
+        feeder.set(ControlMode.PercentOutput, -1);
+        elevator.set(-1);
     }
 
     public synchronized void runAll(){
         intakeMotor.set( -1);
-        indexerMotor.set( -1);
+        topRoller.set(ControlMode.PercentOutput, -1);
+        elevator.set( -1);
+    
+        feeder.set(ControlMode.PercentOutput, -1);
+        setArbitrary();
     }
 
     private void ejectAll(){
         intakeMotor.set( 1);
-        indexerMotor.set( 1);
+        topRoller.set(ControlMode.PercentOutput, 1);
+        elevator.set( 1);
     }
 
     private void oneButtonShot(boolean overrideTarmacShot,boolean high){
@@ -185,12 +199,14 @@ public class Serializer extends Threaded {
     }
 
     private void setArbitrary(){
-        shooter.rev(1450);
+        shooter.rev(1700);
     }
 
     private void updateOff(){
-        indexerMotor.set(0);
+        elevator.set(0);
         intakeMotor.set(0);
+        feeder.set(ControlMode.PercentOutput, 0);
+        topRoller.set(ControlMode.PercentOutput, 0);
         shooter.rev(0);
     }
 
