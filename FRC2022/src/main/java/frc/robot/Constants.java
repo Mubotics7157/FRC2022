@@ -100,7 +100,6 @@ public class Constants {
         public static final double kS = .63461;
 
         public static final double NORMAL_RATIO = 1;
-        public static final double FLOATY_RATIO = 1;
 
         public static final double MAX_RPM = 2000;
 

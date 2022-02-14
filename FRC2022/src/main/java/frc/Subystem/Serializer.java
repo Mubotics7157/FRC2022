@@ -150,7 +150,7 @@ public class Serializer extends Threaded {
     }
 
     private void automatedShot(){
-        ShooterSpeed speeds = shotGen.getShot(VisionManager.getInstance().getDistance(), true);
+        ShooterSpeed speeds = shotGen.getShot(VisionManager.getInstance().getDistance());
         atSpeed = shooter.atSpeed(speeds.top, speeds.bot);
 
         if(speeds.top == 0)
