@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.VisionManager;
 import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.auto.AutoRoutine;
@@ -19,6 +20,7 @@ public class Robot extends TimedRobot {
   public static final XboxController operator = new XboxController(0);
   SwerveDrive swerve = SwerveDrive.getInstance();
   SwerveTracker tracker = SwerveTracker.getInstance();
+  VisionManager visionManager = VisionManager.getInstance();
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
@@ -28,8 +30,10 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     tracker.setPeriod(Duration.ofMillis(5));
     swerve.setPeriod(Duration.ofMillis(20));
+    visionManager.setPeriod(Duration.ofMillis(5));
     scheduler.schedule(swerve, executor);
     scheduler.schedule(tracker, executor);
+    scheduler.schedule(visionManager, executor);
   }
   @Override
   public void robotPeriodic() {

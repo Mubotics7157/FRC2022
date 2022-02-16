@@ -176,5 +176,13 @@ public static final class FieldConstants {
       new Transform2d(new Translation2d(referenceToCargoX,-referenceToCargoY),new Rotation2d()));
   public static final Pose2d cargoF = referenceD.transformBy(
       new Transform2d(new Translation2d(referenceToCargoX,referenceToCargoY),new Rotation2d()));
+
+    //2020 field
+    public static final double targetWidth = Units.inchesToMeters(41.30) - Units.inchesToMeters(6.70); // meters
+    public static final double targetHeight = Units.inchesToMeters(98.19) - Units.inchesToMeters(81.19); // meters
+    public static final double tgtXPos = Units.feetToMeters(54);
+    public static final double tgtYPos =
+            Units.feetToMeters(27 / 2) - Units.inchesToMeters(43.75) - Units.inchesToMeters(48.0 / 2.0);
+    public static final Pose2d farTargetPose = new Pose2d(new Translation2d(tgtXPos, tgtYPos), new Rotation2d(0.0));
 }
 }

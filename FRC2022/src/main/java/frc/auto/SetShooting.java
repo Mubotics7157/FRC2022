@@ -6,12 +6,8 @@ import frc.Subystem.SwerveDrive.SwerveDrive;
 public class SetShooting extends AutoCommand {
     
     boolean shoot;
-    double top;
-    double bot;
-    public SetShooting(boolean shoot, double top, double bot){
+    public SetShooting(boolean shoot){
         this.shoot = shoot;
-        this.top = top;
-        this.bot = bot;
     }
 
     @Override

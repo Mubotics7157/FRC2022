@@ -2,24 +2,57 @@ package frc.Subystem;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.SimVisionSystem;
+import org.photonvision.SimVisionTarget;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.SwerveDrive.SwerveTracker;
+import frc.robot.Constants.FieldConstants;
 import frc.util.Threading.Threaded;
 
 public class VisionManager extends Threaded{
     static VisionManager instance;
-    PhotonCamera camera = new PhotonCamera("limelight");
+    PhotonCamera camera;
     VisionState visionState =VisionState.ON;
     double yaw; 
+    SimVisionSystem simVisionSystem;
+    SimVisionTarget powerPort;
+    double camDiagFOV = 170.0; 
+    double camPitch = 1;
+    double camHeightOffGround = Units.inchesToMeters(24); // meters
+    double maxLEDRange = 20;
+    int camResolutionWidth = 640;
+    int camResolutionHeight = 480;
+    double minTargetArea = 10;
  
+    public VisionManager(){
+        camera = new PhotonCamera("gloworm");
+
+        SimVisionSystem simVision =
+            new SimVisionSystem(
+                    "photonvision",
+                    camDiagFOV,
+                    camPitch,
+                    new Transform2d(),
+                    camHeightOffGround,
+                    maxLEDRange,
+                    camResolutionWidth,
+                    camResolutionHeight,
+                    minTargetArea);
+                
+        powerPort = new SimVisionTarget(FieldConstants.farTargetPose, FieldConstants.targetHeight, FieldConstants.targetWidth, FieldConstants.targetWidth);
+
+        simVision.addSimVisionTarget(powerPort);
+    }
     public enum VisionState{
         OFF,
         ON
     }
-
 
     public synchronized double getTargetYaw(){
         var result = camera.getLatestResult();
@@ -71,6 +104,7 @@ public class VisionManager extends Threaded{
             case ON:
                 SmartDashboard.putString("vision state", "on");
         }
+        simVisionSystem.processFrame(SwerveTracker.getInstance().getOdometry());
     }
     
 
