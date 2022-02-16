@@ -40,7 +40,10 @@
       "open": true
     },
     "photonvision": {
-      "open": false,
+      "gloworm": {
+        "open": true
+      },
+      "open": true,
       "photonvision": {
         "open": false
       }

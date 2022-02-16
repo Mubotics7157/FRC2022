@@ -1,5 +1,7 @@
 package frc.Subystem;
 
+import java.lang.reflect.Field;
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.SimVisionSystem;
@@ -23,31 +25,31 @@ public class VisionManager extends Threaded{
     SimVisionSystem simVisionSystem;
     SimVisionTarget powerPort;
     double camDiagFOV = 170.0; 
-    double camPitch = 1;
-    double camHeightOffGround = Units.inchesToMeters(24); // meters
+    double camPitch = 15;
+    double camHeightOffGround =.85; // meters
     double maxLEDRange = 20;
     int camResolutionWidth = 640;
     int camResolutionHeight = 480;
     double minTargetArea = 10;
+    SimVisionSystem simVision;
  
     public VisionManager(){
         camera = new PhotonCamera("gloworm");
 
-        SimVisionSystem simVision =
+        simVision =
             new SimVisionSystem(
-                    "photonvision",
+                    "gloworm",
                     camDiagFOV,
                     camPitch,
-                    new Transform2d(),
+                    new Transform2d(new Translation2d(-.25, 0), new Rotation2d(0)),
                     camHeightOffGround,
                     maxLEDRange,
                     camResolutionWidth,
                     camResolutionHeight,
                     minTargetArea);
                 
-        powerPort = new SimVisionTarget(FieldConstants.farTargetPose, FieldConstants.targetHeight, FieldConstants.targetWidth, FieldConstants.targetWidth);
+        simVision.addSimVisionTarget(FieldConstants.kFarTarget);
 
-        simVision.addSimVisionTarget(powerPort);
     }
     public enum VisionState{
         OFF,
@@ -73,17 +75,6 @@ public class VisionManager extends Threaded{
             return new Rotation2d(0);
     }
 
-    public synchronized double getRange(){
-        var result = camera.getLatestResult();
-        if(result.hasTargets()){
-            double range = PhotonUtils.calculateDistanceToTargetMeters(0, 0, 0, 0);
-            return range;
-        }
-        
-        else return 0;
-
-    }
-
     public static VisionManager getInstance(){
         if(instance == null)
             instance = new VisionManager();
@@ -96,6 +87,8 @@ public class VisionManager extends Threaded{
         VisionState snapVisionState;
         synchronized(this){
             snapVisionState = visionState;
+        simVision.processFrame(SwerveTracker.getInstance().getOdometry());
+        SmartDashboard.putNumber("target yaw", getTargetYaw());
         }
 
         switch(snapVisionState){
@@ -104,7 +97,7 @@ public class VisionManager extends Threaded{
             case ON:
                 SmartDashboard.putString("vision state", "on");
         }
-        simVisionSystem.processFrame(SwerveTracker.getInstance().getOdometry());
+        
     }
     
 

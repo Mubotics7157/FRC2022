@@ -1,12 +1,17 @@
 package frc.Subystem.SwerveDrive;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.util.Threading.Threaded;
 
 public class SwerveTracker extends Threaded{
@@ -17,7 +22,6 @@ public class SwerveTracker extends Threaded{
     SwerveDrive swerve  = SwerveDrive.getInstance();
 
     SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.DriveConstants.SWERVE_KINEMATICS, swerve.getDriveHeading());
-
 
     Pose2d[] modulePoses = {
         new Pose2d(),
@@ -48,6 +52,7 @@ public class SwerveTracker extends Threaded{
         odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
         SmartDashboard.putData(field);
         field.setRobotPose(odometry.getPoseMeters());
+        field.getObject("power port").setPose(FieldConstants.kFarTargetPose);
         for (int i = 0; i < DriveConstants.MODULE_POSITIONS.length; i++) {
             Translation2d modulePositionFromChassis = DriveConstants.MODULE_POSITIONS[i]
             .rotateBy(swerve.getDriveHeading())
