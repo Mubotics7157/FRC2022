@@ -1,5 +1,7 @@
 package frc.Subystem;
 
+import javax.sql.rowset.spi.SyncResolver;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
@@ -100,7 +102,8 @@ public class Serializer extends Threaded {
                 ejectAll();
                 break;
             case TUNE_SPEEDS:
-                automatedShot((int)(Robot.leftStick.getRawAxis(3)*ShooterConstants.MAX_RPM), (int)(Robot.rightStick.getRawAxis(3)*ShooterConstants.MAX_RPM));
+                tuneShooterSpeeds();
+                //automatedShot((int)(Robot.leftStick.getRawAxis(3)*ShooterConstants.MAX_RPM), (int)(Robot.rightStick.getRawAxis(3)*ShooterConstants.MAX_RPM));
                 break;
 
         }
@@ -137,6 +140,9 @@ public class Serializer extends Threaded {
         indexerMotor.set(ControlMode.PercentOutput, 1);
     }
 
+    private void tuneShooterSpeeds(){
+        shooter.setShooter();
+    }
 
     private void automatedShot(int topRPM, int botRPM){
         atSpeed = shooter.atSpeed(topRPM,botRPM);
@@ -175,6 +181,10 @@ public class Serializer extends Threaded {
         intakeState = IntakeState.SWALLOW;
     }
 
+    public synchronized void adjustShooter(double top, double bot){
+        shooter.adjustShooterSpeeds(top, bot);
+    }
+
     public synchronized void setEjecting(){
         intakeState = IntakeState.VOMIT;
     }
@@ -185,6 +195,10 @@ public class Serializer extends Threaded {
     
     public synchronized void setOff(){
         intakeState = IntakeState.OFF;
+    }
+
+    public synchronized void setTuning(){
+        intakeState = IntakeState.TUNE_SPEEDS;
     }
 
     public boolean onTarmacLine(){
