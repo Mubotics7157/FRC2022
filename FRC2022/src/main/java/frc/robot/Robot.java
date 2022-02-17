@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.Subystem.Drive;
 import frc.Subystem.RobotTracker;
+import frc.Subystem.Shooter;
 import frc.util.Threading.ThreadScheduler;
 
 /**
@@ -27,6 +28,8 @@ public class Robot extends TimedRobot {
   RobotTracker tracker = RobotTracker.getInstance();
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
+  Shooter shooter = new Shooter();
+  
   
 @Override
 public void robotInit() {
@@ -45,6 +48,35 @@ public void robotInit() {
   }
 @Override
 public void teleopPeriodic() {
+  if(operator.getRawButtonPressed(1)){
+    //^^ A button
+      //topSpeed -= .05;
+      shooter.adjustShooterSpeeds(-.05, -.05);
+    
+    }
+    if(operator.getRawButtonPressed(2)){
+    //^^ B button
+      //topSpeed += .05;
+      shooter.adjustShooterSpeeds(.05, .05);
+    
+    }
+    if(operator.getRawButtonPressed(3)){
+    //^^ X button
+      //bottomSpeed -= .05;
+      shooter.adjustShooterSpeeds(-.05, -.05);
+      
+    }
+    if(operator.getRawButtonPressed(4)){
+    //^^ Y button
+      //bottomSpeed += .05;
+      shooter.adjustShooterSpeeds(.05, .05);
+      
+    }
+    
+
+  if(operator.getRawButtonPressed(6)){
+    Shooter.adjustShooterSpeeds(topSpeed +=.05, bottomSpeed +=.05);
+  }
       //double throttle = -m_gamepad.getY(Hand.kLeft);
       //drive.tankDriveVelocity(throttle*10,throttle*10);
 }

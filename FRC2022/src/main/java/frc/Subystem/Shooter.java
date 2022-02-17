@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+
+import edu.wpi.first.wpilibj.Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ShooterConstants;
 import frc.util.CommonConversions;
@@ -13,6 +15,8 @@ import frc.util.CommonConversions;
 public class Shooter {
     TalonFX flywheelBot;
     TalonFX flywheelTop;
+    private double bottomSpeed;
+    private double topSpeed;
     /*final LinearSystem<N1,N1,N1> flywheelPlant = LinearSystemId.createFlywheelSystem(DCMotor.getFalcon500(1), ShooterConstants.SHOOTER_MOI, 1);
     final KalmanFilter<N1,N1,N1> flywheelObserver = new KalmanFilter<>(Nat.N1(), Nat.N1(), flywheelPlant, VecBuilder.fill(3), VecBuilder.fill(.01), .02);
     final LinearQuadraticRegulator<N1,N1,N1> LQR = new LinearQuadraticRegulator<>(flywheelPlant, VecBuilder.fill(8), VecBuilder.fill(12), .02); // 2nd param is state excursion (rad/s) 3rd param is control effor (Volts)
@@ -65,8 +69,17 @@ public class Shooter {
 
     }
 
+    public void adjustShooterSpeeds(double topAdjust, double botAdjust){
+        topSpeed += topAdjust;
+        bottomSpeed += botAdjust;
+    }
 
-    
+    public void setShooter(){
+      flywheelTop.set(ControlMode.PercentOutput, topSpeed);
+      flywheelBot.set(ControlMode.PercentOutput, bottomSpeed); 
+        
+    }
+
 
     private double getBotRPM(){
         return CommonConversions.stepsPerDecisecToRPM(flywheelBot.getSelectedSensorVelocity(), 1);
