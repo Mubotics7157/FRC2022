@@ -2,7 +2,7 @@ package frc.Subystem.SwerveDrive;
 
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
@@ -11,16 +11,22 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,6 +64,7 @@ public class SwerveDrive extends Threaded{
     ProfiledPIDController rotController = new ProfiledPIDController(2, 0, 0,rotProfile);
     //rotControler.enableContinuousInput(-Math.PI,Math.PI);
     SynchronousPID turnPID;
+    SynchronousPID distancePID;
 
     HolonomicDriveController controller = new HolonomicDriveController(strController, fwdController, rotController);
 
@@ -72,6 +79,11 @@ public class SwerveDrive extends Threaded{
 
     private SwerveState swerveState = SwerveState.ROBOT_ORIENTED;
 
+    public SwerveDrive(){
+        turnPID = new SynchronousPID(0, 0, 0);
+        distancePID = new SynchronousPID(0, 0, 0);
+    }
+
     public static SwerveDrive getInstance(){
         if(instance==null)
             instance = new SwerveDrive();
@@ -84,6 +96,7 @@ public class SwerveDrive extends Threaded{
         VISION,
         CARGO,
         AUTO,
+        ALIGN,
         DONE
     }
 
@@ -143,6 +156,7 @@ public class SwerveDrive extends Threaded{
         navXSim.setAngle(-Units.radiansToDegrees(yawVal));
     }
 
+
     private void updateAuto(){
     
         double currentTime = autoTimer.get();
@@ -180,28 +194,19 @@ public class SwerveDrive extends Threaded{
         SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = turnPID.update(error);
         SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
-        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
+        driveRobotOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
     }
 
-    private void updateTargetTracking(){
+
+    private void updateAlign(){
         Rotation2d onTarget = new Rotation2d(0);
         double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
-        double errorRad = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getRadians();
         SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = turnPID.update(error);
-        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
-        driveWPIFieldOriented(Robot.operator.getLeftY(), Robot.operator.getLeftX(), Robot.operator.getRightX()+deltaSpeed);
-        driveRobotOriented(0, 0, deltaSpeed);
-    }
+        double distance = VisionManager.getInstance().getRange();
+        double driveOutput = distancePID.update(distance - 2);
+        driveRobotOriented(driveOutput, 0, deltaSpeed);
 
-    private void turnToTarget(){
-        Rotation2d onTarget = new Rotation2d(0);
-        double error = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getDegrees();
-        double errorRad = onTarget.rotateBy(VisionManager.getInstance().getYawRotation2d()).unaryMinus().getRadians();
-        SmartDashboard.putNumber("Yaw error", error);
-        double deltaSpeed = turnPID.update(errorRad);
-        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
-        driveRobotOriented(0, 0, deltaSpeed);
     }
 
     private void updateRobotOriented(){
@@ -282,6 +287,7 @@ public class SwerveDrive extends Threaded{
         swerveState = SwerveState.AUTO;
         updateAuto();
     }
+
 
     public void setAutoPath(Trajectory desiredTrajectory,ArrayList<PathTrigger> triggers){
         autoTimer.reset();

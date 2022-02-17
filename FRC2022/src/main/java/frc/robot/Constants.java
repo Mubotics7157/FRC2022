@@ -69,7 +69,6 @@ public class Constants {
         public static final double TRACK_WIDTH_FEET = Units.metersToFeet(TRACK_WIDTH_METERS);
         public static final double WHEEL_BASE_METERS = .5;
 
-        //in inches
         public static final double WHEELBASE_WIDTH = .762;
         public static final double WHEELBASE_LENGTH = .762;
         public static final double WHEELBASE_DIAMETER = Math.sqrt(Math.pow(WHEELBASE_WIDTH, 2)+Math.pow(WHEELBASE_LENGTH, 2));
