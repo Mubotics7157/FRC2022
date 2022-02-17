@@ -81,7 +81,8 @@ public class Drive extends Threaded {
         rightMaster.setNeutralMode(NeutralMode.Coast);
         rightSlave.setNeutralMode(NeutralMode.Coast);
 
-        turnPID = new SynchronousPID(-.015, 0, .007,0);//target tracking PID
+        //turnPID = new SynchronousPID(-.015, 0, .007,0);//target tracking PID
+        turnPID = new SynchronousPID(-0.01, 0, 0);//target tracking PID
         //turnPID = new SynchronousPID(-.008, 0, 0,0);//cargo tracking
 
 
@@ -253,10 +254,11 @@ public class Drive extends Threaded {
 
 		if (Math.abs(error) < 10 && deltaSpeed < 0.2) {
 			tankDriveVelocity(0, 0);
-			synchronized (this) {
-				driveState = DriveState.TELEOP;
-          } 
+			//synchronized (this) {
+				//driveState = DriveState.TELEOP;
+          //} 
         }
+        else
         tankDriveVelocity(deltaSpeed*Constants.DiffDriveConstants.MAX_SPEED_TELE,-deltaSpeed*Constants.DiffDriveConstants.MAX_SPEED_TELE);
     }
 

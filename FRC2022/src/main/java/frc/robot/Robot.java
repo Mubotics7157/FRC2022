@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.Subystem.Drive;
 import frc.Subystem.RobotTracker;
 import frc.Subystem.Serializer;
+import frc.Subystem.VisionManager;
 import frc.util.Threading.ThreadScheduler;
 
 /**
@@ -30,13 +31,16 @@ public class Robot extends TimedRobot {
   ThreadScheduler scheduler = new ThreadScheduler();
   Drive drive = Drive.getInstance();
   Serializer serializer = Serializer.getInstance();
+  VisionManager vision = VisionManager.getInstance();
   
 @Override
 public void robotInit() {
     serializer.setPeriod(Duration.ofMillis(20));
     drive.setPeriod(Duration.ofMillis(20));
+    vision.setPeriod(Duration.ofMillis(5));
     scheduler.schedule(serializer, executor);
     scheduler.schedule(drive, executor);
+    scheduler.schedule(vision, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -45,7 +49,7 @@ public void robotInit() {
   public void teleopInit() {
     scheduler.resume();
     serializer.setOff();
-    Drive.getInstance().setTeleop();
+    Drive.getInstance().setTracking();
   }
 @Override
 public void teleopPeriodic() {
