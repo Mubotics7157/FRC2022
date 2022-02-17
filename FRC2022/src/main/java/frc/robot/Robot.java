@@ -51,32 +51,33 @@ public void teleopPeriodic() {
   if(operator.getRawButtonPressed(1)){
     //^^ A button
       //topSpeed -= .05;
-      shooter.adjustShooterSpeeds(-.05, -.05);
+      shooter.adjustShooterSpeeds(-.05, 0);
     
     }
     if(operator.getRawButtonPressed(2)){
     //^^ B button
       //topSpeed += .05;
-      shooter.adjustShooterSpeeds(.05, .05);
+      shooter.adjustShooterSpeeds(.05, 0);
     
     }
     if(operator.getRawButtonPressed(3)){
     //^^ X button
       //bottomSpeed -= .05;
-      shooter.adjustShooterSpeeds(-.05, -.05);
+      shooter.adjustShooterSpeeds(0, -.05);
       
     }
     if(operator.getRawButtonPressed(4)){
     //^^ Y button
       //bottomSpeed += .05;
-      shooter.adjustShooterSpeeds(.05, .05);
+      shooter.adjustShooterSpeeds(0, .05);
       
     }
     
-
+/*
   if(operator.getRawButtonPressed(6)){
     Shooter.adjustShooterSpeeds(topSpeed +=.05, bottomSpeed +=.05);
   }
+  */
       //double throttle = -m_gamepad.getY(Hand.kLeft);
       //drive.tankDriveVelocity(throttle*10,throttle*10);
 }
