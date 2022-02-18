@@ -43,8 +43,6 @@ public class Serializer extends Threaded {
 
     ShotGenerator shotGen;
 
-
-
     boolean overrideTarmacShot;
     boolean atSpeed;
 
@@ -164,7 +162,7 @@ public class Serializer extends Threaded {
     }
 
     private void ejectAll(){
-        intakeMotor.set( 1);
+        intakeMotor.set(-IntakeConstants.INTAKE_SPEED);
         topRoller.set(ControlMode.PercentOutput, 1);
         elevator.set( -IntakeConstants.INDEX_SPEED);
     }
@@ -218,6 +216,7 @@ public class Serializer extends Threaded {
 
     public synchronized void setIntaking(){
         intakeState = IntakeState.CHEW;
+        //intakeSolenoid.set(Value.kForward);
     }
 
     public synchronized void setShooting(){

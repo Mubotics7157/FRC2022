@@ -13,11 +13,14 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.auto.PathTrigger;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.util.CommonConversions;
@@ -39,6 +42,13 @@ public class Drive extends Threaded {
 
     private SynchronousPID turnPID;
     private SynchronousPID forwardPID;
+
+
+    private ArrayList <PathTrigger> triggers = new ArrayList<>();
+    private Trajectory currentTrajectory;
+    private Timer ramseteTimer;
+    private RamseteController ramseteController;
+    private double previousTime;
 
     DifferentialDrivetrainSim driveSim;
 
@@ -88,7 +98,9 @@ public class Drive extends Threaded {
         //turnPID = new SynchronousPID(-.015, 0, .007,0);//target tracking PID
         turnPID = new SynchronousPID(-0.01, 0, 0);//target tracking PID
         //turnPID = new SynchronousPID(-.008, 0, 0,0);//cargo tracking
-
+        
+        ramseteController = new RamseteController();
+        ramseteTimer = new Timer();
 
         zeroEncoders();
 
@@ -98,6 +110,8 @@ public class Drive extends Threaded {
     public enum DriveState{
         TELEOP,
         VISION_TRACKING,
+        AUTO,
+        DONE
     }
     @Override
     public void update() {
@@ -113,6 +127,9 @@ public class Drive extends Threaded {
             case VISION_TRACKING:
                 updateVisionTracking();
                 SmartDashboard.putString("Drive State", "vision tracking");
+                break;
+            case AUTO:
+                updatePathController();
                 break;
         }
         
@@ -130,7 +147,22 @@ public class Drive extends Threaded {
         }
     }
 
+    public synchronized void setAutoPath(Trajectory desiredTrajectory,ArrayList<PathTrigger>actions){
+        ramseteTimer.reset();
+        ramseteTimer.start();
+        currentTrajectory = desiredTrajectory;
+        driveState = DriveState.AUTO;
+        updatePathController();
+        triggers = actions;
+    }
 
+    public synchronized void setAutoPath(Trajectory desiredTrajectory){
+        ramseteTimer.reset();
+        ramseteTimer.start();
+        currentTrajectory = desiredTrajectory;
+        driveState = DriveState.AUTO;
+        updatePathController();
+    }
 
     public synchronized void setTracking(){
         driveState = DriveState.VISION_TRACKING;
@@ -140,6 +172,44 @@ public class Drive extends Threaded {
         tankDriveTeleOp(-Robot.operator.getRawAxis(1), -Robot.operator.getRawAxis(5));
     }
 
+        private void updatePathController(){
+        double currentTime = ramseteTimer.get();
+        SmartDashboard.putBoolean("finished",isFinished());
+        while (!triggers.isEmpty()) {
+			if (triggers.get(0).getPercentage() <= getPathPercentage()) {
+        triggers.remove(0).playTrigger();
+			} else {
+				break;
+			}
+		}
+
+        Trajectory.State desiredPose = currentTrajectory.sample(currentTime);
+        ChassisSpeeds speedSetpoint = ramseteController.calculate(RobotTracker.getInstance().getOdometry(), desiredPose);
+
+        DifferentialDriveWheelSpeeds wheelSpeeds = Constants.DiffDriveConstants.DRIVE_KINEMATICS.toWheelSpeeds(speedSetpoint);
+
+        double leftSetpoint = wheelSpeeds.leftMetersPerSecond;
+        double rightSetpoint = wheelSpeeds.rightMetersPerSecond;
+        double dt = (currentTime-previousTime)*10;
+        boolean finished = ramseteTimer.advanceIfElapsed(currentTrajectory.getTotalTimeSeconds());
+
+        if(finished){
+            synchronized(this){
+                driveState = DriveState.DONE;
+            }
+            ramseteTimer.stop();
+        }
+
+        tankDriveVelocity(leftSetpoint, rightSetpoint, dt);
+        previousTime = currentTime;
+    }
+
+     private double getPathPercentage(){
+        return ramseteTimer.get()/currentTrajectory.getTotalTimeSeconds();
+    }
+    public boolean isFinished(){
+        return driveState == DriveState.DONE;
+    }
 
     private void tankDriveTeleOp(double leftSpeed, double rightSpeed){
         if(Math.abs(leftSpeed)<=Constants.DiffDriveConstants.STICK_DEADBAND){

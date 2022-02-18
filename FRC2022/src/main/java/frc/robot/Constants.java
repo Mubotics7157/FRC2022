@@ -2,6 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.math.util.Units;
 
 public class Constants {
@@ -43,7 +45,16 @@ public class Constants {
         public static final double TURN_I = 0;
         public static final double TURN_D = 0;
 
+        public static final double TRACK_WIDTH_METERS = .752032621;
+        public static final double TRACK_WIDTH_FEET = Units.metersToFeet(TRACK_WIDTH_METERS);
+
         public static final double GEAR_RATIO = 6.8888889;
+
+        public static final DifferentialDriveKinematics DRIVE_KINEMATICS = new DifferentialDriveKinematics(TRACK_WIDTH_METERS);
+        public static final double MAX_SPEED_AUTO = 3.45;
+        public static final double MAX_VOLTAGE_AUTO = 10;
+        public static final DifferentialDriveVoltageConstraint VOLTAGE_CONSTRAINT= new DifferentialDriveVoltageConstraint(VELOCITY_FEED_FORWARD, DRIVE_KINEMATICS, MAX_VOLTAGE_AUTO);
+        public static final double MAX_ACCEL_AUTO = 2;
     }
 
     public static class DriveConstants{
@@ -77,6 +88,7 @@ public class Constants {
             BACK_LEFT_MODULE_POSITION,
             BACK_RIGHT_MODULE_POSITION
         };
+
     }
 
     public static final class ShooterConstants{

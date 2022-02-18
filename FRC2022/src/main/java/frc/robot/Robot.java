@@ -54,7 +54,7 @@ public void robotInit() {
 @Override
 public void teleopPeriodic() {
       if(operator.getRawAxis(3)>.2)
-        serializer.setAll();
+        serializer.runAll();
       else if(operator.getRawAxis(2)>.2)
         serializer.setIntaking();
       else if(operator.getRawButton(5))
