@@ -49,20 +49,24 @@ public void robotInit() {
   public void teleopInit() {
     scheduler.resume();
     serializer.setOff();
-    Drive.getInstance().setTracking();
+    Drive.getInstance().setTeleop();
   }
 @Override
 public void teleopPeriodic() {
-      if(operator.getRawButton(1)){
-        serializer.setIndexing();
-      }
-      else if(operator.getRawButton(2)){
+      if(operator.getRawAxis(3)>.2)
+        serializer.setAll();
+      else if(operator.getRawAxis(2)>.2)
         serializer.setIntaking();
-      }
-      else if(operator.getRawButton(3))
+      else if(operator.getRawButton(5))
+        serializer.setIndexing();
+      else if(operator.getRawButton(6))
         serializer.setShooting();
+      else if(operator.getRawButton(1))
+        serializer.setEjecting();
       else
         serializer.setOff();
+
+      
       //double throttle = -m_gamepad.getY(Hand.kLeft);
       //drive.tankDriveVelocity(throttle*10,throttle*10);
 }

@@ -73,6 +73,10 @@ public class Drive extends Threaded {
 
         leftMaster.setInverted(true);
         rightMaster.setInverted(false);
+        leftMaster.configPeakOutputForward(.7);
+        rightMaster.configPeakOutputForward(.7);
+        leftMaster.configPeakOutputReverse(-.7);
+        rightMaster.configPeakOutputReverse(-.7);
         //leftSlave.setInverted(InvertType.FollowMaster);
         rightSlave.setInverted(InvertType.FollowMaster);
 

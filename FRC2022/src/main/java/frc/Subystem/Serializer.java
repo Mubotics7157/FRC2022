@@ -1,6 +1,7 @@
 package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -42,10 +43,12 @@ public class Serializer extends Threaded {
 
     ShotGenerator shotGen;
 
-    DoubleSolenoid intakeSolenoid;
+
 
     boolean overrideTarmacShot;
     boolean atSpeed;
+
+    private DigitalInput breakBeam;
 
     private static Serializer instance;
 
@@ -68,6 +71,11 @@ public class Serializer extends Threaded {
         feeder = new TalonSRX(5);
         topRoller = new TalonSRX(2);
         intakeMotor.setInverted(true);
+        feeder.setInverted(true);
+        elevator.setInverted(true);
+        topRoller.setInverted(true);
+
+        breakBeam = new DigitalInput(1);
         /*
         intakeMotor.enableVoltageCompensation(true);
         intakeMotor.enableCurrentLimit(true);
@@ -114,30 +122,22 @@ public class Serializer extends Threaded {
                 runBoth();
                 break;
             case SPIT:
-                //oneButtonShot(true,true);
-                setArbitrary();
+                shooter.setShooter(IntakeConstants.INDEX_SPEED,.4);
                 break;
             case VOMIT:
                 ejectAll();
                 break;
             case EXTEND:
-
         }
     }
 
-    public synchronized void retractIntake(){
-        intakeSolenoid.set(Value.kReverse);
-    }
-
     private void intake(){
-        //intakeMotor.set(-1);
-        //topRoller.set(ControlMode.PercentOutput, -1);
-        runAll();
+        intakeMotor.set(IntakeConstants.INTAKE_SPEED);
     }
 
     private void index(){
-        elevator.set(-1);
-        feeder.set(ControlMode.PercentOutput, -1);
+        elevator.set(IntakeConstants.INDEX_SPEED);
+        feeder.set(ControlMode.PercentOutput, IntakeConstants.INDEX_SPEED);
     }
 
     private void climb(){
@@ -145,26 +145,31 @@ public class Serializer extends Threaded {
     }
 
     private void runBoth(){
-        intakeMotor.set( -1);
-        topRoller.set(ControlMode.PercentOutput, -1);
-        feeder.set(ControlMode.PercentOutput, -1);
-        elevator.set(-1);
+        intakeMotor.set( IntakeConstants.INTAKE_SPEED);
+        if(hasBallStowed()){
+        topRoller.set(ControlMode.PercentOutput, IntakeConstants.INDEX_SPEED);
+        feeder.set(ControlMode.PercentOutput, IntakeConstants.INDEX_SPEED);
+        elevator.set(IntakeConstants.INDEX_SPEED);
+
+        }
     }
 
     public synchronized void runAll(){
-        intakeMotor.set( -1);
-        topRoller.set(ControlMode.PercentOutput, -1);
-        elevator.set( -1);
+        intakeMotor.set( IntakeConstants.INTAKE_SPEED);
+        topRoller.set(ControlMode.PercentOutput, IntakeConstants.INDEX_SPEED);
     
-        feeder.set(ControlMode.PercentOutput, -1);
-        setArbitrary();
+        feeder.set(ControlMode.PercentOutput, IntakeConstants.INDEX_SPEED);
+        elevator.set(IntakeConstants.INDEX_SPEED);
+       // setArbitrary();
     }
 
     private void ejectAll(){
         intakeMotor.set( 1);
         topRoller.set(ControlMode.PercentOutput, 1);
-        elevator.set( 1);
+        elevator.set( -IntakeConstants.INDEX_SPEED);
     }
+
+
 
     private void oneButtonShot(boolean overrideTarmacShot,boolean high){
         ShooterSpeed desiredShot; 
@@ -182,16 +187,16 @@ public class Serializer extends Threaded {
             arbtirarySpeed = desiredShot.speedRPM;
         }
 
-        if(shooter.atSpeed(arbtirarySpeed))
+        //if(shooter.atSpeed(arbtirarySpeed))
             index();
     }
 
     private void automatedShot(int RPM){
-        atSpeed = shooter.atSpeed(RPM);
-        shooter.rev(RPM);
+        //atSpeed = shooter.atSpeed(RPM);
+        //shooter.rev(RPM);
         if(RPM == 0)
-            shooter.rev(0);
-        else if(atSpeed)
+            //shooter.rev(0);
+       // else if(atSpeed)
             index();
         else
         ejectAll();
@@ -199,7 +204,7 @@ public class Serializer extends Threaded {
     }
 
     private void setArbitrary(){
-        shooter.rev(1700);
+        //shooter.rev(1700);
     }
 
     private void updateOff(){
@@ -207,12 +212,12 @@ public class Serializer extends Threaded {
         intakeMotor.set(0);
         feeder.set(ControlMode.PercentOutput, 0);
         topRoller.set(ControlMode.PercentOutput, 0);
-        shooter.rev(0);
+        //shooter.rev(0);
+        shooter.rev(0, 0);
     }
 
     public synchronized void setIntaking(){
         intakeState = IntakeState.CHEW;
-        //intakeSolenoid.set(Value.kForward);
     }
 
     public synchronized void setShooting(){
@@ -247,5 +252,10 @@ public class Serializer extends Threaded {
         SmartDashboard.putString("Current Color Sensed", result.color.toString());
         SmartDashboard.putNumber("Confidence", result.confidence);
         return result.color;
+    }
+
+    private boolean hasBallStowed(){
+        SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
+        return beamBreak.get() == IntakeConstants.STOWED;
     }
 }

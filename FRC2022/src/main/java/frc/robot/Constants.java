@@ -94,5 +94,8 @@ public class Constants {
         public static final int DEVICE_ID_INTAKE = 18;
         public static final int DEVICE_ID_INDEXER = 19;
         public static final double OPEN_LOOP_RAMP = .2;
+        public static final double INTAKE_SPEED = -1;
+        public static final double INDEX_SPEED = -.3;
+        public static final boolean STOWED = false;
     }
 }
