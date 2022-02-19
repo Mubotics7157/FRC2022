@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.util.CommonConversions;
 
@@ -30,8 +31,8 @@ public class SwerveModules {
     TalonFX turnMotor;
     TalonFX driveMotor;
     CANCoder absEncoder;
-    PIDController turnPID = new PIDController(4, 0, 0); // use internal PID later
-    PIDController drivePID = new PIDController(8, 0, 0); // use internal PID later
+    PIDController turnPID = new PIDController(.02, 0, 0.1); // use internal PID later
+    PIDController drivePID = new PIDController(.01, 0, 0); // use internal PID later
 
     double turn=0;
     double drive=0;
@@ -44,29 +45,29 @@ public class SwerveModules {
     FlywheelSim driveSim;
 
 
-       public SwerveModules(int drivePort, int turnPort, int turnEncoderPort1){
+       public SwerveModules(int drivePort, int turnPort, int turnEncoderPort){
         turnSim = new FlywheelSim(LinearSystemId.identifyVelocitySystem(3.41, .111), DCMotor.getFalcon500(1), 8.16);
         driveSim = new FlywheelSim(LinearSystemId.identifyVelocitySystem(3.41, .111), DCMotor.getFalcon500(1), 12.8);
 
         driveMotor = new TalonFX(drivePort);
         turnMotor = new TalonFX(turnPort);
-        turnPID.enableContinuousInput(-Math.PI, Math.PI);
+        //turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         turnMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         TalonFXConfiguration turnConfig = new TalonFXConfiguration();
-        driveConfig.slot0.kP = 1;
-        turnConfig.slot0.kP = 1;
+        //driveConfig.slot0.kP = .1;
+        //turnConfig.slot0.kP = .6;
 
-        driveConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 15, .5);
-        turnConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 15, .5);
+        //driveConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 15, .5);
+        //turnConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 15, .5);
         turnConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
         driveConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
         turnConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
         driveConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
 
-        absEncoder = new CANCoder(turnEncoderPort1);
+        absEncoder = new CANCoder(turnEncoderPort);
 
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
@@ -85,6 +86,7 @@ public class SwerveModules {
 
     public void set(double driveSignal, double angleRad){
         drive = driveSignal;
+        SmartDashboard.putNumber("drive signal", drive);
         driveMotor.set(ControlMode.PercentOutput,drive);
         //drive = driveMotor.getMotorOutputPercent();
         turn =  turnPID.calculate(getAbsHeading().getRadians(), angleRad);
@@ -96,9 +98,11 @@ public class SwerveModules {
     public void setState(SwerveModuleState state){
         SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
 
-        double driveSignal = drivePID.calculate(getDriveVelocity(), optimizedState.speedMetersPerSecond);
+        //double driveSignal = drivePID.calculate(getDriveVelocity(), optimizedState.speedMetersPerSecond);
+        double driveSignal = optimizedState.speedMetersPerSecond/DriveConstants.MAX_TANGENTIAL_VELOCITY;
         //driveMotor.set(ControlMode.Velocity, CommonConversions.stepsPerDecisecToMetersPerSec(optimizedState.speedMetersPerSecond));
         set(driveSignal,optimizedState.angle.getRadians());
+        SmartDashboard.putNumber("error rad", optimizedState.angle.getRadians() - getAbsHeading().getRadians());
     }
 
     private void setVelocity(double driveSetpoint, double dt){
@@ -112,6 +116,7 @@ public class SwerveModules {
         else 
             driveMotor.set(ControlMode.Velocity, driveSetpoint,DemandType.ArbitraryFeedForward,driveFFVolts/12);
     }
+
 
     private void setTurnRad(double turnSetpointRad){
         double turnSteps = CommonConversions.radiansToSteps(turnSetpointRad-getAbsHeading().getRadians());
@@ -163,6 +168,13 @@ public class SwerveModules {
 
     private double getTurnVelocity(){
         return CommonConversions.stepsPerDecisecToMetersPerSec(turnMotor.getSelectedSensorVelocity());
+    }
+
+    public void testMotors(boolean drive, double output){
+        if(drive)
+            driveMotor.set(ControlMode.PercentOutput, output);
+        else
+            turnMotor.set(ControlMode.PercentOutput, output);
     }
 
 }

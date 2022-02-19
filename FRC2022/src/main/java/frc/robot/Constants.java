@@ -96,10 +96,15 @@ public class Constants {
     }
 
     public static class ModuleConstants{
-        public static final double kS = 0;
-        public static final double kV = 0;
-        public static final double kA = 0;
-        public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(kS,kV,kA);
+        public static final double driveKS = 0.6;
+        public static final double driveKV = 2.5;
+        public static final double driveKA = 0.4;
+        public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(driveKS,driveKV,driveKA);
+
+        public static final double steerKS = 0;
+        public static final double steerKV = .15;
+        public static final double steerKA = .04;
+        public static final SimpleMotorFeedforward STEER_FEEDFORWARD = new SimpleMotorFeedforward(steerKS,steerKV,steerKA);
 
         public static final double CLOSED_LOOP_RAMP_RATE  = .2;
         public static final double OPEN_LOOP_RAMP_RATE  = .25;

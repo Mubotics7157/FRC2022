@@ -56,6 +56,8 @@ public class VisionManager extends Threaded{
         ON
     }
 
+    
+
     public synchronized double getTargetYaw(){
         var result = camera.getLatestResult();
         if(result.hasTargets()){
@@ -63,6 +65,10 @@ public class VisionManager extends Threaded{
         }
         else
             return 0;
+    }
+
+    public synchronized boolean foundTargets(){
+        return camera.getLatestResult().hasTargets();
     }
 
     public synchronized Rotation2d getYawRotation2d(){
