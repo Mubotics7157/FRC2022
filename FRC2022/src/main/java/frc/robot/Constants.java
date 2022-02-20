@@ -96,7 +96,7 @@ public class Constants {
 
         public static final double GEARING = 22/12;
 
-        public static final double TOLERANCE_RPM = 100;
+        public static final double TOLERANCE_RPM = 20;
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 
@@ -104,7 +104,7 @@ public class Constants {
 
     public static final class IntakeConstants{
         public static final int DEVICE_ID_INTAKE = 18;
-        public static final int DEVICE_ID_INDEXER = 19;
+        public static final int DEVICE_ID_INDEXER = 7;
         public static final double OPEN_LOOP_RAMP = .2;
         public static final double INTAKE_SPEED = -1;
         public static final double INDEX_SPEED = -.3;

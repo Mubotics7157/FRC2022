@@ -29,18 +29,20 @@ public class Robot extends TimedRobot {
   public static final XboxController operator = new XboxController(0);
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
-  Drive drive = Drive.getInstance();
+  //
+  
+  //Drive drive = Drive.getInstance();
   Serializer serializer = Serializer.getInstance();
-  VisionManager vision = VisionManager.getInstance();
+  //VisionManager vision = VisionManager.getInstance();
   
 @Override
 public void robotInit() {
     serializer.setPeriod(Duration.ofMillis(20));
-    drive.setPeriod(Duration.ofMillis(20));
-    vision.setPeriod(Duration.ofMillis(5));
+    //drive.setPeriod(Duration.ofMillis(20));
+    //vision.setPeriod(Duration.ofMillis(5));
     scheduler.schedule(serializer, executor);
-    scheduler.schedule(drive, executor);
-    scheduler.schedule(vision, executor);
+    //scheduler.schedule(drive, executor);
+    //scheduler.schedule(vision, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -49,16 +51,15 @@ public void robotInit() {
   public void teleopInit() {
     scheduler.resume();
     serializer.setOff();
-    Drive.getInstance().setTeleop();
+    //Drive.getInstance().setTeleop();
   }
 @Override
 public void teleopPeriodic() {
-      if(operator.getRawAxis(3)>.2)
-        serializer.runAll();
-      else if(operator.getRawAxis(2)>.2)
-        serializer.setIntaking();
-      else if(operator.getRawButton(5))
+      if(operator.getRawAxis(2)>.2)
         serializer.setIndexing();
+        //serializer.setIntaking();
+      //else if(operator.getRawButton(5))
+        //serializer.setIndexing();
       else if(operator.getRawButton(6))
         serializer.setShooting();
       else if(operator.getRawButton(1))
@@ -67,6 +68,17 @@ public void teleopPeriodic() {
         serializer.setOff();
 
       
+      //if(operator.getRawAxis(3)>.2)
+        //serializer.runAll();
+      
+      if(operator.getRawButtonPressed(2))
+        serializer.adjustShooterSpeeds(-.05, 0);
+      else if(operator.getRawButtonPressed(3))
+        serializer.adjustShooterSpeeds(.05, 0);
+      else if(operator.getRawButtonPressed(1))
+        serializer.adjustShooterSpeeds(0, -.05);
+      else if(operator.getRawButtonPressed(4))
+        serializer.adjustShooterSpeeds(0, .05);
       //double throttle = -m_gamepad.getY(Hand.kLeft);
       //drive.tankDriveVelocity(throttle*10,throttle*10);
 }
