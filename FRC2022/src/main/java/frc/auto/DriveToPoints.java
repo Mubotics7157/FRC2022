@@ -52,5 +52,4 @@ public class DriveToPoints extends AutoCommand {
 	public boolean isFinished() {
 		return SwerveDrive.getInstance().isFinished();
 	}
-
 }

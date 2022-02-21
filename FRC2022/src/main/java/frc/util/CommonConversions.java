@@ -6,7 +6,7 @@ import frc.robot.Constants.DriveConstants;
 public class CommonConversions {
   
      public static double stepsToMeters(double steps){
-      return steps*((.1524 * Math.PI) / (2048* Constants.DriveConstants.GEAR_RATIO));
+      return steps*((.1016 * Math.PI) / (2048* Constants.DriveConstants.GEAR_RATIO));
   }
 
 
@@ -50,17 +50,25 @@ public class CommonConversions {
   }
 
   public static double radiansToSteps(double rad){
-    double radPerStep = (((2*Math.PI)/Constants.DriveConstants.GEAR_RATIO)) / 2048;
+    double radPerStep = (((2*Math.PI)/12.8)) / 2048;
     return rad/radPerStep;
   }
 
   public static double stepsToRadians(double steps){
-    double radPerStep = (((2*Math.PI)/Constants.DriveConstants.GEAR_RATIO)) / 2048;
+    double radPerStep = (((2*Math.PI)/12.8)) / 2048;
     return steps*radPerStep;
   }
 
   public static double radPerSecToMetersPerSec(double radPerSec){
     return (DriveConstants.WHEEL_DIAMETER_METERS/2) * radPerSec;
+  }
+
+  public static double radPerSecToStepsPerDecisec(double radPerSec){
+    return radiansToSteps(radPerSec) *.1;
+  }
+
+  public static double radPerSecSquaredToStepsPerDecisecSquared(double radPerSec){
+    return radiansToSteps(radPerSec) *.01;
   }
 
 }

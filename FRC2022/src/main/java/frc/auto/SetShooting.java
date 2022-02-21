@@ -1,6 +1,5 @@
 package frc.auto;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.SwerveDrive.SwerveDrive;
 
 public class SetShooting extends AutoCommand {

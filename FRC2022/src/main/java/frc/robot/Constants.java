@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import frc.util.CommonConversions;
 
 public class Constants {
 
@@ -26,43 +27,12 @@ public class Constants {
         public static final double STICK_DEADBAND = 0.1;
         public static final double GEAR_RATIO = 6.75;//6.88888888889;
 
-        public static final double MAX_ANGULAR_VELOCITY_RAD = Units.rotationsPerMinuteToRadiansPerSecond(6380/6.75);
-        public static final double MAX_TANGENTIAL_VELOCITY = 2 * Math.PI;
+        public static final double MAX_ANGULAR_VELOCITY_RAD = 16*Math.PI;
+        public static final double MAX_TANGENTIAL_VELOCITY = 5;
 
-        // voltage needed to overcome the motor's static friction
-        public static final double kS = .755;
-        // voltage needed to induce a acceleration at the motor shaft
-        public static final double kA = .183;
-        //voltage needed to cruise at a given velocity.
-        public static final double kV = 1.58;
-        public static final double kP = 3.32E-2;
-        // voltage needed to induce a given acceleration at the motor shaft
-        public static final SimpleMotorFeedforward VELOCITY_FEED_FORWARD = new SimpleMotorFeedforward(kS, kV,kA);
-
-        public static final double kSAngular =  1.21;
-        public static final double kVAngular =  1.72;
-        public static final double kAAngular =  .056;
-        
-
-        public static final int DEVICE_ID_LEFT_MASTER = 8;
-        public static final int DEVICE_ID_LEFT_SLAVE = 7;
-        public static final int DEVICE_ID_RIGHT_MASTER = 10;
-        public static final int DEVICE_ID_RIGHT_SLAVE = 9;
-
-        // seconds taken for motor to ramp up from 0 to setpoint
         public static final double CLOSED_LOOP_RAMP = .2;
         public static final double OPEN_LOOP_RAMP = .25;
-
-        public static final double MAX_ANGULAR_VELOCITY = 3.25;  //MUST BE IN RAD/S
-
-        public static final double TURN_MULTIPLIER = .05;
-        public static final double WHEEL_NONLINEARITY = .05;
-
-        public static final double TURN_P = -.008;
-        public static final double TURN_I = 0;
-        public static final double TURN_D = 0;
-        
-
+    
         
 
         public static final double TRACK_WIDTH_METERS = .752032621;
@@ -97,7 +67,7 @@ public class Constants {
 
     public static class ModuleConstants{
         public static final double driveKS = 0.6;
-        public static final double driveKV = 2.5;
+        public static final double driveKV = 2.9;
         public static final double driveKA = 0.4;
         public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(driveKS,driveKV,driveKA);
 
@@ -108,6 +78,14 @@ public class Constants {
 
         public static final double CLOSED_LOOP_RAMP_RATE  = .2;
         public static final double OPEN_LOOP_RAMP_RATE  = .25;
+
+        public static final double TURN_GEAR_RATIO  = 12.8;
+        public static final double DRIVE_GEAR_RATIO  = 6.75;
+
+        public static final double MOTION_PROFILE_MAX_SPEED =  CommonConversions.radPerSecToStepsPerDecisec(DriveConstants.MAX_ANGULAR_VELOCITY_RAD);
+        public static final double MOTION_PROFILE_MAX_ACCEL =  CommonConversions.radPerSecSquaredToStepsPerDecisecSquared(Math.pow(DriveConstants.MAX_ANGULAR_VELOCITY_RAD, 2));
+
+
     }
 
 
