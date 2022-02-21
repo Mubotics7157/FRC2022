@@ -25,6 +25,7 @@ public class Serializer extends Threaded {
 
     Shooter shooter = new Shooter();
     Climb climber = new Climb();
+    LED led = new LED();
 
     private DigitalInput beamBreak;
 
@@ -166,8 +167,16 @@ public class Serializer extends Threaded {
     }
 
     private void shoot(double top, double bot){
-        if(shooter.atSpeed(top, bot))
+        if(shooter.atSpeed(top, bot)){
             index();
+            led.setShooterLED(.77);
+            //^^if shooter is at its wanted speed LEDs will be GREEN
+        }
+        else{
+            led.setShooterLED(.69);
+            //^^if shooter is not at its wanted speed LEDs will be YELLOW
+        }
+        
     }
 
     private void automatedShot(int RPM){
