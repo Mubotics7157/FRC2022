@@ -1,7 +1,5 @@
 package frc.robot;
 
-import org.photonvision.SimVisionTarget;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,27 +10,20 @@ import edu.wpi.first.math.util.Units;
 import frc.util.CommonConversions;
 
 public class Constants {
-
-    public static class PhysicalConstants{
-
-
-    }
-
     public static class DriveConstants{
+
 
         public static final double WHEEL_DIAMETER_INCHES = 4d;
         public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES);
         public static final double WHEEL_CIRCUMFERENCE_INCHES = 2* WHEEL_DIAMETER_INCHES*Math.PI;
         public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES)*Math.PI;
         public static final double STICK_DEADBAND = 0.1;
-        public static final double GEAR_RATIO = 6.75;//6.88888888889;
 
         public static final double MAX_ANGULAR_VELOCITY_RAD = 16*Math.PI;
         public static final double MAX_TANGENTIAL_VELOCITY = 5;
 
         public static final double CLOSED_LOOP_RAMP = .2;
         public static final double OPEN_LOOP_RAMP = .25;
-    
         
 
         public static final double TRACK_WIDTH_METERS = .752032621;
@@ -70,6 +61,23 @@ public class Constants {
         public static final double driveKV = 2.9;
         public static final double driveKA = 0.4;
         public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(driveKS,driveKV,driveKA);
+        public static final double STICK_DEADBAND = 0.1;
+        public static final double MAX_SPEED_TELE = 3;
+        public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
+        // voltage needed to overcome the motor's static friction
+        public static final double kS = .755;
+        // voltage needed to induce a acceleration at the motor shaft
+        public static final double kA = .183;
+        //voltage needed to cruise at a given velocity.
+        public static final double kV = 1.58;
+        public static final double kP = 3.32E-2;
+        // voltage needed to induce a given acceleration at the motor shaft
+        public static final SimpleMotorFeedforward VELOCITY_FEED_FORWARD = new SimpleMotorFeedforward(kS, kV,kA);
+
+        public static final double kSAngular =  1.21;
+        public static final double kVAngular =  1.72;
+        public static final double kAAngular =  .056;
+        
 
         public static final double steerKS = 0;
         public static final double steerKV = .15;
@@ -86,6 +94,28 @@ public class Constants {
         public static final double MOTION_PROFILE_MAX_ACCEL =  CommonConversions.radPerSecSquaredToStepsPerDecisecSquared(Math.pow(DriveConstants.MAX_ANGULAR_VELOCITY_RAD, 2));
 
 
+        public static final double TRACK_WIDTH_METERS = .752032621;
+        public static final double TRACK_WIDTH_FEET = Units.metersToFeet(TRACK_WIDTH_METERS);
+
+    }
+
+
+    public static final class ShooterConstants{
+        public static final int DEVICE_ID_SHOOTER = 3;
+
+        public static final double TOLERANCE_RPM = 20;
+        public static final double TARMAC_CLOSE_RPM = 1000;
+        public static final double TARMAC_FAR_RPM = 1250;
+
+    }
+
+    public static final class IntakeConstants{
+        public static final int DEVICE_ID_INTAKE = 18;
+        public static final int DEVICE_ID_INDEXER = 7;
+        public static final double OPEN_LOOP_RAMP = .2;
+        public static final double INTAKE_SPEED = -1;
+        public static final double INDEX_SPEED = -.3;
+        public static final boolean STOWED = false;
     }
 
 
@@ -161,19 +191,5 @@ public static final class FieldConstants {
   public static final Pose2d cargoF = referenceD.transformBy(
       new Transform2d(new Translation2d(referenceToCargoX,referenceToCargoY),new Rotation2d()));
 
-    //2020 field
-    public static final double targetWidth =
-            Units.inchesToMeters(41.30) - Units.inchesToMeters(6.70); // meters
-    public static final double targetHeight =
-            Units.inchesToMeters(98.19) - Units.inchesToMeters(81.19); // meters
-    public static final double targetHeightAboveGround = Units.inchesToMeters(81.19); // meters
-
-    public static final double kFarTgtXPos = Units.feetToMeters(54);
-    public static final double kFarTgtYPos =
-            Units.feetToMeters(27 / 2) - Units.inchesToMeters(43.75) - Units.inchesToMeters(48.0 / 2.0);
-    public static final Pose2d kFarTargetPose =
-            new Pose2d(new Translation2d(kFarTgtXPos, kFarTgtYPos), new Rotation2d(0.0));
-    public static final SimVisionTarget kFarTarget =
-            new SimVisionTarget(kFarTargetPose, targetHeightAboveGround, targetWidth, targetHeight);
-}
+    }
 }

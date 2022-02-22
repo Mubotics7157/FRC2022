@@ -4,14 +4,11 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-//import frc.Subystem.VisionManager;
+import frc.Subystem.Serializer;
 import frc.Subystem.SwerveDrive.SwerveDrive;
-//import frc.Subystem.SwerveDrive.SwerveTracker;
-import frc.auto.AutoRoutine;
 //import frc.auto.AutoRoutineGenerator;
 import frc.util.Threading.ThreadScheduler;
 
@@ -25,15 +22,20 @@ public class Robot extends TimedRobot {
   ThreadScheduler scheduler = new ThreadScheduler();
   Thread auto;
   
-  @Override
-  public void robotInit() {
-    //tracker.setPeriod(Duration.ofMillis(5));
+  
+  Serializer serializer = Serializer.getInstance();
+  
+@Override
+public void robotInit() {
+    serializer.setPeriod(Duration.ofMillis(20));
     swerve.setPeriod(Duration.ofMillis(20));
-    //visionManager.setPeriod(Duration.ofMillis(5));
+    //drive.setPeriod(Duration.ofMillis(20));
+    //vision.setPeriod(Duration.ofMillis(5));
+    scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
-    //scheduler.schedule(tracker, executor);
-    //scheduler.schedule(visionManager, executor);
-  }
+    //scheduler.schedule(drive, executor);
+    //scheduler.schedule(vision, executor);
+}
   @Override
   public void robotPeriodic() {
   }
@@ -50,7 +52,7 @@ public void autonomousInit() {
 public void autonomousPeriodic() {
   SmartDashboard.putBoolean("auto", auto.isInterrupted());
 }
-  @Override
+
   public void teleopInit() {
     if(auto!=null)
       auto.interrupt();
@@ -60,15 +62,25 @@ public void autonomousPeriodic() {
     else
       SwerveDrive.getInstance().setFieldOriented();
       */
-      SwerveDrive.getInstance().setFieldOriented();
-      ;
+    SwerveDrive.getInstance().setFieldOriented();
+    serializer.setOff();
+    //Drive.getInstance().setTeleop();
   }
-  @Override
-  public void teleopPeriodic() {
-    //if(operator.getRawButtonPressed(1))
-      //SwerveDrive.getInstance().setTargetAlign();
 
-  }
+public void teleopPeriodic() {
+      if(operator.getRawAxis(2)>.2)
+        serializer.setIndexing();
+        //serializer.setIntaking();
+      //else if(operator.getRawButton(5))
+        //serializer.setIndexing();
+      else if(operator.getRawButton(6))
+        serializer.setShooting();
+      else if(operator.getRawButton(1))
+        serializer.setEjecting();
+      else
+        serializer.setOff();
+}
+
 
   @Override
   public void simulationPeriodic() {
