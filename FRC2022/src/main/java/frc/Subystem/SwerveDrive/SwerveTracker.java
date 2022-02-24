@@ -1,17 +1,13 @@
 package frc.Subystem.SwerveDrive;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.util.Threading.Threaded;
 
 public class SwerveTracker extends Threaded{
@@ -52,15 +48,16 @@ public class SwerveTracker extends Threaded{
         odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
         SmartDashboard.putData(field);
         field.setRobotPose(odometry.getPoseMeters());
-        field.getObject("power port").setPose(FieldConstants.kFarTargetPose);
-        for (int i = 0; i < DriveConstants.MODULE_POSITIONS.length; i++) {
-            Translation2d modulePositionFromChassis = DriveConstants.MODULE_POSITIONS[i]
-            .rotateBy(swerve.getDriveHeading())
-            .plus(odometry.getPoseMeters().getTranslation());
+            //Translation2d modulePositionFromChassis = DriveConstants.MODULE_POSITIONS[i]
+            //.rotateBy(swerve.getDriveHeading())
+            //.plus(odometry.getPoseMeters().getTranslation());
 
-            modulePoses[i] = new Pose2d(modulePositionFromChassis, swerve.getModuleStates()[i].angle.plus(odometry.getPoseMeters().getRotation()));
-        }
-       //field.getObject("Modules").setPoses(modulePoses);
+            modulePoses[0] = new Pose2d(2,0, Rotation2d.fromDegrees(swerve.getModuleStates()[0].angle.getDegrees()+90));
+            modulePoses[1] = new Pose2d(2,1, Rotation2d.fromDegrees(swerve.getModuleStates()[1].angle.getDegrees()+90));
+            modulePoses[2] = new Pose2d(1,0, Rotation2d.fromDegrees(swerve.getModuleStates()[2].angle.getDegrees()+90));
+            modulePoses[3] = new Pose2d(1,1, Rotation2d.fromDegrees(swerve.getModuleStates()[3].angle.getDegrees()+90));
+        //}
+       field.getObject("Modules").setPoses(modulePoses);
     }
 
     public synchronized void setOdometry(Pose2d pose){

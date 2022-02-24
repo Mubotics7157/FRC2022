@@ -3,6 +3,7 @@ package frc.Subystem.SwerveDrive;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.util.CommonConversions;
 
@@ -45,7 +47,7 @@ public class SwerveModules {
     FlywheelSim driveSim;
 
 
-       public SwerveModules(int drivePort, int turnPort, int turnEncoderPort, double angleOffset){
+       public SwerveModules(int drivePort, int turnPort, int turnEncoderPort, double angleOffset,boolean inverted){
         turnSim = new FlywheelSim(LinearSystemId.identifyVelocitySystem(3.41, .111), DCMotor.getFalcon500(1), 8.16);
         driveSim = new FlywheelSim(LinearSystemId.identifyVelocitySystem(3.41, .111), DCMotor.getFalcon500(1), 12.8);
 
@@ -53,6 +55,7 @@ public class SwerveModules {
         turnMotor = new TalonFX(turnPort);
 
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+        driveMotor.setNeutralMode(NeutralMode.Coast);
 
         turnMotor.enableVoltageCompensation(true);
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,20);
@@ -65,7 +68,7 @@ public class SwerveModules {
         turnConfig.voltageCompSaturation = 12;
         turnConfig.supplyCurrLimit.currentLimit = 20;
         turnConfig.supplyCurrLimit.enable = true;
-        turnConfig.slot0.kP = .075;
+        turnConfig.slot0.kP = .05 ;
         turnConfig.slot0.kD = 0;
         turnConfig.slot0.kF = 0;
         turnConfig.motionCruiseVelocity = ModuleConstants.MOTION_PROFILE_MAX_SPEED;
@@ -85,6 +88,8 @@ public class SwerveModules {
 
         //turnMotor.setNeutralMode(NeutralMode.Brake);
         driveMotor.setNeutralMode(NeutralMode.Coast);
+        if(inverted)
+            driveMotor.setInverted(InvertType.InvertMotorOutput);
 
 
         if(Robot.isSimulation()){
@@ -100,13 +105,16 @@ public class SwerveModules {
     public void setState(SwerveModuleState state){
         SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
         error = optimizedState.angle.getDegrees();
+        double vel = optimizedState.speedMetersPerSecond/DriveConstants.MAX_TANGENTIAL_VELOCITY;
+        velocity = optimizedState.speedMetersPerSecond;
 
         if(Math.abs(optimizedState.speedMetersPerSecond) < .1){
            turnMotor.set(ControlMode.PercentOutput,0);
            driveMotor.set(ControlMode.PercentOutput, 0);
         }
         else{
-            setVelocity(optimizedState.speedMetersPerSecond/10, .2);
+            //setVelocity(optimizedState.speedMetersPerSecond/10, .2);
+            driveMotor.set(ControlMode.PercentOutput,vel);
             setTurnRad(optimizedState.angle);
         }
     }
@@ -183,12 +191,15 @@ public class SwerveModules {
     }
 
     public double getTurn(){
-        SmartDashboard.putNumber("turn percent", turn);
     return error;
     }
 
     public void invertMotor(){
         turnMotor.setInverted(true);
+    }
+
+    public double getVelocity(){
+        return velocity;
     }
 
 

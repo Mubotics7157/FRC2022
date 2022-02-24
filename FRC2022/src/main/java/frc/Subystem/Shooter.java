@@ -1,15 +1,10 @@
 package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import edu.wpi.first.networktables.NetworkTableType;
-import edu.wpi.first.wpilibj.Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ShooterConstants;
 import frc.util.CommonConversions;
@@ -25,8 +20,9 @@ public class Shooter {
     final LinearSystemLoop<N1,N1,N1> flywheelLoop = new LinearSystemLoop<>(flywheelPlant, LQR, flywheelObserver, 6, .02);
     */
     public Shooter(){
-        flywheelBot = new TalonFX(1);
-        flywheelTop = new TalonFX(0);
+        flywheelBot = new TalonFX(20);
+        flywheelTop = new TalonFX(19
+        );
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.voltageCompSaturation = 10;
         config.slot0.kP = .18;
@@ -62,11 +58,11 @@ public class Shooter {
             flywheelTop.set(ControlMode.PercentOutput,0);
         }
         else{
-            flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(botSetpoint,1));
-            flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint,1));
+            flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(botSetpoint));
+            flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint));
         }
         SmartDashboard.putNumber("error", topSetpoint-getTopRPM());
-        SmartDashboard.putNumber("actual RPM", CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity(),1));
+        SmartDashboard.putNumber("actual RPM", CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity()));
         SmartDashboard.putNumber("desired RPM", topSetpoint);
 
     }
@@ -85,10 +81,10 @@ public class Shooter {
 
 
     private double getBotRPM(){
-        return CommonConversions.stepsPerDecisecToRPM(flywheelBot.getSelectedSensorVelocity(), 1);
+        return CommonConversions.stepsPerDecisecToRPM(flywheelBot.getSelectedSensorVelocity()) ;
     }
     private double getTopRPM(){
-        return CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity(), 1);
+        return CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity());
     }
 
 }

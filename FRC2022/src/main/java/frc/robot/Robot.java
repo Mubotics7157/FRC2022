@@ -4,24 +4,31 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.Serializer;
 import frc.Subystem.SwerveDrive.SwerveDrive;
+import frc.Subystem.SwerveDrive.SwerveTracker;
 //import frc.auto.AutoRoutineGenerator;
 import frc.util.Threading.ThreadScheduler;
 
 public class Robot extends TimedRobot {
   public static final XboxController operator = new XboxController(0);
   SwerveDrive swerve = SwerveDrive.getInstance(); 
-  //SwerveTracker tracker = SwerveTracker.getInstance();
+  SwerveTracker tracker = SwerveTracker.getInstance();
   //VisionManager visionManager = VisionManager.getInstance();
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
+  Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   Thread auto;
-  
+
   
   Serializer serializer = Serializer.getInstance();
   
@@ -31,8 +38,10 @@ public void robotInit() {
     swerve.setPeriod(Duration.ofMillis(20));
     //drive.setPeriod(Duration.ofMillis(20));
     //vision.setPeriod(Duration.ofMillis(5));
+    tracker.setPeriod(Duration.ofMillis(5));
     scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
+    scheduler.schedule(tracker, executor);
     //scheduler.schedule(drive, executor);
     //scheduler.schedule(vision, executor);
 }
@@ -62,27 +71,30 @@ public void autonomousPeriodic() {
     else
       SwerveDrive.getInstance().setFieldOriented();
       */
+    //SwerveDrive.getInstance().setFieldOriented();
     SwerveDrive.getInstance().setFieldOriented();
     serializer.setOff();
     //Drive.getInstance().setTeleop();
+    compressor.enableDigital();
   }
 
 public void teleopPeriodic() {
       if(operator.getRawAxis(2)>.2)
-        serializer.setIndexing();
-        //serializer.setIntaking();
-      //else if(operator.getRawButton(5))
         //serializer.setIndexing();
+        serializer.setAll();
+      else if(operator.getRawButton(5))
+        serializer.setEjecting();
       else if(operator.getRawButton(6))
         serializer.setShooting();
       else if(operator.getRawButton(1))
         serializer.setEjecting();
       else
         serializer.setOff();
+
+      if(operator.getRawButton(3)){
+        serializer.retractIntake();
+      }
 }
 
 
-  @Override
-  public void simulationPeriodic() {
-  }
 }

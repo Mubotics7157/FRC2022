@@ -1,5 +1,7 @@
 package frc.Subystem;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
@@ -7,6 +9,10 @@ import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
@@ -18,7 +24,7 @@ import frc.util.Threading.Threaded;
 
 public class Serializer extends Threaded {
 
-    CANSparkMax intakeMotor;
+    TalonSRX intakeMotor;
     CANSparkMax elevator;
 
     IntakeState intakeState;
@@ -37,6 +43,8 @@ public class Serializer extends Threaded {
     boolean overrideTarmacShot;
     boolean atSpeed;
 
+    DoubleSolenoid intakeSolenoid;
+
     private static Serializer instance;
 
     public static Serializer getInstance(){
@@ -52,12 +60,15 @@ public class Serializer extends Threaded {
         matches.addColorMatch(Color.kBlack);
         matches.addColorMatch(Color.kGray);
 
-        intakeMotor = new CANSparkMax(IntakeConstants.DEVICE_ID_INTAKE,MotorType.kBrushless);
+        intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+        intakeMotor.setInverted(true);
         elevator = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
         intakeMotor.setInverted(true);
         elevator.setInverted(true);
 
         beamBreak = new DigitalInput(0);
+
+        //intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 2);
         /*
         intakeMotor.enableVoltageCompensation(true);
         intakeMotor.enableCurrentLimit(true);
@@ -68,7 +79,7 @@ public class Serializer extends Threaded {
         intakeConfig.peakCurrentLimit = 0;
         intakeConfig.peakOutputForward = .7;
         intakeConfig.peakOutputReverse = -.7;
-        intakeMotor.configAllSettings(intakeConfig);
+        
         */
     }
 
@@ -105,7 +116,7 @@ public class Serializer extends Threaded {
                 break;
             case SPIT:
                 //shooter.atSpeed(1500, 1000);
-                shoot(1500,2000);
+                shoot(2000,3000);
                 break;
             case VOMIT:
                 SmartDashboard.putString("Intake State", "Ejecting");
@@ -119,11 +130,14 @@ public class Serializer extends Threaded {
     }
 
     private void intake(){
-        intakeMotor.set(IntakeConstants.INTAKE_SPEED);
+        intakeMotor.set(ControlMode.PercentOutput,IntakeConstants.INTAKE_SPEED);
     }
 
     private void index(){
         //elevator.set(IntakeConstants.INDEX_SPEED);
+        SmartDashboard.putNumber("bus voltage", elevator.getBusVoltage());
+        SmartDashboard.putNumber("output current", elevator.getOutputCurrent());
+
         elevator.set(-.3);
     }
 
@@ -132,10 +146,10 @@ public class Serializer extends Threaded {
     }
 
     private void runBoth(){
-        intakeMotor.set( IntakeConstants.INTAKE_SPEED);
-        if(hasBallStowed()){
+        intakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
+        //if(hasBallStowed()){
         elevator.set(IntakeConstants.INDEX_SPEED);
-        }
+       // }
     }
 
     public synchronized void runAll(){
@@ -197,11 +211,12 @@ public class Serializer extends Threaded {
 
     private void updateOff(){
         elevator.set(0);
-        intakeMotor.set(0);
+        intakeMotor.set(ControlMode.PercentOutput, 0);
         shooter.rev(0, 0);
     }
 
     public synchronized void setIntaking(){
+       // intakeSolenoid.set(Value.kForward);
         intakeState = IntakeState.CHEW;
         //intakeSolenoid.set(Value.kForward);
     }
@@ -219,6 +234,9 @@ public class Serializer extends Threaded {
     }
 
     public synchronized void setAll(){
+        if(intakeSolenoid.get() == Value.kForward)
+            intakeSolenoid.set(Value.kReverse);
+
         intakeState = IntakeState.SLURP;
     }
     
@@ -227,10 +245,16 @@ public class Serializer extends Threaded {
     }
 
     public boolean onTarmacLine(){
+        
         if(getCurrentColor()==Color.kRed || getCurrentColor()==Color.kBlue)
             return true;
         else
             return false;
+    }
+
+    public synchronized void retractIntake(){
+        intakeSolenoid.set(Value.kForward);
+        SmartDashboard.putBoolean("forward?", intakeSolenoid.get() == Value.kForward);
     }
 
     public Color getCurrentColor(){

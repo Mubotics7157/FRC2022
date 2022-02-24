@@ -4,6 +4,7 @@ package frc.Subystem.SwerveDrive;
 import java.util.ArrayList;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
@@ -15,7 +16,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,14 +23,15 @@ import frc.Subystem.VisionManager;
 import frc.auto.PathTrigger;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.util.SynchronousPID;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
 
-    SwerveModules frontLeft = new SwerveModules(1, 2, 3,-90);
-    SwerveModules backLeft = new SwerveModules(7,8,9,-84);
-    SwerveModules frontRight = new SwerveModules(4, 5, 6,0);
-    SwerveModules backRight = new SwerveModules(10, 11, 12,0);
+    SwerveModules backRight = new SwerveModules(1, 2, 3,-80,false);
+    SwerveModules frontRight = new SwerveModules(7,8,9,-111,false);
+    SwerveModules backLeft = new SwerveModules(4, 5, 6,-6,false);
+    SwerveModules frontLeft = new SwerveModules(10, 11, 12,0,false);
     SwerveModules[] modules = {
         frontLeft,
         frontRight,
@@ -46,7 +47,7 @@ public class SwerveDrive extends Threaded{
 
     PIDController fwdController = new PIDController(1, 0, 0);
     PIDController strController = new PIDController(1, 0, 0);
-    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(3*Math.PI,3*Math.PI);
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(ModuleConstants.MOTION_PROFILE_MAX_SPEED,ModuleConstants.MOTION_PROFILE_MAX_ACCEL);
     ProfiledPIDController rotController = new ProfiledPIDController(2, 0, 0,rotProfile);
     //rotControler.enableContinuousInput(-Math.PI,Math.PI);
     SynchronousPID turnPID;
@@ -134,7 +135,17 @@ public class SwerveDrive extends Threaded{
 
 
     private void updateFieldOriented(){
-        driveWPIFieldOriented(Robot.operator.getLeftY()/2, Robot.operator.getLeftX()/2, Robot.operator.getRightX());
+        double fwd = Robot.operator.getLeftY();
+        double str = Robot.operator.getLeftX();
+        double rot = Robot.operator.getRightX();
+        if(Math.abs(fwd) <= .2)
+            fwd = 0;
+        if(Math.abs(str) <= .2)
+            str = 0;
+        if(Math.abs(rot) <= .2)
+            rot = 0;
+        
+        driveWPIFieldOriented(fwd, str, rot);
     }
 
 /*
@@ -220,7 +231,17 @@ public class SwerveDrive extends Threaded{
     }
 
     private void updateRobotOriented(){
-        driveRobotOriented(-Robot.operator.getLeftY(), -Robot.operator.getLeftX(), -Robot.operator.getRightX());
+        double fwd = Robot.operator.getLeftY();
+        double str = Robot.operator.getLeftX();
+        double rot = Robot.operator.getRightX();
+        if(Math.abs(fwd) <= .2)
+            fwd = 0;
+        if(Math.abs(str) <= .2)
+            str = 0;
+        if(Math.abs(rot) <= .2)
+            rot = 0;
+        
+        driveRobotOriented(fwd, str, rot);
 
     }
 
@@ -255,7 +276,9 @@ public class SwerveDrive extends Threaded{
         DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
         SmartDashboard.putNumber("actual angle", backLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("module velocity", backLeft.getState().speedMetersPerSecond);
         SmartDashboard.putNumber("heading error", backLeft.getTurn()- backLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("velocity error", backLeft.getDriveVelocity()- backLeft.getState().speedMetersPerSecond);
     }
     public synchronized SwerveModules[] getModules(){
         return modules;

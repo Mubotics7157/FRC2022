@@ -58,31 +58,12 @@ public class Constants {
 
     public static class ModuleConstants{
         public static final double driveKS = 0.6;
-        public static final double driveKV = 2.9;
+        public static final double driveKV = 2.5;
         public static final double driveKA = 0.4;
         public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(driveKS,driveKV,driveKA);
         public static final double STICK_DEADBAND = 0.1;
         public static final double MAX_SPEED_TELE = 3;
         public static final double kMaxModuleAngularSpeedRadiansPerSecond = 2 * Math.PI;
-        // voltage needed to overcome the motor's static friction
-        public static final double kS = .755;
-        // voltage needed to induce a acceleration at the motor shaft
-        public static final double kA = .183;
-        //voltage needed to cruise at a given velocity.
-        public static final double kV = 1.58;
-        public static final double kP = 3.32E-2;
-        // voltage needed to induce a given acceleration at the motor shaft
-        public static final SimpleMotorFeedforward VELOCITY_FEED_FORWARD = new SimpleMotorFeedforward(kS, kV,kA);
-
-        public static final double kSAngular =  1.21;
-        public static final double kVAngular =  1.72;
-        public static final double kAAngular =  .056;
-        
-
-        public static final double steerKS = 0;
-        public static final double steerKV = .15;
-        public static final double steerKA = .04;
-        public static final SimpleMotorFeedforward STEER_FEEDFORWARD = new SimpleMotorFeedforward(steerKS,steerKV,steerKA);
 
         public static final double CLOSED_LOOP_RAMP_RATE  = .2;
         public static final double OPEN_LOOP_RAMP_RATE  = .25;
@@ -107,14 +88,16 @@ public class Constants {
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 
+        public static final double NORMAL_RATIO = 2;
+
     }
 
     public static final class IntakeConstants{
         public static final int DEVICE_ID_INTAKE = 18;
-        public static final int DEVICE_ID_INDEXER = 7;
+        public static final int DEVICE_ID_INDEXER = 21;
         public static final double OPEN_LOOP_RAMP = .2;
-        public static final double INTAKE_SPEED = -1;
-        public static final double INDEX_SPEED = -.3;
+        public static final double INTAKE_SPEED = 1;
+        public static final double INDEX_SPEED = -.7;
         public static final boolean STOWED = false;
     }
 
