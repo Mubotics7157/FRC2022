@@ -49,7 +49,6 @@ public class Shooter {
     public boolean atSpeedRatio(double topSetpoint, double ratio){
 
         rev(topSetpoint/ratio, topSetpoint);
-        SmartDashboard.putNumber("Top RPM", topSetpoint);
         return (Math.abs(topSetpoint/ratio - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(topSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
     }
     public void rev(double topSetpoint, double botSetpoint){
@@ -62,8 +61,6 @@ public class Shooter {
             flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint));
         }
         SmartDashboard.putNumber("error", topSetpoint-getTopRPM());
-        SmartDashboard.putNumber("actual RPM", CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity()));
-        SmartDashboard.putNumber("desired RPM", topSetpoint);
 
     }
 

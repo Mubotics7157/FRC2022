@@ -36,11 +36,11 @@ public class SwerveTracker extends Threaded{
 
     @Override
     public void update() {
-        updateOdometry();
+        //updateOdometry();
         synchronized(this){
-            SmartDashboard.putNumber("PoseX", getOdometry().getX());
-            SmartDashboard.putNumber("PoseY", getOdometry().getY());
-            SmartDashboard.putNumber("desired angle actual", getOdometry().getRotation().getDegrees());
+            //SmartDashboard.putNumber("PoseX", getOdometry().getX());
+            //SmartDashboard.putNumber("PoseY", getOdometry().getY());
+            //SmartDashboard.putNumber("PoseR", getOdometry().getRotation().getDegrees());
         }
     }
 
@@ -52,12 +52,14 @@ public class SwerveTracker extends Threaded{
             //.rotateBy(swerve.getDriveHeading())
             //.plus(odometry.getPoseMeters().getTranslation());
 
+            /*
             modulePoses[0] = new Pose2d(2,0, Rotation2d.fromDegrees(swerve.getModuleStates()[0].angle.getDegrees()+90));
             modulePoses[1] = new Pose2d(2,1, Rotation2d.fromDegrees(swerve.getModuleStates()[1].angle.getDegrees()+90));
             modulePoses[2] = new Pose2d(1,0, Rotation2d.fromDegrees(swerve.getModuleStates()[2].angle.getDegrees()+90));
             modulePoses[3] = new Pose2d(1,1, Rotation2d.fromDegrees(swerve.getModuleStates()[3].angle.getDegrees()+90));
         //}
        field.getObject("Modules").setPoses(modulePoses);
+       */
     }
 
     public synchronized void setOdometry(Pose2d pose){

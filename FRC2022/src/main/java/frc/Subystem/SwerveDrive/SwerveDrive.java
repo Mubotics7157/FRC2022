@@ -3,6 +3,8 @@ package frc.Subystem.SwerveDrive;
 
 import java.util.ArrayList;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -13,6 +15,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -39,7 +42,8 @@ public class SwerveDrive extends Threaded{
         backRight
     };
 
-    private AHRS navx = new AHRS(SPI.Port.kMXP);
+    //private AHRS navx = new AHRS(SPI.Port.kMXP);
+    private WPI_Pigeon2 pigeon = new WPI_Pigeon2(30);
 
     double [] angles= new double[4];
     double[]speeds = new double[4];
@@ -48,10 +52,11 @@ public class SwerveDrive extends Threaded{
     PIDController fwdController = new PIDController(1, 0, 0);
     PIDController strController = new PIDController(1, 0, 0);
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(ModuleConstants.MOTION_PROFILE_MAX_SPEED,ModuleConstants.MOTION_PROFILE_MAX_ACCEL);
-    ProfiledPIDController rotController = new ProfiledPIDController(2, 0, 0,rotProfile);
+    ProfiledPIDController rotController = new ProfiledPIDController(5, 0, 0,rotProfile);
     //rotControler.enableContinuousInput(-Math.PI,Math.PI);
     SynchronousPID turnPID;
     SynchronousPID distancePID;
+    SynchronousPID headingPID;
 
     HolonomicDriveController controller = new HolonomicDriveController(strController, fwdController, rotController);
 
@@ -69,8 +74,8 @@ public class SwerveDrive extends Threaded{
     public SwerveDrive(){
         turnPID = new SynchronousPID(.1, 0, 0);
         distancePID = new SynchronousPID(0, 0, 0);
+        headingPID = new SynchronousPID(.004, 0, 0);
 
-        navx.reset();
     }
 
     public static SwerveDrive getInstance(){
@@ -164,10 +169,18 @@ public class SwerveDrive extends Threaded{
     }
     */
     private void updateTest(){
+        /*
         frontLeft.testMotors(Robot.operator.getLeftY(), Robot.operator.getRightX());
         frontRight.testMotors(Robot.operator.getLeftY(), -Robot.operator.getRightX());
         backLeft.testMotors(Robot.operator.getLeftY(), Robot.operator.getRightX());
         backRight.testMotors(Robot.operator.getLeftY(), -Robot.operator.getRightX());
+        */
+        SwerveModuleState state = new SwerveModuleState(0d,Rotation2d.fromDegrees(0));
+        frontLeft.setState(state);
+        backLeft.setState(state);
+        frontRight.setState(state);
+        backRight.setState(state);
+        SmartDashboard.putNumber("module", state.angle.getDegrees()-frontLeft.getTurn());
     }
 
     private void updateAuto(){
@@ -234,6 +247,7 @@ public class SwerveDrive extends Threaded{
         double fwd = Robot.operator.getLeftY();
         double str = Robot.operator.getLeftX();
         double rot = Robot.operator.getRightX();
+        double correction = 0;
         if(Math.abs(fwd) <= .2)
             fwd = 0;
         if(Math.abs(str) <= .2)
@@ -241,7 +255,11 @@ public class SwerveDrive extends Threaded{
         if(Math.abs(rot) <= .2)
             rot = 0;
         
-        driveRobotOriented(fwd, str, rot);
+        /*if(Math.abs(fwd)>0 && rot==0){
+            double error = Rotation2d.fromDegrees(0).rotateBy(getDriveHeading()).unaryMinus().getDegrees();
+            correction = headingPID.update(error);
+        }*/
+        driveRobotOriented(fwd, str, rot+correction);
 
     }
 
@@ -266,18 +284,18 @@ public class SwerveDrive extends Threaded{
 
     private void driveWPIFieldOriented(double fwd, double str, double rot){
         var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(str*DriveConstants.MAX_TANGENTIAL_VELOCITY, fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD, getDriveHeading()));
-        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
         SmartDashboard.putNumber("desired angle", states[0].angle.getDegrees());
     }
 
     private void driveRobotOriented(double fwd, double str, double rot){
         var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*(4*Math.PI)));
-        DriveConstants.SWERVE_KINEMATICS.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
         SmartDashboard.putNumber("actual angle", backLeft.getState().angle.getDegrees());
         SmartDashboard.putNumber("module velocity", backLeft.getState().speedMetersPerSecond);
-        SmartDashboard.putNumber("heading error", backLeft.getTurn()- backLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("heading error", Rotation2d.fromDegrees(backLeft.getTurn()).rotateBy(Rotation2d.fromDegrees(backLeft.getState().angle.getDegrees())).getDegrees());
         SmartDashboard.putNumber("velocity error", backLeft.getDriveVelocity()- backLeft.getState().speedMetersPerSecond);
     }
     public synchronized SwerveModules[] getModules(){
@@ -290,7 +308,7 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        return navx.getRotation2d();
+        return Rotation2d.fromDegrees(pigeon.getAngle());
     }
 
     public boolean isFinished(){

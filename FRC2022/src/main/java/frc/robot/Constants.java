@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.util.CommonConversions;
 
 public class Constants {
@@ -33,6 +34,7 @@ public class Constants {
         public static final double WHEELBASE_WIDTH = .762;
         public static final double WHEELBASE_LENGTH = .762;
         public static final double WHEELBASE_DIAMETER = Math.sqrt(Math.pow(WHEELBASE_WIDTH, 2)+Math.pow(WHEELBASE_LENGTH, 2));
+        public static final double WHEELBASE_RADIUS = WHEELBASE_DIAMETER/2;
 
         public static final Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d(WHEEL_BASE_METERS/2,TRACK_WIDTH_METERS/2);
         public static final Translation2d BACK_LEFT_MODULE_POSITION = new Translation2d(-WHEEL_BASE_METERS/2,TRACK_WIDTH_METERS/2);
@@ -84,7 +86,7 @@ public class Constants {
     public static final class ShooterConstants{
         public static final int DEVICE_ID_SHOOTER = 3;
 
-        public static final double TOLERANCE_RPM = 20;
+        public static final double TOLERANCE_RPM = 70;
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 
@@ -99,6 +101,8 @@ public class Constants {
         public static final double INTAKE_SPEED = 1;
         public static final double INDEX_SPEED = -.7;
         public static final boolean STOWED = false;
+        public static final Value INTAKE_DOWN = Value.kReverse;
+        public static final Value INTAKE_UP = Value.kForward;
     }
 
 

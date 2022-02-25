@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.Climb;
 import frc.Subystem.Serializer;
 import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
@@ -20,13 +21,14 @@ import frc.util.Threading.ThreadScheduler;
 
 public class Robot extends TimedRobot {
   public static final XboxController operator = new XboxController(0);
+  public static final XboxController operator2 = new XboxController(1);
   SwerveDrive swerve = SwerveDrive.getInstance(); 
-  SwerveTracker tracker = SwerveTracker.getInstance();
+  //SwerveTracker tracker = SwerveTracker.getInstance();
   //VisionManager visionManager = VisionManager.getInstance();
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
-  Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+  //Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   Thread auto;
 
   
@@ -38,10 +40,10 @@ public void robotInit() {
     swerve.setPeriod(Duration.ofMillis(20));
     //drive.setPeriod(Duration.ofMillis(20));
     //vision.setPeriod(Duration.ofMillis(5));
-    tracker.setPeriod(Duration.ofMillis(5));
+    //tracker.setPeriod(Duration.ofMillis(5));
     scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
-    scheduler.schedule(tracker, executor);
+    //scheduler.schedule(tracker, executor);
     //scheduler.schedule(drive, executor);
     //scheduler.schedule(vision, executor);
 }
@@ -72,28 +74,29 @@ public void autonomousPeriodic() {
       SwerveDrive.getInstance().setFieldOriented();
       */
     //SwerveDrive.getInstance().setFieldOriented();
-    SwerveDrive.getInstance().setFieldOriented();
+    //SwerveDrive.getInstance().setRobotOriented();
     serializer.setOff();
     //Drive.getInstance().setTeleop();
-    compressor.enableDigital();
+    //compressor.enableDigital();
   }
 
 public void teleopPeriodic() {
       if(operator.getRawAxis(2)>.2)
-        //serializer.setIndexing();
-        serializer.setAll();
-      else if(operator.getRawButton(5))
-        serializer.setEjecting();
+        serializer.setAll();  
       else if(operator.getRawButton(6))
         serializer.setShooting();
       else if(operator.getRawButton(1))
         serializer.setEjecting();
+      else if(operator.getRawButton(5))
+        serializer.setIndexing();
       else
         serializer.setOff();
 
       if(operator.getRawButton(3)){
-        serializer.retractIntake();
+        serializer.toggleIntake(false);
+      
       }
+
 }
 
 

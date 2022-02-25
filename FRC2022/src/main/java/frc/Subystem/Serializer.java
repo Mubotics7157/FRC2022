@@ -12,12 +12,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
-import frc.util.LidarLite;
 import frc.util.Shooting.ShotGenerator;
 import frc.util.Shooting.ShotGenerator.ShooterSpeed;
 import frc.util.Threading.Threaded;
@@ -68,7 +66,7 @@ public class Serializer extends Threaded {
 
         beamBreak = new DigitalInput(0);
 
-        //intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 2);
+        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
         /*
         intakeMotor.enableVoltageCompensation(true);
         intakeMotor.enableCurrentLimit(true);
@@ -116,7 +114,7 @@ public class Serializer extends Threaded {
                 break;
             case SPIT:
                 //shooter.atSpeed(1500, 1000);
-                shoot(2000,3000);
+                shoot(1250,1500);
                 break;
             case VOMIT:
                 SmartDashboard.putString("Intake State", "Ejecting");
@@ -134,11 +132,10 @@ public class Serializer extends Threaded {
     }
 
     private void index(){
-        //elevator.set(IntakeConstants.INDEX_SPEED);
+        elevator.set(-IntakeConstants.INDEX_SPEED);
         SmartDashboard.putNumber("bus voltage", elevator.getBusVoltage());
         SmartDashboard.putNumber("output current", elevator.getOutputCurrent());
 
-        elevator.set(-.3);
     }
 
     private void climb(){
@@ -158,8 +155,7 @@ public class Serializer extends Threaded {
     }
 
     private void ejectAll(){
-        //intakeMotor.set(-IntakeConstants.INTAKE_SPEED);
-        elevator.set( -IntakeConstants.INDEX_SPEED);
+        intakeMotor.set(ControlMode.PercentOutput,IntakeConstants.INTAKE_SPEED);
     }
 
 
@@ -252,9 +248,10 @@ public class Serializer extends Threaded {
             return false;
     }
 
-    public synchronized void retractIntake(){
-        intakeSolenoid.set(Value.kForward);
-        SmartDashboard.putBoolean("forward?", intakeSolenoid.get() == Value.kForward);
+    public synchronized void toggleIntake(boolean down){
+        if(!down)
+            setOff();
+        intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
     public Color getCurrentColor(){
@@ -271,5 +268,9 @@ public class Serializer extends Threaded {
 
     public synchronized void adjustShooterSpeeds(double top, double bot){
         shooter.adjustShooterSpeeds(top, bot);
+    }
+
+    public synchronized void indexBackwards(){
+        elevator.set(-IntakeConstants.INDEX_SPEED);
     }
 }
