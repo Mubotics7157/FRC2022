@@ -3,9 +3,6 @@ package frc.Subystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -13,7 +10,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.Shooting.ShotGenerator;
@@ -23,7 +19,7 @@ import frc.util.Threading.Threaded;
 public class Serializer extends Threaded {
 
     TalonSRX intakeMotor;
-    CANSparkMax elevator;
+    CANSparkMax feeder;
 
     IntakeState intakeState;
 
@@ -32,9 +28,8 @@ public class Serializer extends Threaded {
     LED led = new LED();
 
     private DigitalInput beamBreak;
+    Climb climb = new Climb();
 
-    ColorSensorV3 colorSensor;
-    ColorMatch matches = new ColorMatch();
 
     ShotGenerator shotGen;
 
@@ -53,32 +48,15 @@ public class Serializer extends Threaded {
 
 
     public Serializer(){
-        matches.addColorMatch(Color.kBlue);
-        matches.addColorMatch(Color.kRed);
-        matches.addColorMatch(Color.kBlack);
-        matches.addColorMatch(Color.kGray);
-
         intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
         intakeMotor.setInverted(true);
-        elevator = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+        feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
         intakeMotor.setInverted(true);
-        elevator.setInverted(true);
+        feeder.setInverted(true);
 
         beamBreak = new DigitalInput(0);
 
         intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
-        /*
-        intakeMotor.enableVoltageCompensation(true);
-        intakeMotor.enableCurrentLimit(true);
-
-        TalonSRXConfiguration intakeConfig = new TalonSRXConfiguration();
-        intakeConfig.openloopRamp = IntakeConstants.OPEN_LOOP_RAMP;
-        intakeConfig.voltageCompSaturation = 8;
-        intakeConfig.peakCurrentLimit = 0;
-        intakeConfig.peakOutputForward = .7;
-        intakeConfig.peakOutputReverse = -.7;
-        
-        */
     }
 
     private enum IntakeState{
@@ -88,7 +66,8 @@ public class Serializer extends Threaded {
         SLURP,
         SPIT,
         VOMIT,
-        EXTEND
+        EXTEND,
+        RETRACT
     }
     @Override
     public void update() {
@@ -107,7 +86,7 @@ public class Serializer extends Threaded {
                 break;
             case SWALLOW:
                 SmartDashboard.putString("Intake State", "Indexer");
-                index();
+                spitBall();
                 break;
             case SLURP:
                 runBoth();
@@ -120,10 +99,19 @@ public class Serializer extends Threaded {
                 SmartDashboard.putString("Intake State", "Ejecting");
                 ejectAll();
                 break;
-            //case EXTEND:
+            case EXTEND:
+                SmartDashboard.putString("Intake State", "Climb extending");
+                extendClimb();
+                break;
+            case RETRACT:
+                SmartDashboard.putString("Intake State", "Climb retracting");
+                retractClimb();
+                break;
+
         }
         if(intakeState != IntakeState.SPIT)
             shooter.atSpeed(0, 0);
+        if(intakeState !=IntakeState.EXTEND && intakeState!=IntakeState.RETRACT)
         SmartDashboard.putBoolean("in", beamBreak.get());
     }
 
@@ -132,9 +120,7 @@ public class Serializer extends Threaded {
     }
 
     private void index(){
-        elevator.set(-IntakeConstants.INDEX_SPEED);
-        SmartDashboard.putNumber("bus voltage", elevator.getBusVoltage());
-        SmartDashboard.putNumber("output current", elevator.getOutputCurrent());
+        feeder.set(IntakeConstants.INDEX_SPEED);
 
     }
 
@@ -144,36 +130,16 @@ public class Serializer extends Threaded {
 
     private void runBoth(){
         intakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
-        //if(hasBallStowed()){
-        elevator.set(IntakeConstants.INDEX_SPEED);
-       // }
+        feeder.set(IntakeConstants.INDEX_SPEED);
     }
 
     public synchronized void runAll(){
         //intakeMotor.set( IntakeConstants.INTAKE_SPEED);
-        elevator.set(IntakeConstants.INDEX_SPEED);
+        feeder.set(IntakeConstants.INDEX_SPEED);
     }
 
     private void ejectAll(){
         intakeMotor.set(ControlMode.PercentOutput,IntakeConstants.INTAKE_SPEED);
-    }
-
-
-
-    private void oneButtonShot(boolean overrideTarmacShot,boolean high){
-        ShooterSpeed desiredShot; 
-        double arbtirarySpeed;
-        if(overrideTarmacShot&&onTarmacLine()){
-            if(high){
-                arbtirarySpeed = 1500;
-            }
-            else
-                arbtirarySpeed = 1200;
-        }
-
-
-        //if(shooter.atSpeed(arbtirarySpeed))
-            index();
     }
 
     private void shoot(double top, double bot){
@@ -189,26 +155,24 @@ public class Serializer extends Threaded {
         
     }
 
-    private void automatedShot(int RPM){
-        //atSpeed = shooter.atSpeed(RPM);
-        //shooter.rev(RPM);
-        if(RPM == 0)
-            //shooter.rev(0);
-       // else if(atSpeed)
+    public synchronized void setArbitrary(double top, double bot){
+        if(shooter.atSpeed(top, bot))
             index();
-        else
-        ejectAll();
-
-    }
-
-    private void setArbitrary(){
-        //shooter.rev(1700);
     }
 
     private void updateOff(){
-        elevator.set(0);
+        feeder.set(0);
         intakeMotor.set(ControlMode.PercentOutput, 0);
         shooter.rev(0, 0);
+        climb.climb(0);
+    }
+
+    private void extendClimb(){
+        climb.climb(.5);
+    }
+
+    private void retractClimb(){
+        climb.climb(-.5);
     }
 
     public synchronized void setIntaking(){
@@ -230,9 +194,7 @@ public class Serializer extends Threaded {
     }
 
     public synchronized void setAll(){
-        if(intakeSolenoid.get() == Value.kForward)
-            intakeSolenoid.set(Value.kReverse);
-
+        toggleIntake(true);
         intakeState = IntakeState.SLURP;
     }
     
@@ -240,12 +202,11 @@ public class Serializer extends Threaded {
         intakeState = IntakeState.OFF;
     }
 
-    public boolean onTarmacLine(){
-        
-        if(getCurrentColor()==Color.kRed || getCurrentColor()==Color.kBlue)
-            return true;
+    public synchronized void setClimb(boolean extend){
+        if(extend)
+            intakeState = IntakeState.EXTEND;
         else
-            return false;
+            intakeState = IntakeState.RETRACT;
     }
 
     public synchronized void toggleIntake(boolean down){
@@ -254,23 +215,13 @@ public class Serializer extends Threaded {
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
-    public Color getCurrentColor(){
-        ColorMatchResult result = matches.matchClosestColor(colorSensor.getColor());
-        SmartDashboard.putString("Current Color Sensed", result.color.toString());
-        SmartDashboard.putNumber("Confidence", result.confidence);
-        return result.color;
-    }
-
     private boolean hasBallStowed(){
         SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
         return beamBreak.get() == IntakeConstants.STOWED;
     }
 
-    public synchronized void adjustShooterSpeeds(double top, double bot){
-        shooter.adjustShooterSpeeds(top, bot);
+    private synchronized void spitBall(){
+        feeder.set(-IntakeConstants.INDEX_SPEED);
     }
-
-    public synchronized void indexBackwards(){
-        elevator.set(-IntakeConstants.INDEX_SPEED);
-    }
+    
 }

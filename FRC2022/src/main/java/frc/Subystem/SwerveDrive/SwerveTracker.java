@@ -36,18 +36,18 @@ public class SwerveTracker extends Threaded{
 
     @Override
     public void update() {
-        //updateOdometry();
+        updateOdometry();
         synchronized(this){
-            //SmartDashboard.putNumber("PoseX", getOdometry().getX());
-            //SmartDashboard.putNumber("PoseY", getOdometry().getY());
-            //SmartDashboard.putNumber("PoseR", getOdometry().getRotation().getDegrees());
+            SmartDashboard.putNumber("PoseX", getOdometry().getX());
+            SmartDashboard.putNumber("PoseY", getOdometry().getY());
+            SmartDashboard.putNumber("PoseR", getOdometry().getRotation().getDegrees());
         }
     }
 
     private void updateOdometry(){
         odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
-        SmartDashboard.putData(field);
-        field.setRobotPose(odometry.getPoseMeters());
+        ///SmartDashboard.putData(field);
+        //field.setRobotPose(odometry.getPoseMeters());
             //Translation2d modulePositionFromChassis = DriveConstants.MODULE_POSITIONS[i]
             //.rotateBy(swerve.getDriveHeading())
             //.plus(odometry.getPoseMeters().getTranslation());
@@ -66,6 +66,9 @@ public class SwerveTracker extends Threaded{
         odometry.resetPosition(pose, pose.getRotation());
     }
 
+    public synchronized void resetOdometry(Pose2d pose){
+        odometry.resetPosition(new Pose2d(0,0,Rotation2d.fromDegrees(0)),Rotation2d.fromDegrees(0));
+    }
     public synchronized Pose2d getOdometry(){
         return odometry.getPoseMeters();
     }

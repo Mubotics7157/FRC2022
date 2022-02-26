@@ -59,9 +59,9 @@ public class Constants {
     }
 
     public static class ModuleConstants{
-        public static final double driveKS = 0.6;
-        public static final double driveKV = 2.5;
-        public static final double driveKA = 0.4;
+        public static final double driveKS = 0.71003;
+        public static final double driveKV = 2.2783;
+        public static final double driveKA = 0.25953;
         public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(driveKS,driveKV,driveKA);
         public static final double STICK_DEADBAND = 0.1;
         public static final double MAX_SPEED_TELE = 3;

@@ -8,6 +8,7 @@ import org.photonvision.common.hardware.VisionLEDMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.util.Threading.Threaded;
 
 public class VisionManager extends Threaded{
@@ -50,11 +51,21 @@ public class VisionManager extends Threaded{
             return new Rotation2d(0);
     }
 
-
-    public synchronized double getDistance(){
+    /*
+       public synchronized double getDistancePhoton(){
         var result = camera.getLatestResult();
-        return PhotonUtils.calculateDistanceToTargetMeters(.55, 1, Units.degreesToRadians(-2), Units.degreesToRadians(result.getBestTarget().getPitch()));
+        double TargetPitch = result.getBestTarget().getPitch();
+
+        double distance = Units.metersToInches(Constants.VisionConstants.CameraHeight - Constants.VisionConstants.TargetHeight)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CameraPitch + TargetPitch));
+        return distance;
     }
+
+        public synchronized double getDistance(){
+        var result = camera.getLatestResult();
+        double distance = Units.metersToInches(Constants.VisionConstants.CameraHeight - Constants.VisionConstants.TargetHeight)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CameraPitch + result.getBestTarget().getPitch()));
+        return distance;
+    }
+    */
 
 
     public static VisionManager getInstance(){

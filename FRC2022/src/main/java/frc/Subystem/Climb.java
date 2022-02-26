@@ -3,6 +3,7 @@ package frc.Subystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,8 +13,12 @@ public class Climb {
 
     public Climb(){
         climbMotor = new TalonFX(40);
-        //climbMotor.setInverted(InvertType.InvertMotorOutput);
+        //climbMotor.setInverted(true);
         //climbMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+        //climbMotor.setNeutralMode(NeutralMode.Brake);
+        climbMotor.configFactoryDefault();
+        climbMotor.configPeakOutputForward(1);
+        climbMotor.configPeakOutputReverse(-1);
 
         /*
          climbMotor.setSelectedSensorPosition(0, 0, 20);

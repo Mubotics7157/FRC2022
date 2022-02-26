@@ -45,14 +45,11 @@ public class SwerveDrive extends Threaded{
     //private AHRS navx = new AHRS(SPI.Port.kMXP);
     private WPI_Pigeon2 pigeon = new WPI_Pigeon2(30);
 
-    double [] angles= new double[4];
-    double[]speeds = new double[4];
-    double yawVal = 0;
 
-    PIDController fwdController = new PIDController(1, 0, 0);
-    PIDController strController = new PIDController(1, 0, 0);
-    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(ModuleConstants.MOTION_PROFILE_MAX_SPEED,ModuleConstants.MOTION_PROFILE_MAX_ACCEL);
-    ProfiledPIDController rotController = new ProfiledPIDController(5, 0, 0,rotProfile);
+    PIDController fwdController = new PIDController(.1, 0, 0);
+    PIDController strController = new PIDController(.1, 0, 0);
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(6.28,3.14);
+    ProfiledPIDController rotController = new ProfiledPIDController(.1, 0, 0,rotProfile);
     //rotControler.enableContinuousInput(-Math.PI,Math.PI);
     SynchronousPID turnPID;
     SynchronousPID distancePID;
@@ -75,6 +72,9 @@ public class SwerveDrive extends Threaded{
         turnPID = new SynchronousPID(.1, 0, 0);
         distancePID = new SynchronousPID(0, 0, 0);
         headingPID = new SynchronousPID(.004, 0, 0);
+
+        pigeon.reset();
+        pigeon.calibrate();
 
     }
 
@@ -134,6 +134,10 @@ public class SwerveDrive extends Threaded{
                 SmartDashboard.putString("Swerve State", "Done");
                 break;
         }
+        SmartDashboard.putNumber("front left rotation", frontLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("back left rotation", backLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("front right rotation", frontRight.getState().angle.getDegrees());
+        SmartDashboard.putNumber("back right rotation", backRight.getState().angle.getDegrees());
     }
     //if(Robot.isSimulation())
       //  updateSim();
@@ -248,9 +252,10 @@ public class SwerveDrive extends Threaded{
         double str = Robot.operator.getLeftX();
         double rot = Robot.operator.getRightX();
         double correction = 0;
+
         if(Math.abs(fwd) <= .2)
             fwd = 0;
-        if(Math.abs(str) <= .2)
+        if(Math.abs(str) <= .4)
             str = 0;
         if(Math.abs(rot) <= .2)
             rot = 0;
@@ -295,8 +300,9 @@ public class SwerveDrive extends Threaded{
         setModuleStates(states);
         SmartDashboard.putNumber("actual angle", backLeft.getState().angle.getDegrees());
         SmartDashboard.putNumber("module velocity", backLeft.getState().speedMetersPerSecond);
-        SmartDashboard.putNumber("heading error", Rotation2d.fromDegrees(backLeft.getTurn()).rotateBy(Rotation2d.fromDegrees(backLeft.getState().angle.getDegrees())).getDegrees());
-        SmartDashboard.putNumber("velocity error", backLeft.getDriveVelocity()- backLeft.getState().speedMetersPerSecond);
+        SmartDashboard.putNumber("desired heading", backLeft.getTurn());
+        SmartDashboard.putNumber("actual heading", backLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("velocity error", backLeft.getVelocity()- backLeft.getState().speedMetersPerSecond);
     }
     public synchronized SwerveModules[] getModules(){
         return modules;
@@ -308,7 +314,11 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        return Rotation2d.fromDegrees(pigeon.getAngle());
+        return pigeon.getRotation2d();
+    }
+
+    public synchronized double getGyroAngle(){
+        return pigeon.getAngle();
     }
 
     public boolean isFinished(){

@@ -21,6 +21,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -36,7 +37,7 @@ public class SwerveModules {
     double turnDist=0;
 
     double velocity = 0;
-    double error = 0;
+    double desiredHeading = 0;
     double setpointVel = 0;
 
     TalonFXSimCollection turnSimCollection;
@@ -62,12 +63,13 @@ public class SwerveModules {
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
         driveConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
+        driveConfig.slot0.kP = .01;
 
         TalonFXConfiguration turnConfig = new TalonFXConfiguration();
         turnConfig.voltageCompSaturation = 12;
         turnConfig.supplyCurrLimit.currentLimit = 20;
         turnConfig.supplyCurrLimit.enable = true;
-        turnConfig.slot0.kP = .05 ;
+        turnConfig.slot0.kP = .225;
         turnConfig.slot0.kD = 0;
         turnConfig.slot0.kF = 0;
         turnConfig.motionCruiseVelocity = ModuleConstants.MOTION_PROFILE_MAX_SPEED;
@@ -79,6 +81,8 @@ public class SwerveModules {
         driveMotor.configAllSettings(driveConfig);
         absEncoder = new CANCoder(turnEncoderPort);
 
+        absEncoder.configFactoryDefault();
+        
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
@@ -97,37 +101,37 @@ public class SwerveModules {
         driveSimCollection = driveMotor.getSimCollection();
         }
 
-        
     }
 
 
     public void setState(SwerveModuleState state){
-        SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
-        error = optimizedState.angle.getDegrees();
-        double vel = optimizedState.speedMetersPerSecond/DriveConstants.MAX_TANGENTIAL_VELOCITY;
-        velocity = optimizedState.speedMetersPerSecond;
+        SwerveModuleState.optimize(state, getAbsHeading());
+        desiredHeading = state.angle.getDegrees();
+        double vel = state.speedMetersPerSecond/DriveConstants.MAX_TANGENTIAL_VELOCITY;
+        velocity = state.speedMetersPerSecond;
 
-        if(Math.abs(optimizedState.speedMetersPerSecond) < .1){
+        if(Math.abs(state.speedMetersPerSecond) < .1){
            turnMotor.set(ControlMode.PercentOutput,0);
            driveMotor.set(ControlMode.PercentOutput, 0);
         }
         else{
-            //setVelocity(optimizedState.speedMetersPerSecond/10, .2);
+            //setVelocity(optimizedState.speedMetersPerSecond, .2);
             driveMotor.set(ControlMode.PercentOutput,vel);
-            setTurnRad(optimizedState.angle);
+            setTurnRad(state.angle);
         }
     }
 
     private void setVelocity(double driveSetpoint, double dt){
         double actualDriveVel = getDriveVelocity();
         double driveAccelSetpoint = (driveSetpoint-actualDriveVel)/dt;
-        double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint, driveAccelSetpoint);
+        //double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint,driveAccelSetpoint);
 
         if(driveSetpoint==0){
             driveMotor.set(ControlMode.PercentOutput, 0);
         } 
         else 
-            driveMotor.set(ControlMode.Velocity, driveSetpoint,DemandType.ArbitraryFeedForward,driveFFVolts/12);
+        driveMotor.set(ControlMode.Velocity,CommonConversions.metersPerSecToStepsPerDecisec(driveSetpoint));
+          //  driveMotor.set(ControlMode.Velocity, CommonConversions.metersPerSecToStepsPerDecisec(driveSetpoint),DemandType.ArbitraryFeedForward,driveFFVolts/12);
     }
 
 
@@ -137,6 +141,8 @@ public class SwerveModules {
         double setpointSteps = currPosition+turnSteps;
 
         turnMotor.set(ControlMode.MotionMagic,setpointSteps);
+        SmartDashboard.putNumber("turn steps", currPosition);
+        
     }
 
     public void overrideModule(){
@@ -190,7 +196,7 @@ public class SwerveModules {
     }
 
     public double getTurn(){
-    return error;
+    return desiredHeading;
     }
 
     public void invertMotor(){

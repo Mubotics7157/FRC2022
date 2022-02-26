@@ -38,6 +38,7 @@ public class AutoRoutineGenerator {
 		initialDrive.addCommands(new SetDrivePath(move,true));
 		return initialDrive;
 	}
+	/*
 
 	public static AutoRoutine niceSideBlue5BallRoutine(){
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
@@ -47,7 +48,7 @@ public class AutoRoutineGenerator {
 		initialDrive = new AutoRoutine();
 		Pose2d startPos = move.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,true, PathTrigger.create(new SetIntaking(true, true), .1),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true),new Delay(2.3),new SetDrivePath(move2,true,PathTrigger.create(new SetIntaking(true, true), .3),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true), new Delay(2.3));
+		initialDrive.addCommands(new SetDrivePath(move,true, PathTrigger.create(new SetIntaking(true), .1),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true),new Delay(2.3),new SetDrivePath(move2,true,PathTrigger.create(new SetIntaking(true, true), .3),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true), new Delay(2.3));
 		return initialDrive;
 	}
 
@@ -107,6 +108,7 @@ public class AutoRoutineGenerator {
 		initialDrive.addCommands(new SetDrivePath(move,false),new SetDrivePath(move2,false));
 		return initialDrive;
 	}
+	*/
 
     private static TrajectoryConfig createConfig(double velocity, double accel, boolean reversed) {
 		TrajectoryConfig config = new TrajectoryConfig(velocity, accel);
