@@ -8,9 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.Shooting.ShotGenerator;
 import frc.util.Shooting.ShotGenerator.ShooterSpeed;
@@ -24,7 +22,6 @@ public class Serializer extends Threaded {
     IntakeState intakeState;
 
     Shooter shooter = new Shooter();
-    Climb climber = new Climb();
     LED led = new LED();
 
     private DigitalInput beamBreak;
@@ -32,9 +29,6 @@ public class Serializer extends Threaded {
 
 
     ShotGenerator shotGen;
-
-    boolean overrideTarmacShot;
-    boolean atSpeed;
 
     DoubleSolenoid intakeSolenoid;
 
@@ -124,17 +118,8 @@ public class Serializer extends Threaded {
 
     }
 
-    private void climb(){
-        climber.climb(Robot.operator.getRawAxis(1));
-    }
-
     private void runBoth(){
         intakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
-        feeder.set(IntakeConstants.INDEX_SPEED);
-    }
-
-    public synchronized void runAll(){
-        //intakeMotor.set( IntakeConstants.INTAKE_SPEED);
         feeder.set(IntakeConstants.INDEX_SPEED);
     }
 
@@ -168,7 +153,8 @@ public class Serializer extends Threaded {
     }
 
     private void extendClimb(){
-        climb.climb(.5);
+        //climb.climb(.5);
+        climb.goUp();
     }
 
     private void retractClimb(){

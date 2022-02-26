@@ -73,10 +73,9 @@ public void autonomousPeriodic() {
     else
       SwerveDrive.getInstance().setFieldOriented();
       */
-    //SwerveDrive.getInstance().setFieldOriented();
-    SwerveDrive.getInstance().setRobotOriented();
+    SwerveDrive.getInstance().setFieldOriented();
+    //SwerveDrive.getInstance().setRobotOriented();
     serializer.setOff();
-    //Drive.getInstance().setTeleop();
   }
 
 public void teleopPeriodic() {

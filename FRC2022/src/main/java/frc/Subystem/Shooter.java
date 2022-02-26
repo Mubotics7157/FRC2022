@@ -25,7 +25,7 @@ public class Shooter {
         );
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.voltageCompSaturation = 10;
-        config.slot0.kP = .18;
+        config.slot0.kP = .22;
         config.slot0.kI = .00002;//8;
         config.slot0.kD = .2;//8;
         config.slot0.kF = .04;

@@ -26,8 +26,6 @@ public class VisionManager extends Threaded{
         ON
     }
 
-    
-
     public synchronized double getTargetYaw(){
         var result = camera.getLatestResult();
         if(result.hasTargets()){
@@ -50,23 +48,14 @@ public class VisionManager extends Threaded{
         else
             return new Rotation2d(0);
     }
-
-    /*
-       public synchronized double getDistancePhoton(){
+    
+    public synchronized double getDistanceToTarget(){
         var result = camera.getLatestResult();
         double TargetPitch = result.getBestTarget().getPitch();
 
-        double distance = Units.metersToInches(Constants.VisionConstants.CameraHeight - Constants.VisionConstants.TargetHeight)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CameraPitch + TargetPitch));
+        double distance = Units.metersToInches(Constants.VisionConstants.CAMERA_HEIGHT_METERS - Constants.VisionConstants.TARGET_HEIGHT_METERS)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CAMERA_PITCH_RADIANS + TargetPitch));
         return distance;
     }
-
-        public synchronized double getDistance(){
-        var result = camera.getLatestResult();
-        double distance = Units.metersToInches(Constants.VisionConstants.CameraHeight - Constants.VisionConstants.TargetHeight)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CameraPitch + result.getBestTarget().getPitch()));
-        return distance;
-    }
-    */
-
 
     public static VisionManager getInstance(){
         if(instance == null)
