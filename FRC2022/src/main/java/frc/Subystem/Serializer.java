@@ -93,15 +93,6 @@ public class Serializer extends Threaded {
                 SmartDashboard.putString("Intake State", "Ejecting");
                 ejectAll();
                 break;
-            case EXTEND:
-                SmartDashboard.putString("Intake State", "Climb extending");
-                extendClimb();
-                break;
-            case RETRACT:
-                SmartDashboard.putString("Intake State", "Climb retracting");
-                retractClimb();
-                break;
-
         }
         if(intakeState != IntakeState.SPIT)
             shooter.atSpeed(0, 0);
@@ -149,17 +140,9 @@ public class Serializer extends Threaded {
         feeder.set(0);
         intakeMotor.set(ControlMode.PercentOutput, 0);
         shooter.rev(0, 0);
-        climb.climb(0);
     }
 
-    private void extendClimb(){
-        //climb.climb(.5);
-        climb.goUp();
-    }
 
-    private void retractClimb(){
-        climb.climb(-.5);
-    }
 
     public synchronized void setIntaking(){
        // intakeSolenoid.set(Value.kForward);
@@ -188,12 +171,6 @@ public class Serializer extends Threaded {
         intakeState = IntakeState.OFF;
     }
 
-    public synchronized void setClimb(boolean extend){
-        if(extend)
-            intakeState = IntakeState.EXTEND;
-        else
-            intakeState = IntakeState.RETRACT;
-    }
 
     public synchronized void toggleIntake(boolean down){
         if(!down)

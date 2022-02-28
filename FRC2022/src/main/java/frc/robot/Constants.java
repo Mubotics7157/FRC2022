@@ -1,9 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -20,8 +17,8 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES)*Math.PI;
         public static final double STICK_DEADBAND = 0.1;
 
-        public static final double MAX_ANGULAR_VELOCITY_RAD = 16*Math.PI;
-        public static final double MAX_TANGENTIAL_VELOCITY = 4;
+        public static final double MAX_ANGULAR_VELOCITY_RAD = 16*Math.PI * .75;
+        public static final double MAX_TANGENTIAL_VELOCITY = 5/3;
 
         public static final double CLOSED_LOOP_RAMP = .2;
         public static final double OPEN_LOOP_RAMP = .25;
@@ -69,6 +66,7 @@ public class Constants {
         public static final double driveKS = 0.71003;
         public static final double driveKV = 2.2783;
         public static final double driveKA = 0.25953;
+
         public static final SimpleMotorFeedforward DRIVE_FEEDFORWARD = new SimpleMotorFeedforward(driveKS,driveKV,driveKA);
         public static final double STICK_DEADBAND = 0.1;
         public static final double MAX_SPEED_TELE = 3;
@@ -93,7 +91,7 @@ public class Constants {
     public static final class ShooterConstants{
         public static final int DEVICE_ID_SHOOTER = 3;
 
-        public static final double TOLERANCE_RPM = 70;
+        public static final double TOLERANCE_RPM = 35;
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 
@@ -106,7 +104,7 @@ public class Constants {
         public static final int DEVICE_ID_INDEXER = 21;
         public static final double OPEN_LOOP_RAMP = .2;
         public static final double INTAKE_SPEED = 1;
-        public static final double INDEX_SPEED = -.7;
+        public static final double INDEX_SPEED = -1;
         public static final boolean STOWED = false;
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;

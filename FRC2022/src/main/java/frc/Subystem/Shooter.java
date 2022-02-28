@@ -21,16 +21,19 @@ public class Shooter {
     */
     public Shooter(){
         flywheelBot = new TalonFX(20);
-        flywheelTop = new TalonFX(19
-        );
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        config.voltageCompSaturation = 10;
-        config.slot0.kP = .22;
-        config.slot0.kI = .00002;//8;
-        config.slot0.kD = .2;//8;
-        config.slot0.kF = .04;
-        flywheelBot.configAllSettings(config);
-        flywheelTop.configAllSettings(config);
+        flywheelTop = new TalonFX(19);
+        TalonFXConfiguration topConfig = new TalonFXConfiguration();
+        topConfig.voltageCompSaturation = 10;
+        topConfig.slot0.kP = .22;
+        topConfig.slot0.kI = .00002;
+        topConfig.slot0.kD = .002;
+        topConfig.slot0.kF = .05;
+        flywheelTop.configAllSettings(topConfig);
+        TalonFXConfiguration botConfig = new TalonFXConfiguration();
+        botConfig.voltageCompSaturation = 10;
+        botConfig.slot0.kP =.22;
+        botConfig.slot0.kF =.05;
+        flywheelBot.configAllSettings(botConfig);
         flywheelBot.setNeutralMode(NeutralMode.Coast);
         flywheelTop.setNeutralMode(NeutralMode.Coast);
         flywheelBot.overrideLimitSwitchesEnable(false);
@@ -60,7 +63,7 @@ public class Shooter {
             flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(botSetpoint));
             flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint));
         }
-        SmartDashboard.putNumber("error", topSetpoint-getTopRPM());
+        SmartDashboard.putNumber("error", botSetpoint-getBotRPM());
 
     }
 

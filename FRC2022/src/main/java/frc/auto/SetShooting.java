@@ -6,11 +6,12 @@ import frc.Subystem.SwerveDrive.SwerveDrive;
 public class SetShooting extends AutoCommand {
     
     boolean shoot;
-    double topSpeed;
-    double botSpeed;
+    double topSpeed = 1250;
+    double botSpeed = 1500;
     
-    public SetShooting(boolean shoot){
+    public SetShooting(boolean shoot, boolean blocking){
         this.shoot = shoot;
+        this.setBlocking(blocking);
     }
 
     public SetShooting(boolean shoot, double top, double bot){
@@ -22,10 +23,12 @@ public class SetShooting extends AutoCommand {
     @Override
     public void start() {
         if(shoot)
-            Serializer.getInstance().setArbitrary(topSpeed, botSpeed);
-        else
-            Serializer.getInstance().setArbitrary(0, 0);
+            Serializer.getInstance().setShooting();
+            System.out.println("shooting");
+       /// else
+            //Serializer.getInstance().setOff();
     }
+
 
     @Override
     public boolean isFinished() {

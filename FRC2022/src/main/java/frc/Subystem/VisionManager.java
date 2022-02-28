@@ -2,7 +2,6 @@ package frc.Subystem;
 
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,12 +12,14 @@ import frc.util.Threading.Threaded;
 
 public class VisionManager extends Threaded{
     static VisionManager instance;
-    PhotonCamera camera;
+    PhotonCamera targetCam;
+    PhotonCamera cargoCam;
     VisionState visionState =VisionState.ON;
     double yaw; 
  
     public VisionManager(){
-        camera = new PhotonCamera("gloworm");
+        targetCam = new PhotonCamera("gloworm");
+        cargoCam = new PhotonCamera("LifeCam");
     }
 
     public enum VisionState{
@@ -27,20 +28,17 @@ public class VisionManager extends Threaded{
     }
 
     public synchronized double getTargetYaw(){
-        var result = camera.getLatestResult();
+        var result = targetCam.getLatestResult();
         if(result.hasTargets()){
             return -result.getBestTarget().getYaw();
         }
         else
-            return 1;
+            return 0;
     }
 
-    public synchronized boolean foundTargets(){
-        return camera.getLatestResult().hasTargets();
-    }
 
-    public synchronized Rotation2d getYawRotation2d(){
-        var result = camera.getLatestResult();
+    public synchronized Rotation2d getTargetYawRotation2d(){
+        var result = targetCam.getLatestResult();
         if(result.hasTargets()){
             Rotation2d yaw = new Rotation2d(Units.degreesToRadians(result.getBestTarget().getYaw()));
             return yaw.unaryMinus();
@@ -49,8 +47,23 @@ public class VisionManager extends Threaded{
             return new Rotation2d(0);
     }
     
+    public synchronized Rotation2d getCargoYawRotation2d(){
+        var result = cargoCam.getLatestResult();
+        if(result.hasTargets()){
+            Rotation2d yaw = new Rotation2d(Units.degreesToRadians(result.getBestTarget().getYaw()));
+            return yaw.unaryMinus();
+        }
+        else
+            return new Rotation2d(0);
+    }
+
+    public synchronized boolean hasVisionTarget(){
+        var result = targetCam.getLatestResult();
+        return result.hasTargets();
+    }
+
     public synchronized double getDistanceToTarget(){
-        var result = camera.getLatestResult();
+        var result = targetCam.getLatestResult();
         double TargetPitch = result.getBestTarget().getPitch();
 
         double distance = Units.metersToInches(Constants.VisionConstants.CAMERA_HEIGHT_METERS - Constants.VisionConstants.TARGET_HEIGHT_METERS)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CAMERA_PITCH_RADIANS + TargetPitch));
@@ -81,12 +94,14 @@ public class VisionManager extends Threaded{
     }
     
     public synchronized void setOff(){
-        camera.setLED(VisionLEDMode.kOff);
-        camera.setDriverMode(true);
+        targetCam.setLED(VisionLEDMode.kOff);
+        targetCam.setDriverMode(true);
+        cargoCam.setDriverMode(true);
     }
 
     public synchronized void setOn(){
-        camera.setDriverMode(false);
-        camera.setLED(VisionLEDMode.kOn);
+        targetCam.setDriverMode(false);
+        targetCam.setLED(VisionLEDMode.kOn);
+        cargoCam.setDriverMode(false);
     }
 }

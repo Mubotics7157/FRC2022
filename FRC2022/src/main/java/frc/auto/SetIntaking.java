@@ -1,6 +1,5 @@
 package frc.auto;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.Serializer;
 import frc.Subystem.SwerveDrive.SwerveDrive;
 
@@ -15,6 +14,8 @@ public class SetIntaking extends AutoCommand {
     public void start() {
         if(run)
             Serializer.getInstance().setAll();
+        else
+            Serializer.getInstance().setOff();
     }
 
     @Override

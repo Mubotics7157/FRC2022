@@ -1,6 +1,7 @@
 package frc.auto;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Delay extends AutoCommand {
 
@@ -16,6 +17,7 @@ public class Delay extends AutoCommand {
 	public void start() {
 		Timer.delay(seconds);
 		start = Timer.getFPGATimestamp();
+		SmartDashboard.putNumber("time elapsed", start);
 	}
 
 	@Override
