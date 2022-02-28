@@ -27,14 +27,14 @@ public class SwerveModules {
 
 
        public SwerveModules(int drivePort, int turnPort, int turnEncoderPort, double angleOffset, double pushinP){
-        turnPID = new PIDController(pushinP, 0, 0);
+        turnPID = new PIDController(.39, 0, 0);
 
         driveMotor = new TalonFX(drivePort);
         turnMotor = new TalonFX(turnPort);
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-        driveMotor.setNeutralMode(NeutralMode.Coast);
+        driveMotor.setNeutralMode(NeutralMode.Brake);
 
         turnMotor.enableVoltageCompensation(true);
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,20);
@@ -43,11 +43,7 @@ public class SwerveModules {
         driveConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
         driveConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
 
-        TalonFXConfiguration turnConfig = new TalonFXConfiguration();
-        turnConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
-        turnConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
 
-        turnMotor.configAllSettings(turnConfig);
         driveMotor.configAllSettings(driveConfig);
         absEncoder = new CANCoder(turnEncoderPort);
 
@@ -64,26 +60,17 @@ public class SwerveModules {
     public void setState(SwerveModuleState state){
         SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
 
-        if(Math.abs(optimizedState.speedMetersPerSecond) < .1){
-           turnMotor.set(ControlMode.PercentOutput,0);
-           driveMotor.set(ControlMode.PercentOutput, 0);
-        }
-        else{
             setVelocity(optimizedState.speedMetersPerSecond, .2);
             setTurnRad(optimizedState.angle);
-        }
     }
 
     private void setVelocity(double driveSetpoint, double dt){
-        double actualDriveVel = getDriveVelocity();
-        double driveAccelSetpoint = (driveSetpoint-actualDriveVel)/dt;
-        double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint,driveAccelSetpoint);
+        double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint);
 
         if(driveSetpoint==0){
             driveMotor.set(ControlMode.PercentOutput, 0);
         } 
         else 
-        //driveMotor.set(ControlMode.Velocity,CommonConversions.metersPerSecToStepsPerDecisec(driveSetpoint));
         driveMotor.set(ControlMode.Velocity, CommonConversions.metersPerSecToStepsPerDecisec(driveSetpoint),DemandType.ArbitraryFeedForward,driveFFVolts/12);
     }
 
@@ -107,4 +94,10 @@ public class SwerveModules {
         return CommonConversions.stepsPerDecisecToMetersPerSec(driveMotor.getSelectedSensorVelocity());
     }
 
+    public void updateP(double val){
+        turnPID.setP(val);
+    }
+    public void updateD(double val){
+        turnPID.setD(val);
+    }
 }
