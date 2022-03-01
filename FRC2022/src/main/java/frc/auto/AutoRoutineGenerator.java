@@ -60,9 +60,10 @@ public class AutoRoutineGenerator {
 		Pose2d startPos = move.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(startPos);
 		//initialDrive.addCommands(new Delay(2),new SetDrivePath(move,false,PathTrigger.create(new SetShooting(true,false),.1),PathTrigger.create(new SetIntaking(true), .3)));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
-		initialDrive.addCommands(new SetShooting(true,false));
+		initialDrive.addCommands(new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false));
 		return initialDrive;
 	}
+
 
 	/*
 

@@ -3,6 +3,7 @@ package frc.Subystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
@@ -31,11 +32,14 @@ public class Climb extends Threaded {
         climbMotor.configForwardSoftLimitThreshold(776071);
         climbMotor.configReverseSoftLimitThreshold(-1);
 
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        config.forwardSoftLimitEnable =  true;
-        config.reverseSoftLimitEnable = true;
-        config.forwardSoftLimitThreshold = 776071;
-        config.reverseSoftLimitThreshold = -1;
+        climbMotor.setNeutralMode(NeutralMode.Brake);
+
+        climbMotor.configMotionCruiseVelocity(200,30);
+        climbMotor.configMotionAcceleration(200,30);
+
+        climbMotor.selectProfileSlot(0, 0);
+
+        climbMotor.config_kP(0, .001);
     }   
 
     public static Climb getInstance(){

@@ -164,9 +164,6 @@ public class SwerveDrive extends Threaded{
       //PathPlannerState state = (PathPlannerState)currTrajectory.sample(currentTime);
       ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose,Rotation2d.fromDegrees(0));//, state.holonomicRotation);
       SwerveModuleState[] moduleStates = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
-      SmartDashboard.putNumber("desired poseX", desiredPose.poseMeters.getX());
-      SmartDashboard.putNumber("desired poseY", desiredPose.poseMeters.getY());
-      SmartDashboard.putNumber("desired angle", desiredPose.poseMeters.getRotation().getDegrees());
 
       SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-SwerveTracker.getInstance().getOdometry().getX());
       SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-SwerveTracker.getInstance().getOdometry().getY());
@@ -330,7 +327,6 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized void increaseD(){
-        //
         frontRight.updateD(SmartDashboard.getNumber("turning d ", 0));
         backLeft.updateD(SmartDashboard.getNumber("turning d ", 0));
         backRight.updateD(SmartDashboard.getNumber("turning d ", 0));

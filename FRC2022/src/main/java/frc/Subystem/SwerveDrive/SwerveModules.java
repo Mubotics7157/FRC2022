@@ -27,7 +27,7 @@ public class SwerveModules {
 
 
        public SwerveModules(int drivePort, int turnPort, int turnEncoderPort, double angleOffset, double pushinP){
-        turnPID = new PIDController(.39, 0, 0);
+        turnPID = new PIDController(.29, 0, 0);
 
         driveMotor = new TalonFX(drivePort);
         turnMotor = new TalonFX(turnPort);

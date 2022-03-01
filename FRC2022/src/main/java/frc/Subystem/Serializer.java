@@ -1,9 +1,11 @@
 package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -46,6 +48,10 @@ public class Serializer extends Threaded {
         intakeMotor.setInverted(true);
         feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
         intakeMotor.setInverted(true);
+
+        intakeMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 500);
+        feeder.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 500);
+
         feeder.setInverted(true);
 
         beamBreak = new DigitalInput(0);
@@ -94,10 +100,10 @@ public class Serializer extends Threaded {
                 ejectAll();
                 break;
         }
+        /*
         if(intakeState != IntakeState.SPIT)
             shooter.atSpeed(0, 0);
-        if(intakeState !=IntakeState.EXTEND && intakeState!=IntakeState.RETRACT)
-        SmartDashboard.putBoolean("in", beamBreak.get());
+            */
     }
 
     private void intake(){

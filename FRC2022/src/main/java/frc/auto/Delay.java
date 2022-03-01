@@ -22,6 +22,7 @@ public class Delay extends AutoCommand {
 
 	@Override
 	public boolean isFinished() {
+		System.out.println(Math.abs(Timer.getFPGATimestamp()-start) < seconds);
 		return Math.abs(Timer.getFPGATimestamp() - start) < seconds;
 	}
 
