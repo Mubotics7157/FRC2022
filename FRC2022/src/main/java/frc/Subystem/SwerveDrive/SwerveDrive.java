@@ -3,8 +3,7 @@ package frc.Subystem.SwerveDrive;
 
 import java.util.ArrayList;
 
-import com.ctre.phoenix.sensors.Pigeon2Configuration;
-import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
@@ -15,9 +14,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.VisionManager;
@@ -28,7 +29,7 @@ import frc.util.SynchronousPID;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
 
-    SwerveModules backRight = new SwerveModules(1, 2, 3,-80,.27);//.27);
+    SwerveModules backRight = new SwerveModules(25, 2, 3,-80,.27);//.27);
     SwerveModules frontRight = new SwerveModules(7,8,9,-111,.27);//.27);
     SwerveModules backLeft = new SwerveModules(4, 5, 6,-6,.26);//26);
     SwerveModules frontLeft = new SwerveModules(10, 11, 12,0,.27);//.27); //.55
@@ -39,16 +40,17 @@ public class SwerveDrive extends Threaded{
         backRight
     };
 
-    private WPI_Pigeon2 pigeon = new WPI_Pigeon2(30);
+    private AHRS gyro = new AHRS(SPI.Port.kMXP);
+    SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.DriveConstants.SWERVE_KINEMATICS, getDriveHeading());
+    Pose2d currentPose;
+    
 
 
     PIDController fwdController = new PIDController(1, 0, 0);
     PIDController strController = new PIDController(1, 0, 0);
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(3*Math.PI,3*Math.PI);
-    ProfiledPIDController rotController = new ProfiledPIDController(.2, 0, 0,rotProfile);
+    ProfiledPIDController rotController = new ProfiledPIDController(.22, 0, 0,rotProfile);
     SynchronousPID turnPID;
-    SynchronousPID distancePID;
-    SynchronousPID headingPID;
 
     HolonomicDriveController controller = new HolonomicDriveController(strController, fwdController, rotController);
 
@@ -64,15 +66,13 @@ public class SwerveDrive extends Threaded{
     private SwerveState swerveState = SwerveState.ROBOT_ORIENTED;
 
     public SwerveDrive(){
-        turnPID = new SynchronousPID(-.00125, 0, 0);
-        distancePID = new SynchronousPID(0, 0, 0);
-
+        turnPID = new SynchronousPID(-.0013, 0, 0);
         rotController.enableContinuousInput(-Math.PI, Math.PI);
 
-        Pigeon2Configuration config = new Pigeon2Configuration();
-        config.MountPoseYaw = 90;
-        pigeon.reset();
-        pigeon.calibrate();
+        gyro.reset();
+        gyro.zeroYaw();
+        gyro.calibrate();
+        //gyro.setStatusFramePeriod(gyroIMU_StatusFrame.BiasedStatus_2_Gyro, 25);
         turnPID.setTolerance(1);
 
     }
@@ -97,6 +97,11 @@ public class SwerveDrive extends Threaded{
     public void update() {
         SwerveState snapSwerveState;
         synchronized(this){
+            odometry.update(getDriveHeading(), getModuleStates());
+            currentPose = odometry.getPoseMeters();
+            SmartDashboard.putNumber("PoseX", currentPose.getX());
+            SmartDashboard.putNumber("PoseY", currentPose.getY());
+            SmartDashboard.putNumber("PoseR", currentPose.getRotation().getDegrees());
             snapSwerveState = swerveState;
         }
         switch(snapSwerveState){
@@ -125,15 +130,16 @@ public class SwerveDrive extends Threaded{
                 SmartDashboard.putString("Swerve State", "Auto");
                 break;
             case DONE:
+                stopMotors();
                 SmartDashboard.putString("Swerve State", "Done");
                 break;
         }
     }
 
     private void updateFieldOriented(){
-        double fwd = Robot.driver.getLeftY();
-        double str = Robot.driver.getLeftX();
-        double rot = Robot.driver.getRightX();
+        double fwd = Robot.driver.getRawAxis(1);
+        double str = Robot.driver.getRawAxis(0);
+        double rot = Robot.driver.getRawAxis(4);
         if(Math.abs(fwd) <= .05)
             fwd = 0;
         if(Math.abs(str) <= .05)
@@ -151,7 +157,7 @@ public class SwerveDrive extends Threaded{
     
         double currentTime = autoTimer.get();
         SmartDashboard.putBoolean("finished", isFinished());
-        //SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
+        SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
         SmartDashboard.putNumber("elapsed time", autoTimer.get());
         while (!triggers.isEmpty()) {
 			if (triggers.get(0).getPercentage() <= getPathPercentage()) {
@@ -162,12 +168,12 @@ public class SwerveDrive extends Threaded{
 		}
       Trajectory.State desiredPose = currTrajectory.sample(currentTime);
       //PathPlannerState state = (PathPlannerState)currTrajectory.sample(currentTime);
-      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose,Rotation2d.fromDegrees(0));//, state.holonomicRotation);
+      ChassisSpeeds speeds = controller.calculate(getOdometry(), desiredPose,desiredPose.poseMeters.getRotation());//, state.holonomicRotation);
       SwerveModuleState[] moduleStates = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
 
-      SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-SwerveTracker.getInstance().getOdometry().getX());
-      SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-SwerveTracker.getInstance().getOdometry().getY());
-      SmartDashboard.putNumber("error poseR", desiredPose.poseMeters.getRotation().getDegrees()-SwerveTracker.getInstance().getOdometry().getRotation().getDegrees());
+      SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-getOdometry().getX());
+      SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-getOdometry().getY());
+      SmartDashboard.putNumber("error poseR", desiredPose.poseMeters.getRotation().getDegrees()-getOdometry().getRotation().getDegrees());
       boolean isFinished= autoTimer.advanceIfElapsed(currTrajectory.getTotalTimeSeconds());
       if(isFinished){
           swerveState = SwerveState.DONE;
@@ -187,7 +193,7 @@ public class SwerveDrive extends Threaded{
         SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = turnPID.update(error);
         SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
-        driveRobotOriented(Robot.driver.getLeftY(), Robot.driver.getLeftY(), deltaSpeed);
+        driveRobotOriented(Robot.driver.getRawAxis(1), Robot.driver.getRawAxis(0), deltaSpeed);
     }
 
 
@@ -199,19 +205,16 @@ public class SwerveDrive extends Threaded{
         SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = turnPID.update(error);
         SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
-        //if(error<3 &&deltaSpeed<.01)
-          //  setVisionTracking();
-        //else
-        driveRobotOriented(Robot.driver.getLeftX() , Robot.driver.getLeftY(), deltaSpeed);
+        driveRobotOriented(Robot.driver.getRawAxis(0) , Robot.driver.getRawAxis(1), deltaSpeed);
         }
-        //else
-        //setFieldOriented();
+        else
+        setFieldOriented();
     }
 
     private void updateRobotOriented(){
-        double fwd = Robot.driver.getLeftY();
-        double str = Robot.driver.getLeftX();
-        double rot = Robot.driver.getRightX();
+        double fwd = Robot.driver.getRawAxis(1);
+        double str = Robot.driver.getRawAxis(0);
+        double rot = Robot.driver.getRawAxis(4);
         double correction = 0;
 
         if(Math.abs(fwd) <= .05)
@@ -221,10 +224,6 @@ public class SwerveDrive extends Threaded{
         if(Math.abs(rot) <= .05)
             rot = 0;
         
-        if(Math.abs(fwd)>0 && rot==0){
-            double error = Rotation2d.fromDegrees(0).rotateBy(getDriveHeading()).unaryMinus().getDegrees();
-            correction = headingPID.update(error);
-        }
         driveRobotOriented(fwd, str, rot+correction);
 
     }
@@ -235,7 +234,7 @@ public class SwerveDrive extends Threaded{
         SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = turnPID.update(error);
         SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
-        driveRobotOriented(Robot.driver.getLeftY(), Robot.driver.getLeftX(), Robot.driver.getRawAxis(2));
+        driveRobotOriented(Robot.driver.getRawAxis(1), Robot.driver.getRawAxis(0), Robot.driver.getRawAxis(2));
     }
     private void setModuleStates(SwerveModuleState[] states){
         frontLeft.setState(states[0]);
@@ -263,21 +262,21 @@ public class SwerveDrive extends Threaded{
         SmartDashboard.putNumber(" right front angle", frontRight.getState().angle.getDegrees());
         SmartDashboard.putNumber(" right back angle", backRight.getState().angle.getDegrees());
     }
-    public synchronized SwerveModules[] getModules(){
-        return modules;
-    }
 
-    public SwerveModuleState[] getModuleStates(){
+    public synchronized SwerveModuleState[] getModuleStates(){
         SwerveModuleState[] states = {frontLeft.getState(),frontRight.getState(),backLeft.getState(),backRight.getState()};
         return states;
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        return pigeon.getRotation2d();
+        //return gyro.getRotation2d();
+        return gyro.getRotation2d();
+        //return Rotation2d.fromDegrees(getGyroAngle());
     }
 
     public synchronized double getGyroAngle(){
-        return pigeon.getAngle();
+        //return gyro.getAngle();
+        return Math.IEEEremainder(gyro.getYaw(), 360) *-1; 
     }
 
     public boolean isFinished(){
@@ -340,12 +339,26 @@ public class SwerveDrive extends Threaded{
         frontLeft.updateP(SmartDashboard.getNumber("turning p ", 0));
     }
 
-    public synchronized void zeroYaw(){
-        pigeon.reset();
-        SwerveTracker.getInstance().setOdometry(new Pose2d(SwerveTracker.getInstance().getOdometry().getTranslation(), Rotation2d.fromDegrees(0)));
-    }
-
     public synchronized void increaseLLP(){
         turnPID.setP(SmartDashboard.getNumber("LL P", 0));
+    }
+
+    public synchronized void zeroYaw(){
+        gyro.reset();
+       // setOdometry(new Pose2d(SwerveTracker.getInstance().getOdometry().getTranslation(), Rotation2d.fromDegrees(0)));
+    }
+    public synchronized Pose2d getOdometry(){
+        return new Pose2d(0,0,Rotation2d.fromDegrees(0));
+    }
+
+    public synchronized void setOdometry(Pose2d pose){
+        //odometry.resetPosition(new Pose2d(0,0,Rotation2d.fromDegrees(0)), pose.getRotation());  
+    }
+
+    private void stopMotors(){
+        frontLeft.overrideMotors();
+        frontRight.overrideMotors();
+        backLeft.overrideMotors();
+        backRight.overrideMotors();
     }
 }

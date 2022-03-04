@@ -4,13 +4,18 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix.sensors.WPI_CANCoder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,25 +24,25 @@ import frc.robot.Constants.ModuleConstants;
 import frc.util.CommonConversions;
 
 public class SwerveModules {
-    TalonFX turnMotor;
-    TalonFX driveMotor;
-    CANCoder absEncoder;
+    WPI_TalonFX turnMotor;
+    WPI_TalonFX driveMotor;
+    WPI_CANCoder absEncoder;
 
     PIDController turnPID;
 
 
        public SwerveModules(int drivePort, int turnPort, int turnEncoderPort, double angleOffset, double pushinP){
-        turnPID = new PIDController(.29, 0, 0);
+        turnPID = new PIDController(.25, 0, 0); 
 
-        driveMotor = new TalonFX(drivePort);
-        turnMotor = new TalonFX(turnPort);
+        driveMotor = new WPI_TalonFX(drivePort);
+        turnMotor = new WPI_TalonFX(turnPort);
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
-        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,25);
         driveMotor.setNeutralMode(NeutralMode.Brake);
 
         turnMotor.enableVoltageCompensation(true);
-        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,20);
+        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,25);
         turnMotor.setNeutralMode(NeutralMode.Brake);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
@@ -45,7 +50,7 @@ public class SwerveModules {
 
 
         driveMotor.configAllSettings(driveConfig);
-        absEncoder = new CANCoder(turnEncoderPort);
+        absEncoder = new WPI_CANCoder(turnEncoderPort);
 
         absEncoder.configFactoryDefault();
         
@@ -58,14 +63,15 @@ public class SwerveModules {
     }
 
     public void setState(SwerveModuleState state){
-        SwerveModuleState optimizedState = state.optimize(state, getAbsHeading());
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getAbsHeading());
 
             setVelocity(optimizedState.speedMetersPerSecond, .2);
             setTurnRad(optimizedState.angle);
     }
 
     private void setVelocity(double driveSetpoint, double dt){
-        double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint);
+        double moduleAccel = (driveSetpoint - getDriveVelocity())/dt;
+        double driveFFVolts = ModuleConstants.DRIVE_FEEDFORWARD.calculate(driveSetpoint, moduleAccel);
 
         if(driveSetpoint==0){
             driveMotor.set(ControlMode.PercentOutput, 0);
@@ -100,4 +106,10 @@ public class SwerveModules {
     public void updateD(double val){
         turnPID.setD(val);
     }
+
+    public void overrideMotors(){
+        driveMotor.set(ControlMode.PercentOutput,0);
+        turnMotor.set(ControlMode.PercentOutput,0);
+    }
+
 }

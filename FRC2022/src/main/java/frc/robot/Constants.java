@@ -18,7 +18,7 @@ public class Constants {
         public static final double STICK_DEADBAND = 0.1;
 
         public static final double MAX_ANGULAR_VELOCITY_RAD = 16*Math.PI * .75;
-        public static final double MAX_TANGENTIAL_VELOCITY = 5;
+        public static final double MAX_TANGENTIAL_VELOCITY = 4;
 
         public static final double CLOSED_LOOP_RAMP = .2;
         public static final double OPEN_LOOP_RAMP = .25;

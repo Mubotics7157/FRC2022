@@ -23,10 +23,12 @@ public class SetShooting extends AutoCommand {
     @Override
     public void start() {
         if(shoot)
+        {
             Serializer.getInstance().setShooting();
             System.out.println("shooting");
-       /// else
-            //Serializer.getInstance().setOff();
+        }
+        else
+            Serializer.getInstance().setOff();
     }
 
 

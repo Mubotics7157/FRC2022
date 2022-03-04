@@ -13,6 +13,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -64,7 +65,48 @@ public class AutoRoutineGenerator {
 		return initialDrive;
 	}
 
+	
+	public static AutoRoutine ThreeBallAuto(){
+		TrajectoryConfig config = createConfig(1, 1, false);
+		config.setEndVelocity(0);
+		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
+		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
+		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+		new Pose2d(2.014,0.006084827636252,Rotation2d.fromDegrees(-19.123)),
+		new Pose2d(1.285583729421538,-0.342594679539026, Rotation2d.fromDegrees(90))
+		), config);
+		Trajectory goToTarmac = TrajectoryGenerator.generateTrajectory(
+			List.of(
+				new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+				//new Pose2d(new Translation2d(1.382069246281326, -0.116213882364911), Rotation2d.fromDegrees(0)),
+				new Pose2d(1,0, Rotation2d.fromDegrees(0))
+			), config);
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = move.getInitialPose();
+		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+		initialDrive.addCommands(/*new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false),*/new SetDrivePath(move,false));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
+		return initialDrive;
+	}
 
+	public static AutoRoutine FiveBallAuto(){
+		TrajectoryConfig config = createConfig(1, 1, false);
+		config.setEndVelocity(0);
+		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
+		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
+		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
+		new Pose2d(0,0, Rotation2d.fromDegrees(0))
+		), config);
+		initialDrive = new AutoRoutine();
+		Pose2d startPos = move.getInitialPose();
+		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+		initialDrive.addCommands(/*new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false),*/new SetDrivePath(move,false));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
+		return initialDrive;
+	}
 	/*
 
 	public static AutoRoutine niceSideBlue5BallRoutine(){

@@ -24,7 +24,6 @@ public class Serializer extends Threaded {
     IntakeState intakeState;
 
     Shooter shooter = new Shooter();
-    LED led = new LED();
 
     private DigitalInput beamBreak;
     Climb climb = new Climb();
@@ -48,10 +47,6 @@ public class Serializer extends Threaded {
         intakeMotor.setInverted(true);
         feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
         intakeMotor.setInverted(true);
-
-        intakeMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 500);
-        feeder.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 500);
-
         feeder.setInverted(true);
 
         beamBreak = new DigitalInput(0);
@@ -65,12 +60,11 @@ public class Serializer extends Threaded {
         SWALLOW,
         SLURP,
         SPIT,
-        VOMIT,
-        EXTEND,
-        RETRACT
+        VOMIT
     }
     @Override
     public void update() {
+        SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
         IntakeState snapIntakeState;
         synchronized (this){
             snapIntakeState = intakeState;
@@ -78,7 +72,6 @@ public class Serializer extends Threaded {
         switch(snapIntakeState){
             case OFF:
                 SmartDashboard.putString("Intake State", "Off");
-                updateOff();
                 break;
             case CHEW:
                 SmartDashboard.putString("Intake State", "Intaking");
@@ -92,18 +85,13 @@ public class Serializer extends Threaded {
                 runBoth();
                 break;
             case SPIT:
-                //shooter.atSpeed(1500, 1000);
-                shoot(1250,1500);
+                shoot(1200,1500);
                 break;
             case VOMIT:
                 SmartDashboard.putString("Intake State", "Ejecting");
                 ejectAll();
                 break;
         }
-        /*
-        if(intakeState != IntakeState.SPIT)
-            shooter.atSpeed(0, 0);
-            */
     }
 
     private void intake(){
@@ -117,7 +105,9 @@ public class Serializer extends Threaded {
 
     private void runBoth(){
         intakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
-        feeder.set(IntakeConstants.INDEX_SPEED);
+        //if(hasBallStowed())
+            feeder.set(IntakeConstants.INDEX_SPEED);
+            shoot(-130, -130);
     }
 
     private void ejectAll(){
@@ -127,14 +117,7 @@ public class Serializer extends Threaded {
     private void shoot(double top, double bot){
         if(shooter.atSpeed(top, bot)){
             index();
-            led.setShooterLED(.77);
-            //^^if shooter is at its wanted speed LEDs will be GREEN
         }
-        else{
-            led.setShooterLED(.69);
-            //^^if shooter is not at its wanted speed LEDs will be YELLOW
-        }
-        
     }
 
     public synchronized void setArbitrary(double top, double bot){
@@ -142,7 +125,7 @@ public class Serializer extends Threaded {
             index();
     }
 
-    private void updateOff(){
+    private void stopMotors(){
         feeder.set(0);
         intakeMotor.set(ControlMode.PercentOutput, 0);
         shooter.rev(0, 0);
@@ -175,18 +158,19 @@ public class Serializer extends Threaded {
     
     public synchronized void setOff(){
         intakeState = IntakeState.OFF;
+        stopMotors();
     }
 
 
     public synchronized void toggleIntake(boolean down){
         if(!down)
-            setOff();
+            stopMotors();
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
     private boolean hasBallStowed(){
         SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
-        return beamBreak.get() == IntakeConstants.STOWED;
+        return beamBreak.get() != IntakeConstants.STOWED;
     }
 
     private synchronized void spitBall(){

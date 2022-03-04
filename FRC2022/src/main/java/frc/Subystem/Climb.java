@@ -75,11 +75,10 @@ public class Climb extends Threaded {
                 break;
             case HOMING:
                 SmartDashboard.putString("climb state", "Homing");
-                climb(Robot.driver.getRightY());
+                climb(Robot.driver.getRawAxis(5));
                 break;
             case OFF:
                 SmartDashboard.putString("climb state", "Off");
-                climb(0);
                 break;
         }
     }
@@ -90,11 +89,11 @@ public class Climb extends Threaded {
     }
 
     private void goUp(){
-        climbMotor.set(ControlMode.Position  ,775000);
+        climbMotor.set(ControlMode.MotionMagic  ,775000);
     }
 
     private void goDown(){
-        climbMotor.set(ControlMode.Position,500);
+        climbMotor.set(ControlMode.MotionMagic,500);
     }
 
     public synchronized void setExtending(){
