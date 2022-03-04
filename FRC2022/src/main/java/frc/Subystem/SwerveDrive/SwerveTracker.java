@@ -1,9 +1,7 @@
 package frc.Subystem.SwerveDrive;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.util.Threading.Threaded;
@@ -24,9 +22,8 @@ public class SwerveTracker extends Threaded{
 
     @Override
     public void update() {
+        odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
         synchronized(this){
-            odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
-            
             SmartDashboard.putNumber("PoseX", getOdometry().getX());
             SmartDashboard.putNumber("PoseY", getOdometry().getY());
             SmartDashboard.putNumber("PoseR", getOdometry().getRotation().getDegrees());

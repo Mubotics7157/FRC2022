@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -23,16 +22,17 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.VisionManager;
 import frc.auto.PathTrigger;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.util.SynchronousPID;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
 
-    SwerveModules backRight = new SwerveModules(25, 2, 3,-80,.27);//.27);
-    SwerveModules frontRight = new SwerveModules(7,8,9,-111,.27);//.27);
-    SwerveModules backLeft = new SwerveModules(4, 5, 6,-6,.26);//26);
-    SwerveModules frontLeft = new SwerveModules(10, 11, 12,0,.27);//.27); //.55
+    SwerveModules backRight = new SwerveModules(25, 2, 3,-80);
+    SwerveModules frontRight = new SwerveModules(7,8,9,-111);
+    SwerveModules backLeft = new SwerveModules(4, 5, 6,-6);
+    SwerveModules frontLeft = new SwerveModules(10, 11, 12,0);
     SwerveModules[] modules = { 
         frontLeft,
         frontRight,
@@ -41,10 +41,8 @@ public class SwerveDrive extends Threaded{
     };
 
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
-    SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.DriveConstants.SWERVE_KINEMATICS, getDriveHeading());
     Pose2d currentPose;
     
-
 
     PIDController fwdController = new PIDController(1, 0, 0);
     PIDController strController = new PIDController(1, 0, 0);
@@ -72,7 +70,6 @@ public class SwerveDrive extends Threaded{
         gyro.reset();
         gyro.zeroYaw();
         gyro.calibrate();
-        //gyro.setStatusFramePeriod(gyroIMU_StatusFrame.BiasedStatus_2_Gyro, 25);
         turnPID.setTolerance(1);
 
     }
@@ -97,11 +94,6 @@ public class SwerveDrive extends Threaded{
     public void update() {
         SwerveState snapSwerveState;
         synchronized(this){
-            odometry.update(getDriveHeading(), getModuleStates());
-            currentPose = odometry.getPoseMeters();
-            SmartDashboard.putNumber("PoseX", currentPose.getX());
-            SmartDashboard.putNumber("PoseY", currentPose.getY());
-            SmartDashboard.putNumber("PoseR", currentPose.getRotation().getDegrees());
             snapSwerveState = swerveState;
         }
         switch(snapSwerveState){
@@ -168,12 +160,12 @@ public class SwerveDrive extends Threaded{
 		}
       Trajectory.State desiredPose = currTrajectory.sample(currentTime);
       //PathPlannerState state = (PathPlannerState)currTrajectory.sample(currentTime);
-      ChassisSpeeds speeds = controller.calculate(getOdometry(), desiredPose,desiredPose.poseMeters.getRotation());//, state.holonomicRotation);
+      ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose,desiredPose.poseMeters.getRotation());//, state.holonomicRotation);
       SwerveModuleState[] moduleStates = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
 
-      SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-getOdometry().getX());
-      SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-getOdometry().getY());
-      SmartDashboard.putNumber("error poseR", desiredPose.poseMeters.getRotation().getDegrees()-getOdometry().getRotation().getDegrees());
+      SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-SwerveTracker.getInstance().getOdometry().getX());
+      SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-SwerveTracker.getInstance().getOdometry().getY());
+      SmartDashboard.putNumber("error poseR", desiredPose.poseMeters.getRotation().getDegrees()-SwerveTracker.getInstance().getOdometry().getRotation().getDegrees());
       boolean isFinished= autoTimer.advanceIfElapsed(currTrajectory.getTotalTimeSeconds());
       if(isFinished){
           swerveState = SwerveState.DONE;
@@ -269,9 +261,7 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        //return gyro.getRotation2d();
         return gyro.getRotation2d();
-        //return Rotation2d.fromDegrees(getGyroAngle());
     }
 
     public synchronized double getGyroAngle(){
@@ -345,14 +335,7 @@ public class SwerveDrive extends Threaded{
 
     public synchronized void zeroYaw(){
         gyro.reset();
-       // setOdometry(new Pose2d(SwerveTracker.getInstance().getOdometry().getTranslation(), Rotation2d.fromDegrees(0)));
-    }
-    public synchronized Pose2d getOdometry(){
-        return new Pose2d(0,0,Rotation2d.fromDegrees(0));
-    }
-
-    public synchronized void setOdometry(Pose2d pose){
-        //odometry.resetPosition(new Pose2d(0,0,Rotation2d.fromDegrees(0)), pose.getRotation());  
+       SwerveTracker.getInstance().setOdometry(new Pose2d(SwerveTracker.getInstance().getOdometry().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
     private void stopMotors(){

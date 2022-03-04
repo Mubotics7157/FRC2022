@@ -69,7 +69,7 @@ public class AutoRoutineGenerator {
 	public static AutoRoutine ThreeBallAuto(){
 		TrajectoryConfig config = createConfig(1, 1, false);
 		config.setEndVelocity(0);
-		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
 		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
 		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
 		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
@@ -84,7 +84,7 @@ public class AutoRoutineGenerator {
 			), config);
 		initialDrive = new AutoRoutine();
 		Pose2d startPos = move.getInitialPose();
-		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
 		initialDrive.addCommands(/*new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false),*/new SetDrivePath(move,false));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
 		return initialDrive;
 	}
@@ -92,7 +92,7 @@ public class AutoRoutineGenerator {
 	public static AutoRoutine FiveBallAuto(){
 		TrajectoryConfig config = createConfig(1, 1, false);
 		config.setEndVelocity(0);
-		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
 		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
 		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
 		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
@@ -103,7 +103,7 @@ public class AutoRoutineGenerator {
 		), config);
 		initialDrive = new AutoRoutine();
 		Pose2d startPos = move.getInitialPose();
-		SwerveDrive.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
 		initialDrive.addCommands(/*new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false),*/new SetDrivePath(move,false));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
 		return initialDrive;
 	}

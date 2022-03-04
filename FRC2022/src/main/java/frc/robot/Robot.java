@@ -76,7 +76,6 @@ public void autonomousPeriodic() {
     SmartDashboard.putNumber("turning d ", .02);
     SmartDashboard.putNumber("turning p ", .02);
     SmartDashboard.putNumber("LL P", 0);
-    swerve.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
     swerve.setFieldOriented();
   }
 
