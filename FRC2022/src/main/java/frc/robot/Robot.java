@@ -27,8 +27,8 @@ public class Robot extends TimedRobot {
   public static Joystick driver = new Joystick(0);
   public static final XboxController operator = new XboxController(1);
   SwerveDrive swerve = SwerveDrive.getInstance(); 
-  //SwerveTracker tracker = SwerveTracker.getInstance();
-  //VisionManager visionManager = VisionManager.getInstance();
+  SwerveTracker tracker = SwerveTracker.getInstance();
+  VisionManager vision = VisionManager.getInstance();
   Climb climb = new Climb();
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
@@ -43,12 +43,14 @@ public class Robot extends TimedRobot {
 public void robotInit() {
     serializer.setPeriod(Duration.ofMillis(20));
     swerve.setPeriod(Duration.ofMillis(20));
-    //tracker.setPeriod(Duration.ofMillis(5));
-    climb.setPeriod(Duration.ofMillis(40));
+    tracker.setPeriod(Duration.ofMillis(20));
+    //climb.setPeriod(Duration.ofMillis(40));
+    vision.setPeriod(Duration.ofMillis(20));
+    scheduler.schedule(vision, executor);
     scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
-    //scheduler.schedule(tracker, executor);
-    scheduler.schedule(climb, executor);
+    scheduler.schedule(tracker, executor);
+    //scheduler.schedule(climb, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -76,6 +78,10 @@ public void autonomousPeriodic() {
     SmartDashboard.putNumber("turning d ", .02);
     SmartDashboard.putNumber("turning p ", .02);
     SmartDashboard.putNumber("LL P", 0);
+    SmartDashboard.putNumber("ClimbPID", .2);
+    SmartDashboard.putNumber("top RPM", 1000);
+    SmartDashboard.putNumber("bot RPM", 1000);
+        SmartDashboard.putNumber("shooter ratio", 1.25);
     swerve.setFieldOriented();
   }
 
@@ -105,12 +111,14 @@ public void teleopPeriodic() {
         else if(operator.getRawButton(3))
           swerve.setFieldOriented();
 
-      /*else if(operator.getRawButton(4))
-      tracker.resetOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-      */
+      //else if(operator.getRawButtonPressed(4))
+      //tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+      
       if(operator.getRawButtonPressed(2)){
         swerve.zeroYaw();
       }
+      if(operator.getRawButtonPressed(5))
+        swerve.increaseLLP();
       
       
       
@@ -123,5 +131,8 @@ public void teleopPeriodic() {
 public void testInit() {
   scheduler.resume();
   climb.setHoming();
+  swerve.goToZero();
+
 }
+
 } 

@@ -17,25 +17,29 @@ public class Shooter {
         flywheelTop = new TalonFX(19);
         TalonFXConfiguration topConfig = new TalonFXConfiguration();
         topConfig.voltageCompSaturation = 10;
-        topConfig.slot0.kP = .22;
-        topConfig.slot0.kD = .002;
-        topConfig.slot0.kF = .05;
+        topConfig.slot0.kP = .6;
+        topConfig.slot0.kD = .04;
+        topConfig.slot0.kF = .045;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
         botConfig.voltageCompSaturation = 10;
-        botConfig.slot0.kP =.22;
-        botConfig.slot0.kF =.05;
+        botConfig.slot0.kP =.6; //.2
+        botConfig.slot0.kF =.045;
+        topConfig.slot0.kD = .04;
         flywheelBot.configAllSettings(botConfig);
         flywheelBot.setNeutralMode(NeutralMode.Coast);
         flywheelTop.setNeutralMode(NeutralMode.Coast);
         flywheelBot.overrideLimitSwitchesEnable(false);
         flywheelTop.overrideLimitSwitchesEnable(false);
+        flywheelBot.enableVoltageCompensation(true);
+        flywheelTop.enableVoltageCompensation(true);
+
     }
 
     public boolean atSpeed(double topSetpoint, double botSetpoint){
         rev(topSetpoint, botSetpoint);
-        SmartDashboard. putNumber("Top RPM", topSetpoint);
-        SmartDashboard.putNumber("Bot RPM", botSetpoint);
+        SmartDashboard. putNumber("Top RPM", getTopRPM());
+        SmartDashboard.putNumber("Bot RPM", getBotRPM());
         boolean atSpeed =  (Math.abs(topSetpoint - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(botSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
         SmartDashboard.putBoolean("at speed", atSpeed);
         return atSpeed;
@@ -65,5 +69,6 @@ public class Shooter {
     private double getTopRPM(){
         return CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity());
     }
+
 
 }

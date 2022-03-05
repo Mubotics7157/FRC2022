@@ -73,15 +73,9 @@ public class AutoRoutineGenerator {
 		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
 		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
 		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-		new Pose2d(2.014,0.006084827636252,Rotation2d.fromDegrees(-19.123)),
-		new Pose2d(1.285583729421538,-0.342594679539026, Rotation2d.fromDegrees(90))
+		new Pose2d(2.261848,-0.510038,Rotation2d.fromDegrees(0))
+		//new Pose2d(1.285583729421538,-0.342594679539026, Rotation2d.fromDegrees(90))
 		), config);
-		Trajectory goToTarmac = TrajectoryGenerator.generateTrajectory(
-			List.of(
-				new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-				//new Pose2d(new Translation2d(1.382069246281326, -0.116213882364911), Rotation2d.fromDegrees(0)),
-				new Pose2d(1,0, Rotation2d.fromDegrees(0))
-			), config);
 		initialDrive = new AutoRoutine();
 		Pose2d startPos = move.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));

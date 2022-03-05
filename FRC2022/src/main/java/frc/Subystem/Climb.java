@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -117,6 +117,10 @@ public class Climb extends Threaded {
 
     private void overrideConfig(){
         climbMotor.configFactoryDefault();
+    }
+
+    public synchronized void setGains(){
+        climbMotor.config_kP(0, SmartDashboard.getNumber("ClimbPID", 0));
     }
 
 

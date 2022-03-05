@@ -8,10 +8,12 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
+import frc.util.LidarLite;
 import frc.util.Shooting.ShotGenerator;
 import frc.util.Shooting.ShotGenerator.ShooterSpeed;
 import frc.util.Threading.Threaded;
@@ -28,6 +30,7 @@ public class Serializer extends Threaded {
     private DigitalInput beamBreak;
     Climb climb = new Climb();
 
+    LidarLite lidar = new LidarLite(new DigitalInput(0));
 
     ShotGenerator shotGen;
 
@@ -49,7 +52,7 @@ public class Serializer extends Threaded {
         intakeMotor.setInverted(true);
         feeder.setInverted(true);
 
-        beamBreak = new DigitalInput(0);
+        beamBreak = new DigitalInput(1);
 
         intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
     }
@@ -65,6 +68,7 @@ public class Serializer extends Threaded {
     @Override
     public void update() {
         SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
+        SmartDashboard.putNumber("lidar distance", lidar.getDistance());
         IntakeState snapIntakeState;
         synchronized (this){
             snapIntakeState = intakeState;
@@ -85,7 +89,8 @@ public class Serializer extends Threaded {
                 runBoth();
                 break;
             case SPIT:
-                shoot(1200,1500);
+                //shoot(SmartDashboard.getNumber("top RPM", 500),SmartDashboard.getNumber("top RPM", 500)*SmartDashboard.getNumber("shooter ratio", 0));
+                shoot(1250,1250*1.08);
                 break;
             case VOMIT:
                 SmartDashboard.putString("Intake State", "Ejecting");
@@ -177,4 +182,11 @@ public class Serializer extends Threaded {
         feeder.set(-IntakeConstants.INDEX_SPEED);
     }
     
+    private void automatedShot(){
+        ShooterSpeed speeds= shotGen.getShot(lidar.getDistance());
+
+        if(shooter.atSpeed(speeds.top, speeds.bot))
+            index();
+        
+    }
 }
