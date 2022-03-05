@@ -59,7 +59,7 @@ public void robotInit() {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = new AutoRoutineGenerator().ThreeBallAuto();
+    AutoRoutine option = AutoRoutineGenerator.ThreeBallAuto();
     auto = new Thread(option);
     auto.start();
 }
@@ -117,9 +117,6 @@ public void teleopPeriodic() {
       if(operator.getRawButtonPressed(2)){
         swerve.zeroYaw();
       }
-      if(operator.getRawButtonPressed(5))
-        swerve.increaseLLP();
-      
       
       
       
@@ -131,7 +128,6 @@ public void teleopPeriodic() {
 public void testInit() {
   scheduler.resume();
   climb.setHoming();
-  swerve.goToZero();
 
 }
 

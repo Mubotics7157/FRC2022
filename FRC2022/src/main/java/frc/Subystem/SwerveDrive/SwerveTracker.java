@@ -30,10 +30,6 @@ public class SwerveTracker extends Threaded{
         }
     }
 
-    private void updateOdometry(){
-        odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
-    }
-
     public synchronized void setOdometry(Pose2d pose){
         odometry.resetPosition(pose, pose.getRotation());  
     }

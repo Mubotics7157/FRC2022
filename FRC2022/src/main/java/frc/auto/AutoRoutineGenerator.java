@@ -73,7 +73,7 @@ public class AutoRoutineGenerator {
 		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
 		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
 		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-		new Pose2d(2.261848,-0.510038,Rotation2d.fromDegrees(0))
+		new Pose2d(2.261848,0,Rotation2d.fromDegrees(0))
 		//new Pose2d(1.285583729421538,-0.342594679539026, Rotation2d.fromDegrees(90))
 		), config);
 		initialDrive = new AutoRoutine();
