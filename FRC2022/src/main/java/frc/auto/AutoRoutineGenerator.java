@@ -11,9 +11,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -101,77 +98,6 @@ public class AutoRoutineGenerator {
 		initialDrive.addCommands(/*new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false),*/new SetDrivePath(move,false));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
 		return initialDrive;
 	}
-	/*
-
-	public static AutoRoutine niceSideBlue5BallRoutine(){
-		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = PathPlanner.loadPath("BegBlueNiceStart", 3, 3,true);
-		Trajectory move2 = PathPlanner.loadPath("BlueNiceStartSecCycle", 3, 3,true);
-
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,true, PathTrigger.create(new SetIntaking(true), .1),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true),new Delay(2.3),new SetDrivePath(move2,true,PathTrigger.create(new SetIntaking(true, true), .3),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true), new Delay(2.3));
-		return initialDrive;
-	}
-
-	public static AutoRoutine niceSideBlue3BallRoutine(){
-		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = PathPlanner.loadPath("BegBlueNiceStart", 3, 3,true);
-
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,true,PathTrigger.create(new SetIntaking(true, true), .3), PathTrigger.create(new SetIntaking(true, false),.75)), new SetShooting(true), new Delay(2.3));
-		return initialDrive;
-	}
-
-	public static AutoRoutine niceSideRed5BallRoutine(){
-		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = PathPlanner.loadPath("AltRedStart", 3, 3,true);
-		Trajectory move2 = PathPlanner.loadPath("BegRedNiceStart", 3, 3,true);
-
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,true, PathTrigger.create(new SetIntaking(true, true), .1),PathTrigger.create(new SetIntaking(true, false), .7)),new SetShooting(true),new Delay(2.3),new SetDrivePath(move2,true,PathTrigger.create(new SetIntaking(true, true), .3),PathTrigger.create(new SetIntaking(true, false), .75)),new SetShooting(true), new Delay(2.3));
-		return initialDrive;
-
-	}
-
-	public static AutoRoutine niceSideRed3BallRoutine(){
-		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = PathPlanner.loadPath("AltRedStart", 3, 3,false);
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,false));
-		return initialDrive;
-
-	}
-
-	public static AutoRoutine BadSideBlue4BallRoutine(){
-		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = PathPlanner.loadPath("AltBlueBadStart4Leg1", 3, 3,false);
-		Trajectory move2 = PathPlanner.loadPath("AltBlueBadStart4Leg2", 3, 3,false);
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,true),new SetDrivePath(move2,false));
-		return initialDrive;
-	}
-
-	public static AutoRoutine BadSideRed4BallRoutine(){
-		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory move = PathPlanner.loadPath("RedBadStartLeg1", 3, 3,true);
-		Trajectory move2 = PathPlanner.loadPath("RedBadStartLeg2", 3, 3,true);
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		initialDrive.addCommands(new SetDrivePath(move,false),new SetDrivePath(move2,false));
-		return initialDrive;
-	}
-	*/
 
     private static TrajectoryConfig createConfig(double velocity, double accel, boolean reversed) {
 		TrajectoryConfig config = new TrajectoryConfig(velocity, accel);

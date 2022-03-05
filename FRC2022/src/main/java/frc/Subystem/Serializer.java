@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.LidarLite;
-import frc.util.Shooting.ShotGenerator;
-import frc.util.Shooting.ShotGenerator.ShooterSpeed;
 import frc.util.Threading.Threaded;
 
 public class Serializer extends Threaded {
@@ -25,11 +23,9 @@ public class Serializer extends Threaded {
     Shooter shooter = new Shooter();
 
     private DigitalInput beamBreak;
-    Climb climb = new Climb();
 
     LidarLite lidar = new LidarLite(new DigitalInput(0));
 
-    ShotGenerator shotGen;
 
     DoubleSolenoid intakeSolenoid;
 
@@ -179,11 +175,4 @@ public class Serializer extends Threaded {
         feeder.set(-IntakeConstants.INDEX_SPEED);
     }
     
-    private void automatedShot(){
-        ShooterSpeed speeds= shotGen.getShot(lidar.getDistance());
-
-        if(shooter.atSpeed(speeds.top, speeds.bot))
-            index();
-        
-    }
 }

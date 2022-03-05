@@ -2,10 +2,8 @@ package frc.Subystem.SwerveDrive;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -16,8 +14,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -27,7 +23,6 @@ import frc.Subystem.VisionManager;
 import frc.auto.PathTrigger;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
-import frc.util.SynchronousPID;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
 
@@ -44,12 +39,6 @@ public class SwerveDrive extends Threaded{
 
     private AHRS gyro = new AHRS(Port.kMXP);
 
-    Pose2d currentPose;
-
-    double yawOffset = 0;
-    Rotation2d savedHeading;
-    double headingDifference;
-    
 
     PIDController fwdController = new PIDController(.2, 0, 0);
     PIDController strController = new PIDController(.2, 0, 0);
@@ -62,9 +51,7 @@ public class SwerveDrive extends Threaded{
     Timer autoTimer = new Timer();
 
     Trajectory currTrajectory;
-    PathPlannerTrajectory currentPlannerTrajectory;
     private ArrayList<PathTrigger> triggers = new ArrayList<>();
-    Rotation2d wantedHeading;
 
     private static SwerveDrive instance;
 
@@ -146,6 +133,11 @@ public class SwerveDrive extends Threaded{
         SmartDashboard.putNumber("left back angle", backLeft.getState().angle.getDegrees());
         SmartDashboard.putNumber("right front angle", frontRight.getState().angle.getDegrees());
         SmartDashboard.putNumber("right back angle", backRight.getState().angle.getDegrees());
+
+        SmartDashboard.putNumber("left front velocity", frontLeft.getState().speedMetersPerSecond);
+        SmartDashboard.putNumber("left back velocity", backLeft.getState().speedMetersPerSecond);
+        SmartDashboard.putNumber("right front velocity", frontRight.getState().speedMetersPerSecond);
+        SmartDashboard.putNumber("right back velocity", backRight.getState().speedMetersPerSecond);
     }
 
     private void updateManual(boolean fieldOriented, double rotModifier){
@@ -249,6 +241,12 @@ public class SwerveDrive extends Threaded{
        SwerveTracker.getInstance().setOdometry(new Pose2d(SwerveTracker.getInstance().getOdometry().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
+    private void stopMotors(){
+        frontLeft.overrideMotors();
+        frontRight.overrideMotors();
+        backLeft.overrideMotors();
+        backRight.overrideMotors();
+    }
 
     public synchronized void setFieldOriented(){
         swerveState = SwerveState.FIELD_ORIENTED;
