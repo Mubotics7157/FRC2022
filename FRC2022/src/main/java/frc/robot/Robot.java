@@ -5,6 +5,8 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -39,16 +41,16 @@ public class Robot extends TimedRobot {
   
 @Override
 public void robotInit() {
-    serializer.setPeriod(Duration.ofMillis(20));
+    serializer.setPeriod(Duration.ofMillis(40));
     swerve.setPeriod(Duration.ofMillis(20));
-    tracker.setPeriod(Duration.ofMillis(20));
-    //climb.setPeriod(Duration.ofMillis(40));
+    tracker.setPeriod(Duration.ofMillis(30));
+    climb.setPeriod(Duration.ofMillis(40));
     vision.setPeriod(Duration.ofMillis(20));
     scheduler.schedule(vision, executor);
     scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
     scheduler.schedule(tracker, executor);
-    //scheduler.schedule(climb, executor);
+    scheduler.schedule(climb, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -57,7 +59,7 @@ public void robotInit() {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.ThreeBallAuto();
+    AutoRoutine option = AutoRoutineGenerator.FiveBallAuto();
     auto = new Thread(option);
     auto.start();
 }
@@ -97,8 +99,10 @@ public void teleopPeriodic() {
         serializer.setOff();
 
       if(driver.getRawButton(4))
+      //climb.setHighRetracting();
         serializer.toggleIntake(false);
       else if(driver.getRawButton(2))
+     // climb.setHighExtending();
         serializer.toggleIntake(true);
       if(driver.getRawButton(3))
         climb.setExtending();
@@ -109,13 +113,19 @@ public void teleopPeriodic() {
         else if(operator.getRawButton(3))
           swerve.setFieldOriented();
 
-      //else if(operator.getRawButtonPressed(4))
+      else if(operator.getRawButtonPressed(4)){
+        swerve.increaseP();
+        swerve.increaseD();
+      }
       //tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
       
       if(operator.getRawButtonPressed(2)){
         swerve.zeroYaw();
+        tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
       }
       
+      if(operator.getRawButtonPressed(6))
+        swerve.resetGyro();
       
       
       
