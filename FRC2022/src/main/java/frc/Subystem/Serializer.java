@@ -25,6 +25,8 @@ public class Serializer extends Threaded {
     private DigitalInput beamBreak;
 
     LidarLite lidar = new LidarLite(new DigitalInput(0));
+    double topSpeed;
+    double bottomSpeed;
 
 
     DoubleSolenoid intakeSolenoid;
@@ -84,6 +86,7 @@ public class Serializer extends Threaded {
             case SPIT:
                 //shoot(SmartDashboard.getNumber("top RPM", 500),SmartDashboard.getNumber("top RPM", 500)*SmartDashboard.getNumber("shooter ratio", 0));
                 shoot(1250,1250*1.08);
+                //shoot(topSpeed, bottomSpeed);
                 break;
             case VOMIT:
                 SmartDashboard.putString("Intake State", "Ejecting");
@@ -104,8 +107,8 @@ public class Serializer extends Threaded {
     private void runBoth(){
         intakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
         //if(hasBallStowed())
-            feeder.set(IntakeConstants.INDEX_SPEED);
-            shoot(-130, -130);
+        feeder.set(IntakeConstants.INDEX_SPEED);
+        shoot(-530, -530);
     }
 
     private void ejectAll(){

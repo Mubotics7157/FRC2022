@@ -17,7 +17,7 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES)*Math.PI;
         public static final double STICK_DEADBAND = 0.1;
 
-        public static final double MAX_ANGULAR_VELOCITY_RAD = 4*Math.PI;
+        public static final double MAX_ANGULAR_VELOCITY_RAD = 2*Math.PI;
         public static final double MAX_TANGENTIAL_VELOCITY = 4;
 
         public static final double CLOSED_LOOP_RAMP = .2;

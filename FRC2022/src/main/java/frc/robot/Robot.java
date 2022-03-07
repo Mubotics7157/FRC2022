@@ -59,7 +59,7 @@ public void robotInit() {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.FiveBallAuto();
+    AutoRoutine option = AutoRoutineGenerator.ThreeBallAuto();
     auto = new Thread(option);
     auto.start();
 }
@@ -76,7 +76,7 @@ public void autonomousPeriodic() {
     serializer.setOff();
     compressor.enableDigital();
     SmartDashboard.putNumber("turning d ", .02);
-    SmartDashboard.putNumber("turning p ", .02);
+    SmartDashboard.putNumber("turning p", .02);
     SmartDashboard.putNumber("LL P", 0);
     SmartDashboard.putNumber("ClimbPID", .2);
     SmartDashboard.putNumber("top RPM", 1000);
@@ -113,9 +113,11 @@ public void teleopPeriodic() {
         else if(operator.getRawButton(3))
           swerve.setFieldOriented();
 
-      else if(operator.getRawButtonPressed(4)){
-        swerve.increaseP();
-        swerve.increaseD();
+      if(operator.getRawButtonPressed(4)){
+        vision.setOff();
+      }
+      else if(operator.getRawButtonPressed(6)){
+        vision.setOn();
       }
       //tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
       
@@ -123,9 +125,10 @@ public void teleopPeriodic() {
         swerve.zeroYaw();
         tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
       }
-      
+      /*
       if(operator.getRawButtonPressed(6))
         swerve.resetGyro();
+        */
       
       
       

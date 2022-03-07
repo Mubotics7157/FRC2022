@@ -1,5 +1,6 @@
 package frc.auto;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import com.pathplanner.lib.PathPlanner;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.SwerveDriveKinematicsConstraint;
+import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -67,11 +69,6 @@ public class AutoRoutineGenerator {
 		TrajectoryConfig config = createConfig(3, 3, false);
 		config.setEndVelocity(0);
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
-		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
-		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-		new Pose2d(1,0,Rotation2d.fromDegrees(0))
-		), config);
 		Trajectory test = TrajectoryGenerator.generateTrajectory(List.of(
 		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
 		new Pose2d(2.429839726498976,-0.771075852970157, Rotation2d.fromDegrees(-3.98)),
@@ -79,9 +76,8 @@ public class AutoRoutineGenerator {
 		), config);
 		initialDrive = new AutoRoutine();
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-		initialDrive.addCommands(new SetDrivePath(test,true,PathTrigger.create(new SetIntaking(true, true, false), .2),
-		PathTrigger.create(new SetIntaking(false, true, false), .4)), 
-		new SetShooting(true, false));
+		SwerveDrive.getInstance().zeroYaw();
+		initialDrive.addCommands(new SetDrivePath(test,false,PathTrigger.create(new SetIntaking(true, true, false), .05), PathTrigger.create(new SetIntaking(false, true, false), .8),PathTrigger.create(new SetIndexing(true,false),.82), PathTrigger.create(new SetIndexing(false,false), .9),PathTrigger.create(new SetShooting(true, false),.99)));
 		return initialDrive;
 	}
 
@@ -89,19 +85,25 @@ public class AutoRoutineGenerator {
 		TrajectoryConfig config = createConfig(1, 1, false);
 		config.setEndVelocity(0);
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		Trajectory moveToTarmac = TrajectoryGenerator.generateTrajectory(List.of(
-		new Pose2d(1.266242805024287,0.137543294391451, Rotation2d.fromDegrees(8)),
-		new Pose2d(0.227843112114361,-0.70960313240213, Rotation2d.fromDegrees(29.9)),
-		new Pose2d(-0.173005021206731,0.728870181145022,Rotation2d.fromDegrees(84.0500030517)),
-		new Pose2d(-0.230127509007038,-0.38584257167596, Rotation2d.fromDegrees(45.62))
+		Trajectory moveToFirstBall = TrajectoryGenerator.generateTrajectory(List.of(
+		new Pose2d(0,0,Rotation2d.fromDegrees(0)),
+		new Pose2d(1.266242805024287,0.137543294391451, Rotation2d.fromDegrees(-5))
 		), config);
-		Trajectory thirdCycle = TrajectoryGenerator.generateTrajectory(List.of(
-		new Pose2d(3.837217778494206,2.087210653409971, Rotation2d.fromDegrees(52.4)),
-		new Pose2d(-1.049,.888, Rotation2d.fromDegrees(45.86))
+		Trajectory moveToSecondBall = TrajectoryGenerator.generateTrajectory(List.of(
+		new Pose2d(1.266242805024287,0.137543294391451, Rotation2d.fromDegrees(-5)),
+		new Pose2d(0.438413213006608,-0.032929195576166, Rotation2d.fromDegrees(14.6))		
+		//new Pose2d(0.33461483505079,-0.457096641674199, Rotation2d.fromDegrees(26.470008850097656))
+		), config);
+		Trajectory moveBackToTarmac = TrajectoryGenerator.generateTrajectory(List.of(
+		new Pose2d(0.438413213006608,-0.032929195576166, Rotation2d.fromDegrees(14.6)),		
+		new Pose2d(-1.884996237188733,-0.330717257093491, Rotation2d.fromDegrees(42.70000076293945))
 		), config);
 		initialDrive = new AutoRoutine();
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-		initialDrive.addCommands(new SetDrivePath(moveToTarmac));
+		// initialDrive.addCommands(new SetDrivePath(moveToFirstBall, Rotation2d.fromDegrees(8),true),
+		//  new SetDrivePath(moveToSecondBall,Rotation2d.fromDegrees(14), true),
+		// new SetDrivePath(moveBackToTarmac,Rotation2d.fromDegrees(42.7) ,true));
+		//new SetDrivePath(moveToSecondBall, Rotation2d.fromDegrees(26.47),true));
 		return initialDrive;
 	}
 

@@ -7,14 +7,14 @@ public class SetShooting extends AutoCommand {
     
     boolean shoot;
     double topSpeed = 1250;
-    double botSpeed = 1500;
+    double botSpeed = 1350;
     
     public SetShooting(boolean shoot, boolean blocking){
         this.shoot = shoot;
         this.setBlocking(blocking);
     }
 
-    public SetShooting(boolean shoot, double top, double bot){
+    public SetShooting(boolean shoot, double top, double bot,boolean blocking){
         this.shoot = shoot;
         this.topSpeed = top;
         this.botSpeed = bot;

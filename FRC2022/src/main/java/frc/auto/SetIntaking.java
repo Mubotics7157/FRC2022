@@ -16,7 +16,7 @@ public class SetIntaking extends AutoCommand {
     @Override
     public void start() {
         if(run)
-            Serializer.getInstance().setIntaking();
+            Serializer.getInstance().setAll();
         else
             Serializer.getInstance().setOff();
         if(down)
