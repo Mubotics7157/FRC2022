@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
-import frc.util.LidarLite;
 import frc.util.Threading.Threaded;
 
 public class Serializer extends Threaded {
@@ -24,9 +23,8 @@ public class Serializer extends Threaded {
 
     private DigitalInput beamBreak;
 
-    LidarLite lidar = new LidarLite(new DigitalInput(0));
-    double topSpeed;
-    double bottomSpeed;
+    double topSpeed = 1250;
+    double bottomSpeed = 1250/1.08;
 
 
     DoubleSolenoid intakeSolenoid;
@@ -49,7 +47,7 @@ public class Serializer extends Threaded {
 
         beamBreak = new DigitalInput(1);
 
-        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
     }
 
     private enum IntakeState{
@@ -62,8 +60,6 @@ public class Serializer extends Threaded {
     }
     @Override
     public void update() {
-        SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
-        SmartDashboard.putNumber("lidar distance", lidar.getDistance());
         IntakeState snapIntakeState;
         synchronized (this){
             snapIntakeState = intakeState;
@@ -84,9 +80,7 @@ public class Serializer extends Threaded {
                 runBoth();
                 break;
             case SPIT:
-                //shoot(SmartDashboard.getNumber("top RPM", 500),SmartDashboard.getNumber("top RPM", 500)*SmartDashboard.getNumber("shooter ratio", 0));
-                shoot(1250,1250*1.08);
-                //shoot(topSpeed, bottomSpeed);
+                shoot(topSpeed,bottomSpeed);
                 break;
             case VOMIT:
                 SmartDashboard.putString("Intake State", "Ejecting");
@@ -170,12 +164,16 @@ public class Serializer extends Threaded {
     }
 
     private boolean hasBallStowed(){
-        SmartDashboard.putBoolean("stowed ball", !beamBreak.get());
         return beamBreak.get() != IntakeConstants.STOWED;
     }
 
     private synchronized void spitBall(){
         feeder.set(-IntakeConstants.INDEX_SPEED);
+    }
+
+    public synchronized void setShooterSpeed(double topSpeed, double botSpeed){
+        this.topSpeed = topSpeed;
+        this.bottomSpeed = botSpeed;
     }
     
 }

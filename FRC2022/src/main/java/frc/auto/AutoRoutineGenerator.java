@@ -44,28 +44,25 @@ public class AutoRoutineGenerator {
 		TrajectoryConfig config = createConfig(3, 3, false);
 		config.setEndVelocity(0);
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
-		//Trajectory move = PathPlanner.loadPath("Simpletest", .5, .5,true);
+		initialDrive = new AutoRoutine();
 		Trajectory move = TrajectoryGenerator.generateTrajectory(List.of(
 		new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-		new Pose2d(2.672533772197728,-0.797712611888854,Rotation2d.fromDegrees(-26)),
-		new Pose2d(2.281388799052695,1.118939840210506,Rotation2d.fromDegrees(-13.7)),
-		new Pose2d(5.076671302164089,2.090779528301448, Rotation2d.fromDegrees(-31.5))
-		), config);
-		Trajectory goToTarmac = TrajectoryGenerator.generateTrajectory(
-			List.of(
-				new Pose2d(0,0, Rotation2d.fromDegrees(0)),
-				new Pose2d(new Translation2d(1.382069246281326, -0.116213882364911), Rotation2d.fromDegrees(0))
-			), config);
-		initialDrive = new AutoRoutine();
-		Pose2d startPos = move.getInitialPose();
-		SwerveTracker.getInstance().setOdometry(startPos);
-		//initialDrive.addCommands(new Delay(2),new SetDrivePath(move,false,PathTrigger.create(new SetShooting(true,false),.1),PathTrigger.create(new SetIntaking(true), .3)));//,new SetShooting(false),new SetDrivePath(move,false,PathTrigger.create(new SetIntaking(true), .3)));
-		initialDrive.addCommands(new SetIntaking(false, true,false),new SetShooting(true,false),new Delay(5),new SetShooting(false, false));
+		new Pose2d(1.5,0, Rotation2d.fromDegrees(0))
+		),config);
+		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0, Rotation2d.fromDegrees(0)));
+		SwerveDrive.getInstance().zeroYaw();
+		initialDrive.addCommands(
+		new SetIntaking(false, true,false),
+		new SetShooting(true,false),
+		new Delay(5),
+		new SetShooting(false, true),
+		new SetDrivePath(move,true)
+		);
 		return initialDrive;
 	}
 
 	
-	public static AutoRoutine ThreeBallAuto(){
+	public static AutoRoutine TwoBallAuto(){
 		TrajectoryConfig config = createConfig(3, 3, false);
 		config.setEndVelocity(0);
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));

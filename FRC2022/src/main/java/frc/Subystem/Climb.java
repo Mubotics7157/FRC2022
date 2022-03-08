@@ -2,180 +2,134 @@ package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.util.Threading.Threaded;
 
 public class Climb extends Threaded {
-    private TalonFX climbMotor;
-    private TalonFX highMotor;
-    private ClimbState climbState = ClimbState.OFF;
 
-    private static Climb instance;
+    TalonFX midClimb;
+    TalonFX highClimb;
 
-    DoubleSolenoid climbSolenoid;
+    ClimbState climbState;
+    DoubleSolenoid highClimbSolenoid; 
 
     public Climb(){
-        climbMotor = new TalonFX(40);
-        climbMotor.setSelectedSensorPosition(0);
-        climbMotor.setInverted(InvertType.InvertMotorOutput);
-        climbMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-        climbMotor.configFactoryDefault();
-        climbMotor.configPeakOutputForward(1);
-        climbMotor.configPeakOutputReverse(-1);
+        midClimb = new TalonFX(29);
+        highClimb = new TalonFX(40);
+
+        midClimb.configFactoryDefault();
+        highClimb.configFactoryDefault();
 
 
-        climbMotor.configForwardSoftLimitEnable(true);
-        climbMotor.configReverseSoftLimitEnable(true);
-        climbMotor.configForwardSoftLimitThreshold(776071);
-        climbMotor.configReverseSoftLimitThreshold(-1);
+        midClimb.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+        midClimb.selectProfileSlot(0, 0);
+        midClimb.config_kP(0, 0);
+        midClimb.config_kD(0, 0);
 
-        climbMotor.setNeutralMode(NeutralMode.Brake);
+        highClimb.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+        highClimb.selectProfileSlot(0, 0);
+        highClimb.config_kP(0, 0);
+        highClimb.config_kD(0, 0);
 
-        climbMotor.configMotionCruiseVelocity(200,30);
-        climbMotor.configMotionAcceleration(200,30);
-
-        climbMotor.selectProfileSlot(0, 0);
-
-        climbMotor.config_kP(0, .001);
-
-
-        highMotor = new TalonFX(29);
-        highMotor.setSelectedSensorPosition(0);
-        highMotor.setInverted(InvertType.InvertMotorOutput);
-        highMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-        highMotor.configFactoryDefault();
-        highMotor.configPeakOutputForward(1);
-        highMotor.configPeakOutputReverse(-1);
-        highMotor.setNeutralMode(NeutralMode.Brake);
-
-        highMotor.configMotionCruiseVelocity(200,30);
-        highMotor.configMotionAcceleration(200,30);
-        highMotor.configForwardSoftLimitEnable(true);
-        highMotor.configReverseSoftLimitEnable(true);
-        highMotor.configForwardSoftLimitThreshold(11000);
-        highMotor.configReverseSoftLimitThreshold(-1);
-
-    }   
-
-    public static Climb getInstance(){
-        if(instance==null)
-            instance = new Climb();
-        return instance;
+    }
+    private enum ClimbState{
+        OFF,
+        MID_EXTEND,
+        MID_RETRACT,
+        HIGH_EXTEND,
+        HIGH_RETRACT, 
+        MANUAL_JOG
     }
 
-    private enum ClimbState{
-        EXTEND,
-        RETRACT,
-        HOMING,
-        HIGH_EXTEND,
-        HIGH_RETRACT,
-        OFF
+    private enum ClimbHeight{
+        LOW,
+        MID,
+        HIGH
     }
 
     @Override
     public void update() {
         ClimbState snapClimbState;
         synchronized(this){
-            snapClimbState = climbState ;
+            snapClimbState = climbState;
         }
 
         switch(snapClimbState){
-            case EXTEND:
-                SmartDashboard.putString("climb state", "Extending");
-                //goUp();
-            climbHigh(.3);
-                break;
-            case RETRACT:
-                SmartDashboard.putString("climb state", "Retracting");
-            climbHigh(-.3);
-                //goDown();
-                break;
-            case HOMING:
-                SmartDashboard.putString("climb state", "Homing");
-                climb(Robot.driver.getRawAxis(5));
-                break;
-            case HIGH_EXTEND:
-                climb(-.3);
-                SmartDashboard.putString("climb state", "High Extend");
-                break;
-            case HIGH_RETRACT:
-                climb(.3);
-                SmartDashboard.putString("climb state", "High Retract");
-                break;
             case OFF:
-                SmartDashboard.putString("climb state", "Off");
-                break;
+                SmartDashboard.putString("Climb State", "Off");
+                goToZero();
+            case MID_EXTEND:
+                SmartDashboard.putString("Climb State", "Mid Extend");
+                setMidHeight(ClimbHeight.HIGH);
+            case MID_RETRACT:
+                SmartDashboard.putString("Climb State", "Mid Retract");
+                setMidHeight(ClimbHeight.LOW);
+            case HIGH_EXTEND:
+                SmartDashboard.putString("Climb State", "High Extend");
+                setMidHeight(ClimbHeight.MID);
+                setHighHeight(ClimbHeight.HIGH);
+            case HIGH_RETRACT:
+                SmartDashboard.putString("Climb State", "High Retract");
+                setHighHeight(ClimbHeight.LOW);
+            case MANUAL_JOG:
+                SmartDashboard.putString("Climb State", "Manual Jog");
+                setMotors(Robot.operator.getLeftY(), Robot.operator.getRightY());
         }
-    }
-
-    private void climb(double speed){
-        climbMotor.set(ControlMode.PercentOutput, speed);
-        SmartDashboard.putNumber("climb height", climbMotor.getSelectedSensorPosition());
-    }
-
-    private void climbHigh(double speed){
-        highMotor.set(ControlMode.PercentOutput, speed);
-        SmartDashboard.putNumber("high climb height", highMotor.getSelectedSensorPosition());
-    }
-
-    private void goUp(){
-        climbMotor.set(ControlMode.MotionMagic  ,775000);
-    }
-
-    private void goHighUp(){
-        highMotor.set(ControlMode.MotionMagic  ,775000);
-    }
-
-    private void goDown(){
-        climbMotor.set(ControlMode.MotionMagic,500);
-    }
-
-    private void goHighDown(){
-        highMotor.set(ControlMode.MotionMagic,500);
-    }
-
-    public synchronized void setExtending(){
-        climbState = ClimbState.EXTEND;
-    }
-
-    public synchronized void setRetracting(){
-        climbState = ClimbState.RETRACT;
-    }
-
-    public synchronized void setOff(){
-        climbState = ClimbState.OFF;
-    }
-
-    public synchronized void setHoming(){
-        climbState = ClimbState.HOMING;
-        overrideConfig();
+        SmartDashboard.putNumber("mid height", midClimb.getSelectedSensorPosition());
+        SmartDashboard.putNumber("high height", highClimb.getSelectedSensorPosition());
 
     }
 
-    public synchronized void setHighExtending(){
-        // /climbSolenoid.set(Value.kForward);
+    private void goToZero(){
+        midClimb.set(ControlMode.Position, 0);
+        highClimb.set(ControlMode.Position, 0);
+    }
+
+    private void setMidHeight(ClimbHeight height){
+        if(height==ClimbHeight.LOW)
+            midClimb.set(ControlMode.Position, 500);
+        else if(height==ClimbHeight.MID)
+            midClimb.set(ControlMode.Position, 1000);
+        else if(height==ClimbHeight.HIGH) 
+            midClimb.set(ControlMode.Position, 1500);
+    }
+
+    private void setHighHeight(ClimbHeight height){
+        if(height==ClimbHeight.LOW)
+            highClimb.set(ControlMode.Position, 500);
+        else if(height==ClimbHeight.MID)
+            highClimb.set(ControlMode.Position, 1000);
+        else if(height==ClimbHeight.HIGH) 
+            highClimb.set(ControlMode.Position, 1500);
+    }
+
+    private void setMotors(double midSpeed, double highSpeed){
+        midClimb.set(ControlMode.PercentOutput,midSpeed);
+        highClimb.set(ControlMode.PercentOutput,highSpeed);
+    }
+
+    public synchronized void setJogging(){
+        climbState = ClimbState.MANUAL_JOG;
+    }
+
+    public synchronized void setMidExtend(){
+        climbState = ClimbState.MID_EXTEND;
+    }
+
+    public synchronized void setMidRetract(){
+        climbState = ClimbState.MID_RETRACT;
+    }
+
+    public synchronized void setHighExtend(){
         climbState = ClimbState.HIGH_EXTEND;
     }
 
-    public synchronized void setHighRetracting(){
+    public synchronized void setHighRetract(){
         climbState = ClimbState.HIGH_RETRACT;
     }
-
-    private void overrideConfig(){
-        climbMotor.configFactoryDefault();
-    }
-
-    public synchronized void setGains(){
-        climbMotor.config_kP(0, SmartDashboard.getNumber("ClimbPID", 0));
-    }
-
 
 }

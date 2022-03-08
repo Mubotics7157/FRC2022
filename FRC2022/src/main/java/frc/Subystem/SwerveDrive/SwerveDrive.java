@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -164,9 +165,9 @@ public class SwerveDrive extends Threaded{
         double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
         if(Math.abs(error)<Units.degreesToRadians(3))
             error = 0;
-        SmartDashboard.putNumber("Yaw error", error);
+        //SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = visionRotController.calculate(error);
-        SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
+        //SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
         updateManual(true,deltaSpeed);
         }
         else{
@@ -176,9 +177,9 @@ public class SwerveDrive extends Threaded{
 
     private void updateAuto(){
         double currentTime = autoTimer.get();
-        SmartDashboard.putBoolean("finished", isFinished());
-        SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
-        SmartDashboard.putNumber("elapsed time", autoTimer.get());
+        //SmartDashboard.putBoolean("finished", isFinished());
+        //SmartDashboard.putNumber("trajectory time", currTrajectory.getTotalTimeSeconds());
+        //SmartDashboard.putNumber("elapsed time", autoTimer.get());
         while (!triggers.isEmpty()) {
 			if (triggers.get(0).getPercentage() <= getPathPercentage()) {
         triggers.remove(0).playTrigger();
@@ -187,17 +188,17 @@ public class SwerveDrive extends Threaded{
 			}
 		}
       Trajectory.State desiredPose = currTrajectory.sample(currentTime);
-      SmartDashboard.putNumber("desired rotation", desiredPose.poseMeters.getRotation().getDegrees());
-      SmartDashboard.putNumber("desired posex", desiredPose.poseMeters.getX());
-      SmartDashboard.putNumber("desired posey", desiredPose.poseMeters.getY());
+    //   SmartDashboard.putNumber("desired rotation", desiredPose.poseMeters.getRotation().getDegrees());
+    //   SmartDashboard.putNumber("desired posex", desiredPose.poseMeters.getX());
+    //   SmartDashboard.putNumber("desired posey", desiredPose.poseMeters.getY());
       ChassisSpeeds speeds = controller.calculate(SwerveTracker.getInstance().getOdometry(), desiredPose,Rotation2d.fromDegrees(0));
       driveFromChassis(speeds);
-      SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-SwerveTracker.getInstance().getOdometry().getX());
-      SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-SwerveTracker.getInstance().getOdometry().getY());
-      SmartDashboard.putNumber("error poseR", desiredPose.poseMeters.getRotation().getDegrees()-SwerveTracker.getInstance().getOdometry().getRotation().getDegrees());
+    //   SmartDashboard.putNumber("error poseX", desiredPose.poseMeters.getX()-SwerveTracker.getInstance().getOdometry().getX());
+    //   SmartDashboard.putNumber("error poseY", desiredPose.poseMeters.getY()-SwerveTracker.getInstance().getOdometry().getY());
+    //   SmartDashboard.putNumber("error poseR", desiredPose.poseMeters.getRotation().getDegrees()-SwerveTracker.getInstance().getOdometry().getRotation().getDegrees());
       boolean isFinished= autoTimer.hasElapsed(currTrajectory.getTotalTimeSeconds());
-      SmartDashboard.putBoolean("has elapsed", isFinished);
-      SmartDashboard.putBoolean("at reference", controller.atReference());
+    //   SmartDashboard.putBoolean("has elapsed", isFinished);
+    //   SmartDashboard.putBoolean("at reference", controller.atReference());
       if(isFinished){
          swerveState = SwerveState.DONE;
        }
@@ -207,28 +208,10 @@ public class SwerveDrive extends Threaded{
         var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
-        /*
-        SmartDashboard.putNumber("left front angle", frontLeft.getState().angle.getDegrees());
-        SmartDashboard.putNumber("desired left front angle", states[0].angle.getDegrees());
-        SmartDashboard.putNumber("left back angle", backLeft.getState().angle.getDegrees());
-        SmartDashboard.putNumber("right front angle", frontRight.getState().angle.getDegrees());
-        SmartDashboard.putNumber("right back angle", backRight.getState().angle.getDegrees());
-        SmartDashboard.putNumber("angle error", states[0].angle.getDegrees()-frontLeft.getState().angle.getDegrees());
-
-        SmartDashboard.putNumber("left front velocity", frontLeft.getState().speedMetersPerSecond);
-        SmartDashboard.putNumber("velocity error", states[0].speedMetersPerSecond-frontLeft.getState().speedMetersPerSecond);
-        SmartDashboard.putNumber("left back velocity", backLeft.getState().speedMetersPerSecond);
-        SmartDashboard.putNumber("right front velocity", frontRight.getState().speedMetersPerSecond);
-        SmartDashboard.putNumber("right back velocity", backRight.getState().speedMetersPerSecond);
-
-       ChassisSpeeds actualSpeeds= DriveConstants.SWERVE_KINEMATICS.toChassisSpeeds(getModuleStates());
-       SmartDashboard.putNumber("x chassis", actualSpeeds.vxMetersPerSecond);
-       SmartDashboard.putNumber("y chassis", actualSpeeds.vyMetersPerSecond);
-       */
     }   
 
-    private void driveFromChassis(ChassisSpeeds speeds, Rotation2d centerOfRotation) {
-        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
+    private void driveFromChassis(ChassisSpeeds speeds, Translation2d centerOfRotation) {
+        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds, centerOfRotation);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
     }
@@ -316,6 +299,5 @@ public class SwerveDrive extends Threaded{
         gyro.reset();
         gyro.calibrate();
     }
-
 
 }
