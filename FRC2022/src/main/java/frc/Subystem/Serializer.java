@@ -51,11 +51,10 @@ public class Serializer extends Threaded {
 
     private enum IntakeState{
         OFF,
-        INTAKE_BACKWARDS,
-        SWALLOW,
-        SLURP,
-        SPIT,
-        VOMIT,
+        REVERSE_INTAKE,
+        REVERSE_INDEXER,
+        INTAKE_INDEXER,
+        SHOOT,
         INTAKE
     }
     @Override
@@ -67,20 +66,17 @@ public class Serializer extends Threaded {
         switch(snapIntakeState){
             case OFF:
                 break;
-            case INTAKE_BACKWARDS:
+            case REVERSE_INTAKE:
                 reverseIntake();
                 break;
-            case SWALLOW:
+            case REVERSE_INDEXER:
                 spitBall();
                 break;
-            case SLURP:
+            case INTAKE_INDEXER:
                 runBoth();
                 break;
-            case SPIT:
+            case SHOOT:
                 shoot(topSpeed,bottomSpeed);
-                break;
-            case VOMIT:
-                ejectAll();
                 break;
             case INTAKE:
                 intake();
@@ -108,10 +104,6 @@ public class Serializer extends Threaded {
         shoot(-530, -530);
     }
 
-    private void ejectAll(){
-        intakeMotor.set(ControlMode.PercentOutput,IntakeConstants.INTAKE_SPEED);
-    }
-
     private void shoot(double top, double bot){
         if(shooter.atSpeed(top, bot)){
             index();
@@ -136,23 +128,19 @@ public class Serializer extends Threaded {
     }
 
     public synchronized void setShooting(){
-        intakeState = IntakeState.SPIT;
+        intakeState = IntakeState.SHOOT;
     }
 
     public synchronized void setIndexing(){
-        intakeState = IntakeState.SWALLOW;
-    }
-
-    public synchronized void setEjecting(){
-        intakeState = IntakeState.VOMIT;
+        intakeState = IntakeState.REVERSE_INDEXER;
     }
 
     public synchronized void setIntakeBackwards(){
-        intakeState = IntakeState.INTAKE_BACKWARDS;
+        intakeState = IntakeState.REVERSE_INTAKE;
     }
     public synchronized void setAll(){
         toggleIntake(true);
-        intakeState = IntakeState.SLURP;
+        intakeState = IntakeState.INTAKE_INDEXER;
     }
     
     public synchronized void setOff(){
