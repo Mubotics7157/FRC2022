@@ -33,24 +33,22 @@ public class Robot extends TimedRobot {
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
-  Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+  //Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   Thread auto;
-
-  
   Serializer serializer = Serializer.getInstance();
   
 @Override
 public void robotInit() {
-    serializer.setPeriod(Duration.ofMillis(50));
+    //serializer.setPeriod(Duration.ofMillis(50));
     swerve.setPeriod(Duration.ofMillis(20));
-    tracker.setPeriod(Duration.ofMillis(30));
-    climb.setPeriod(Duration.ofMillis(40));
-    vision.setPeriod(Duration.ofMillis(30));
-    scheduler.schedule(vision, executor);
-    scheduler.schedule(serializer, executor);
+    //tracker.setPeriod(Duration.ofMillis(30));
+    //climb.setPeriod(Duration.ofMillis(50));
+    //vision.setPeriod(Duration.ofMillis(30));
+    //scheduler.schedule(vision, executor);
+    //scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
-    scheduler.schedule(tracker, executor);
-    scheduler.schedule(climb, executor);
+    //scheduler.schedule(tracker, executor);
+    //scheduler.schedule(climb, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -73,9 +71,7 @@ public void autonomousPeriodic() {
   if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    serializer.setOff();
-    compressor.enableDigital();
-    swerve.setFieldOriented();
+    //compressor.enableDigital();
   }
 
   
@@ -114,10 +110,6 @@ public void teleopPeriodic() {
         swerve.zeroYaw();
         tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
       }
-      else if(operator.getRawAxis(4)>.2)
-        serializer.setShooterSpeed(2000, 2000);
-      else if(operator.getRawAxis(4)<-.2)
-        serializer.setShooterSpeed(500, 500);
       /*
       if(operator.getRawButtonPressed(6))
         swerve.resetGyro();

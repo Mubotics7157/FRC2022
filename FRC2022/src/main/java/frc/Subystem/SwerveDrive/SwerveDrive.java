@@ -104,10 +104,12 @@ public class SwerveDrive extends Threaded{
                 SmartDashboard.putString("Swerve State", "Field Oriented");
                 updateManual(true);
                 break;
+            /*
             case ALIGN:
-                SmartDashboard.putString("Swerve State", "Align");
                 updateAlign();
                 break;
+                */
+                /*
             case AUTO:
                 updateAuto();
                 SmartDashboard.putString("Swerve State", "Auto");
@@ -116,8 +118,8 @@ public class SwerveDrive extends Threaded{
                 stopMotors();
                 SmartDashboard.putString("Swerve State", "Done");
                 break;
+                */
         }
-        SmartDashboard.putNumber("gyro heading", gyro.getRotation2d().getDegrees());
     }
         private void updateManual(boolean fieldOriented){
         ChassisSpeeds speeds;
@@ -125,11 +127,11 @@ public class SwerveDrive extends Threaded{
         double str = Robot.driver.getRawAxis(0);
         double rot = Robot.driver.getRawAxis(4);
 
-        if(Math.abs(fwd) <= .05)
+        if(Math.abs(fwd) <= .1)
             fwd = 0;
-        if(Math.abs(str) <= .05)
+        if(Math.abs(str) <= .1)
             str = 0;
-        if(Math.abs(rot) <= .05)
+        if(Math.abs(rot) <= .1)
             rot = 0;
 
         if(fieldOriented)
@@ -159,20 +161,20 @@ public class SwerveDrive extends Threaded{
     }
 
     private void updateAlign(){
-       if(VisionManager.getInstance().hasVisionTarget())
-        {
+       //if(VisionManager.getInstance().hasVisionTarget())
+       // {
         Rotation2d onTarget = new Rotation2d(0);
         double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
         if(Math.abs(error)<Units.degreesToRadians(3))
             error = 0;
-        //SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = visionRotController.calculate(error);
-        //SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
         updateManual(true,deltaSpeed);
-        }
-        else{
+        if(error==0)
             setFieldOriented();
-        }
+       // }
+        //else{
+          //  setFieldOriented();
+       // }
     }
 
     private void updateAuto(){

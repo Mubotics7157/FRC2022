@@ -17,7 +17,7 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES)*Math.PI;
         public static final double STICK_DEADBAND = 0.1;
 
-        public static final double MAX_ANGULAR_VELOCITY_RAD = 2*Math.PI;
+        public static final double MAX_ANGULAR_VELOCITY_RAD = 4*Math.PI;
         public static final double MAX_TANGENTIAL_VELOCITY = 4;
 
         public static final double CLOSED_LOOP_RAMP = .2;
@@ -100,11 +100,11 @@ public class Constants {
     }
 
     public static final class IntakeConstants{
-        public static final int DEVICE_ID_INTAKE = 18;
+        public static final int DEVICE_ID_INTAKE = 32;
         public static final int DEVICE_ID_INDEXER = 21;
         public static final double OPEN_LOOP_RAMP = .2;
         public static final double INTAKE_SPEED = 1;
-        public static final double INDEX_SPEED = -1;
+        public static final double INDEX_SPEED = 1;
         public static final boolean STOWED = false;
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;

@@ -104,4 +104,12 @@ public class VisionManager extends Threaded{
         targetCam.setLED(VisionLEDMode.kOn);
         cargoCam.setDriverMode(false);
     }
+
+    public synchronized void toggleOnOff(){
+        if(visionState==VisionState.ON)
+            setOn();
+        else
+            setOff();
+
+    }
 }

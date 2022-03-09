@@ -8,7 +8,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.Threading.Threaded;
 
@@ -40,23 +42,21 @@ public class Serializer extends Threaded {
 
     public Serializer(){
         intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
-        intakeMotor.setInverted(true);
         feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
-        intakeMotor.setInverted(true);
         feeder.setInverted(true);
 
-        beamBreak = new DigitalInput(1);
 
-        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 5, 7);
     }
 
     private enum IntakeState{
         OFF,
-        CHEW,
+        INTAKE_BACKWARDS,
         SWALLOW,
         SLURP,
         SPIT,
-        VOMIT
+        VOMIT,
+        INTAKE
     }
     @Override
     public void update() {
@@ -66,14 +66,11 @@ public class Serializer extends Threaded {
         }
         switch(snapIntakeState){
             case OFF:
-                SmartDashboard.putString("Intake State", "Off");
                 break;
-            case CHEW:
-                SmartDashboard.putString("Intake State", "Intaking");
-                intake();
+            case INTAKE_BACKWARDS:
+                reverseIntake();
                 break;
             case SWALLOW:
-                SmartDashboard.putString("Intake State", "Indexer");
                 spitBall();
                 break;
             case SLURP:
@@ -83,19 +80,25 @@ public class Serializer extends Threaded {
                 shoot(topSpeed,bottomSpeed);
                 break;
             case VOMIT:
-                SmartDashboard.putString("Intake State", "Ejecting");
                 ejectAll();
+                break;
+            case INTAKE:
+                intake();
                 break;
         }
     }
 
-    private void intake(){
-        intakeMotor.set(ControlMode.PercentOutput,IntakeConstants.INTAKE_SPEED);
+    private void reverseIntake(){
+        intakeMotor.set(ControlMode.PercentOutput,-IntakeConstants.INTAKE_SPEED);
     }
 
     private void index(){
         feeder.set(IntakeConstants.INDEX_SPEED);
 
+    }
+
+    private void intake(){
+        intakeMotor.set(ControlMode.PercentOutput,IntakeConstants.INTAKE_SPEED);
     }
 
     private void runBoth(){
@@ -126,12 +129,10 @@ public class Serializer extends Threaded {
         shooter.rev(0, 0);
     }
 
-
-
     public synchronized void setIntaking(){
-       // intakeSolenoid.set(Value.kForward);
-        intakeState = IntakeState.CHEW;
-        //intakeSolenoid.set(Value.kForward);
+        if(intakeSolenoid.get()!=Constants.IntakeConstants.INTAKE_DOWN)
+            intakeSolenoid.set(Value.kForward);
+        intakeState = IntakeState.INTAKE;
     }
 
     public synchronized void setShooting(){
@@ -146,6 +147,9 @@ public class Serializer extends Threaded {
         intakeState = IntakeState.VOMIT;
     }
 
+    public synchronized void setIntakeBackwards(){
+        intakeState = IntakeState.INTAKE_BACKWARDS;
+    }
     public synchronized void setAll(){
         toggleIntake(true);
         intakeState = IntakeState.SLURP;
