@@ -134,12 +134,10 @@ public class SwerveDrive extends Threaded{
         else
             speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD);
 
-        if(rotateOnCenter)
-            driveFromChassis(speeds,DriveConstants.FRONT_LEFT_MODULE_POSITION);
-        else 
-            driveFromChassis(speeds);
+        driveFromChassis(speeds);
     }
 
+    
     private void updateManual(boolean fieldOriented, double rotModifier){
         ChassisSpeeds speeds;
         double fwd = Robot.driver.getRawAxis(1);
@@ -208,11 +206,6 @@ public class SwerveDrive extends Threaded{
         setModuleStates(states);
     }   
 
-    private void driveFromChassis(ChassisSpeeds speeds, Translation2d centerOfRotation) {
-        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds, centerOfRotation);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
-        setModuleStates(states);
-    }
     private void setModuleStates(SwerveModuleState[] states){
         frontLeft.setState(states[0]);
         frontRight.setState(states[1]);
@@ -226,7 +219,7 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        return Rotation2d.fromDegrees(gyro.getYaw());
+        return gyro.getRotation2d();
     }
 
     private double getPathPercentage(){
@@ -294,11 +287,7 @@ public class SwerveDrive extends Threaded{
 
     public synchronized void resetGyro(){
         gyro.reset();
-        gyro.calibrate();
     }
 
-    public synchronized void setCenterRotation(boolean rotateOnCenter){
-        this.rotateOnCenter= rotateOnCenter;
-    }
 
 }

@@ -18,8 +18,7 @@ import frc.Subystem.Serializer;
 import frc.Subystem.VisionManager;  
 import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
-import frc.auto.AutoRoutine;
-import frc.auto.AutoRoutineGenerator;
+//import frc.auto.AutoRoutineGenerator;
 import frc.util.Threading.ThreadScheduler;
 
 public class Robot extends TimedRobot {
@@ -27,27 +26,29 @@ public class Robot extends TimedRobot {
   public static final XboxController operator = new XboxController(1);
   SwerveDrive swerve = SwerveDrive.getInstance(); 
   SwerveTracker tracker = SwerveTracker.getInstance();
-  VisionManager vision = VisionManager.getInstance();
+  VisionManager visionManager = VisionManager.getInstance();
   Climb climb = new Climb();
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
   Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   Thread auto;
+
+  
   Serializer serializer = Serializer.getInstance();
   
 @Override
 public void robotInit() {
-    serializer.setPeriod(Duration.ofMillis(50));
+    serializer.setPeriod(Duration.ofMillis(20));
     swerve.setPeriod(Duration.ofMillis(20));
-    tracker.setPeriod(Duration.ofMillis(30));
-    climb.setPeriod(Duration.ofMillis(50));
-    vision.setPeriod(Duration.ofMillis(30));
-    scheduler.schedule(vision, executor);
+    tracker.setPeriod(Duration.ofMillis(5));
+    climb.setPeriod(Duration.ofMillis(40));
+    visionManager.setPeriod(Duration.ofMillis(39));
     scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
     scheduler.schedule(tracker, executor);
     scheduler.schedule(climb, executor);
+    scheduler.schedule(visionManager, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -56,9 +57,6 @@ public void robotInit() {
 @Override
 public void autonomousInit() {
   scheduler.resume();
-    AutoRoutine option = AutoRoutineGenerator.TwoBallAuto();
-    auto = new Thread(option);
-    auto.start();
 }
 
 @Override
@@ -70,75 +68,45 @@ public void autonomousPeriodic() {
   if(auto!=null)
       auto.interrupt();
     scheduler.resume();
+    serializer.setOff();
     compressor.enableDigital();
     swerve.setFieldOriented();
-    swerve.resetGyro();
   }
 
   
 public void teleopPeriodic() {
+      if(driver.getRawAxis(2)>.2)
+        serializer.setAll();  
+      else if(driver.getRawButton(6))
+        serializer.setShooting();
+      else if(driver.getRawButton(5))
+        serializer.setIndexing();
+      else
+        serializer.setOff();
 
-    //intake states
-    if(driver.getRawAxis(2)>.2)
-      serializer.setAll();  
-    else if(driver.getRawButton(6))
-      serializer.setShooting();
-    else if(driver.getRawAxis(3)>.2)
-      serializer.setIntakeBackwards();
-    else if(driver.getRawButton(5))
-      serializer.setIndexing();
-    else
-      serializer.setOff();
-
-    //extend and retract the intake
-    if(driver.getRawButton(4))
-      serializer.toggleIntake(false);
-    else if(driver.getRawButton(2))
-      serializer.toggleIntake(true);
-
-    //setting the modes for the swerve drive
-    if(operator.getRawButtonPressed(1))
-        swerve.setTargetAlign();
-      else if(operator.getRawButton(3))
-        swerve.setFieldOriented();
-
-    //toggle the vision on and off
-    if(operator.getRawButtonPressed(4)){
-      vision.setOff();
-    }
-    else if(operator.getRawButtonPressed(6)){
-      vision.setOn();
-    }
+       if(driver.getRawButton(2))
+        serializer.toggleIntake(true);
+       else if(driver.getRawButton(2))
+        serializer.toggleIntake(false);
+        if(operator.getRawButtonPressed(1))
+          swerve.setTargetAlign();
+        else if(operator.getRawButton(3))
+          swerve.setFieldOriented();
+      else if(operator.getRawAxis(2)>0)
+        swerve.setRobotOriented();
+      if(operator.getRawButtonPressed(2)){
+        swerve.zeroYaw();
+      }
       
-    //zero the yaw of the swerve
-    if(operator.getRawButtonPressed(2)){
-      swerve.zeroYaw();
-      tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-    }
-  
-    //feature: edit the center of rotation
-    if(driver.getPOV(1)!=-1){
-      swerve.setCenterRotation(true);
-    }
-    else 
-      swerve.setCenterRotation(false);
+      
+      
+      
+      
 
-    if(operator.getRawButtonPressed(6))
-      swerve.resetGyro();
 }
 
 @Override
 public void testInit() {
-    SmartDashboard.putNumber("turning d ", .02);
-    SmartDashboard.putNumber("turning p", .02);
-    SmartDashboard.putNumber("LL P", 0);
-    SmartDashboard.putNumber("ClimbPID", .2);
-    SmartDashboard.putNumber("top RPM", 1000);
-    SmartDashboard.putNumber("bot RPM", 1000);
-    SmartDashboard.putNumber("shooter ratio", 1.25);
   scheduler.resume();
-  swerve.setFieldOriented();
-
 }
-
 } 
