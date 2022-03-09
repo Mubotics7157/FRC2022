@@ -20,7 +20,6 @@ import frc.Subystem.SwerveDrive.SwerveDrive;
 import frc.Subystem.SwerveDrive.SwerveTracker;
 import frc.auto.AutoRoutine;
 import frc.auto.AutoRoutineGenerator;
-//import frc.auto.AutoRoutineGenerator;
 import frc.util.Threading.ThreadScheduler;
 
 public class Robot extends TimedRobot {
@@ -33,22 +32,22 @@ public class Robot extends TimedRobot {
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
-  //Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+  Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   Thread auto;
   Serializer serializer = Serializer.getInstance();
   
 @Override
 public void robotInit() {
-    //serializer.setPeriod(Duration.ofMillis(50));
+    serializer.setPeriod(Duration.ofMillis(50));
     swerve.setPeriod(Duration.ofMillis(20));
-    //tracker.setPeriod(Duration.ofMillis(30));
-    //climb.setPeriod(Duration.ofMillis(50));
-    //vision.setPeriod(Duration.ofMillis(30));
-    //scheduler.schedule(vision, executor);
-    //scheduler.schedule(serializer, executor);
+    tracker.setPeriod(Duration.ofMillis(30));
+    climb.setPeriod(Duration.ofMillis(50));
+    vision.setPeriod(Duration.ofMillis(30));
+    scheduler.schedule(vision, executor);
+    scheduler.schedule(serializer, executor);
     scheduler.schedule(swerve, executor);
-    //scheduler.schedule(tracker, executor);
-    //scheduler.schedule(climb, executor);
+    scheduler.schedule(tracker, executor);
+    scheduler.schedule(climb, executor);
 }
   @Override
   public void robotPeriodic() {
@@ -71,49 +70,61 @@ public void autonomousPeriodic() {
   if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    //compressor.enableDigital();
+    compressor.enableDigital();
+    swerve.setFieldOriented();
+    swerve.resetGyro();
   }
 
   
 public void teleopPeriodic() {
-      if(driver.getRawAxis(2)>.2)
-        serializer.setAll();  
-      else if(driver.getRawButton(6))
-        serializer.setShooting();
-      else if(driver.getRawAxis(3)>.2)
-        serializer.setEjecting();
-      else if(driver.getRawButton(5))
-        serializer.setIndexing();
-      else
-        serializer.setOff();
 
-      if(driver.getRawButton(4))
-      //climb.setHighRetracting();
-        serializer.toggleIntake(false);
-      else if(driver.getRawButton(2))
-     // climb.setHighExtending();
-        serializer.toggleIntake(true);
-      if(operator.getRawButtonPressed(1))
-          swerve.setTargetAlign();
-        else if(operator.getRawButton(3))
-          swerve.setFieldOriented();
+    //intake states
+    if(driver.getRawAxis(2)>.2)
+      serializer.setAll();  
+    else if(driver.getRawButton(6))
+      serializer.setShooting();
+    else if(driver.getRawAxis(3)>.2)
+      serializer.setIntakeBackwards();
+    else if(driver.getRawButton(5))
+      serializer.setIndexing();
+    else
+      serializer.setOff();
 
-      if(operator.getRawButtonPressed(4)){
-        vision.setOff();
-      }
-      else if(operator.getRawButtonPressed(6)){
-        vision.setOn();
-      }
-      //tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+    //extend and retract the intake
+    if(driver.getRawButton(4))
+      serializer.toggleIntake(false);
+    else if(driver.getRawButton(2))
+      serializer.toggleIntake(true);
+
+    //setting the modes for the swerve drive
+    if(operator.getRawButtonPressed(1))
+        swerve.setTargetAlign();
+      else if(operator.getRawButton(3))
+        swerve.setFieldOriented();
+
+    //toggle the vision on and off
+    if(operator.getRawButtonPressed(4)){
+      vision.setOff();
+    }
+    else if(operator.getRawButtonPressed(6)){
+      vision.setOn();
+    }
       
-      if(operator.getRawButtonPressed(2)){
-        swerve.zeroYaw();
-        tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
-      }
-      /*
-      if(operator.getRawButtonPressed(6))
-        swerve.resetGyro();
-        */
+    //zero the yaw of the swerve
+    if(operator.getRawButtonPressed(2)){
+      swerve.zeroYaw();
+      tracker.setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
+    }
+  
+    //feature: edit the center of rotation
+    if(driver.getPOV(1)!=-1){
+      swerve.setCenterRotation(true);
+    }
+    else 
+      swerve.setCenterRotation(false);
+
+    if(operator.getRawButtonPressed(6))
+      swerve.resetGyro();
 }
 
 @Override

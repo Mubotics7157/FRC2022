@@ -36,7 +36,6 @@ public class VisionManager extends Threaded{
             return 0;
     }
 
-
     public synchronized Rotation2d getTargetYawRotation2d(){
         var result = targetCam.getLatestResult();
         if(result.hasTargets()){
@@ -110,6 +109,5 @@ public class VisionManager extends Threaded{
             setOn();
         else
             setOff();
-
     }
 }

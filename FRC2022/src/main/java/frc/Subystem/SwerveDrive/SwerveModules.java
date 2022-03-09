@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -55,10 +54,6 @@ public class SwerveModules {
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         config.magnetOffsetDegrees = angleOffset;
         absEncoder.configAllSettings(config);
-        turnMotor.setStatusFramePeriod(StatusFrame.Status_1_General, 200);
-        driveMotor.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 200);
-        driveMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 200);
-
     }
 
     public void setState(SwerveModuleState state){

@@ -5,11 +5,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.Threading.Threaded;
@@ -23,11 +21,8 @@ public class Serializer extends Threaded {
 
     Shooter shooter = new Shooter();
 
-    private DigitalInput beamBreak;
-
     double topSpeed = 1250;
     double bottomSpeed = 1250/1.08;
-
 
     DoubleSolenoid intakeSolenoid;
 
@@ -43,7 +38,8 @@ public class Serializer extends Threaded {
     public Serializer(){
         intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
         feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
-        feeder.setInverted(true);
+        feeder.setInverted(false);
+        intakeMotor.setInverted(true);
 
 
         intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 5, 7);
@@ -153,10 +149,6 @@ public class Serializer extends Threaded {
         if(!down)
             stopMotors();
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
-    }
-
-    private boolean hasBallStowed(){
-        return beamBreak.get() != IntakeConstants.STOWED;
     }
 
     private synchronized void spitBall(){
