@@ -6,10 +6,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.Threading.Threaded;
 
@@ -108,7 +110,17 @@ public class Serializer extends Threaded {
     }
 
     private void shoot(double top, double bot){
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(top, bot)){
+            index();
+            intake();
+        }
+        else
         shooter.atSpeed(top, bot);
+    }
+
+    private void shootAutomated(double top, double bot){
+        if(shooter.atSpeed(top, bot))
+            index();
     }
 
     public synchronized void setArbitrary(double top, double bot){
@@ -173,5 +185,7 @@ public class Serializer extends Threaded {
         topSpeed += topAdj;
         bottomSpeed += botAdj;
     }
+    
+
     
 }

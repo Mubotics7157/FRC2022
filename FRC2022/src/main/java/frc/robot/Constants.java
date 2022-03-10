@@ -89,7 +89,7 @@ public class Constants {
     public static final class ShooterConstants{
         public static final int DEVICE_ID_SHOOTER = 3;
 
-        public static final double TOLERANCE_RPM = 40;
+        public static final double TOLERANCE_RPM = 35;
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 

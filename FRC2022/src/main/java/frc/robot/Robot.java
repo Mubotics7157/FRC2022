@@ -58,24 +58,28 @@ public void robotInit() {
 @Override
 public void autonomousInit() {
   scheduler.resume();
+  //AutoRoutine option = AutoRoutineGenerator.TwoBallAuto();
   AutoRoutine option = AutoRoutineGenerator.TwoBallAuto();
   auto = new Thread(option);
+  auto.start();
   
 }
 
 @Override
 public void autonomousPeriodic() {
-  SmartDashboard.putBoolean("auto", auto.isInterrupted());
 }
 
   public void teleopInit() {
   if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    serializer.setOff();
     compressor.enableDigital();
-    swerve.setFieldOriented();
-    climb.setManual();
+    SwerveDrive.getInstance().setFieldOriented();
+    Serializer.getInstance().setOff();
+    VisionManager.getInstance().setOn();
+    Serializer.getInstance().setShooterSpeed(1350, 1350/1.08);
+
+    //climb.setManual();
   }
 
   
@@ -88,6 +92,8 @@ public void teleopPeriodic() {
       serializer.setShooting();
     else if(driver.getRawButton(6))
       serializer.setIndexing();
+    else if(operator.getRawButton(5))
+      serializer.setIntaking();
     else
       serializer.setOff();
 
@@ -98,7 +104,7 @@ public void teleopPeriodic() {
     //extend and retract the intake
     if(driver.getRawButton(4))
       serializer.toggleIntake(false);
-    else if(driver.getRawButton(2))
+    else if(driver.getRawButton(2)||operator.getRawButton(4))
       serializer.toggleIntake(true);
 
     //setting the modes for the swerve drive
@@ -106,10 +112,10 @@ public void teleopPeriodic() {
         swerve.setTargetAlign();
       else if(operator.getRawButtonPressed(3))
         swerve.setFieldOriented();
-      else if(operator.getRawButton(12))
+      else if(operator.getRawButton(11))
         swerve.setRobotOriented();
     //toggle the vision on and off
-    if(operator.getRawButtonPressed(4))
+    if(operator.getRawButtonPressed(12))
       vision.setOff();
     else if(operator.getRawButtonPressed(6))
       vision.setOn();
@@ -117,8 +123,6 @@ public void teleopPeriodic() {
     if(driver.getRawButtonPressed(5))
       swerve.zeroYaw();
     
-    if(operator.getRawButtonPressed(11))
-      climb.toggleClimbSolenoid();
     
     if(operator.getRawButtonPressed(7))
       climb.setManual();

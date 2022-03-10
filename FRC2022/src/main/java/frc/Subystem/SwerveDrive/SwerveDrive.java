@@ -131,7 +131,7 @@ public class SwerveDrive extends Threaded{
             fwd = 0;
         if(Math.abs(str) <= .1)
             str = 0;
-        if(Math.abs(rot) <= .1)
+        if(Math.abs(rot) <= .15)
             rot = 0;
 
         if(fieldOriented)

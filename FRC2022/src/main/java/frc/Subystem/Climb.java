@@ -16,7 +16,6 @@ public class Climb extends Threaded {
     TalonFX midClimb;
     TalonFX highClimb;
 
-    ClimbState climbState;
     DoubleSolenoid highClimbSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5); 
 
     public Climb(){
@@ -69,6 +68,7 @@ public class Climb extends Threaded {
         HIGH
     }
 
+    ClimbState climbState = ClimbState.OFF;
     @Override
     public void update(){
         ClimbState snapClimbState;
