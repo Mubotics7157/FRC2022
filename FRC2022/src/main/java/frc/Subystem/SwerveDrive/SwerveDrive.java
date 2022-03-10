@@ -67,9 +67,9 @@ public class SwerveDrive extends Threaded{
         rotController.enableContinuousInput(-Math.PI, Math.PI);
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
 
-        gyro.reset();
-        gyro.zeroYaw();
-        gyro.calibrate();
+        //gyro.reset();
+        //gyro.zeroYaw();
+        //gyro.calibrate();
         autoTimer = new Timer();
         triggers = new ArrayList<>();
         rotController.setTolerance(Units.degreesToRadians(10));
@@ -219,7 +219,7 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        return gyro.getRotation2d();
+        return gyro.getRotation2d().unaryMinus();
     }
 
     private double getPathPercentage(){
@@ -287,6 +287,10 @@ public class SwerveDrive extends Threaded{
 
     public synchronized void resetGyro(){
         gyro.reset();
+    }
+
+    public synchronized void calibrateGyro(){
+        gyro.calibrate();
     }
 
 

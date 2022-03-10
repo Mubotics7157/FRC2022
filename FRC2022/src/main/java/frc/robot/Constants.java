@@ -16,7 +16,7 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE_INCHES = WHEEL_DIAMETER_INCHES*Math.PI;
         public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES)*Math.PI;
 
-        public static final double MAX_ANGULAR_VELOCITY_RAD = 4*Math.PI;
+        public static final double MAX_ANGULAR_VELOCITY_RAD = 2*Math.PI;
         public static final double MAX_TANGENTIAL_VELOCITY = 4;
 
         public static final double CLOSED_LOOP_RAMP = .2;
@@ -85,7 +85,7 @@ public class Constants {
     public static final class ShooterConstants{
         public static final int DEVICE_ID_SHOOTER = 3;
 
-        public static final double TOLERANCE_RPM = 35;
+        public static final double TOLERANCE_RPM = 40;
         public static final double TARMAC_CLOSE_RPM = 1000;
         public static final double TARMAC_FAR_RPM = 1250;
 

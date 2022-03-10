@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ShooterConstants;
 import frc.util.CommonConversions;
 
@@ -18,13 +19,13 @@ public class Shooter {
         topConfig.voltageCompSaturation = 10;
         topConfig.slot0.kP = .6;
         topConfig.slot0.kD = .04;
-        topConfig.slot0.kF = .045;
+        topConfig.slot0.kF = .05;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
         botConfig.voltageCompSaturation = 10;
         botConfig.slot0.kP =.6; //.2
         botConfig.slot0.kF =.045;
-        topConfig.slot0.kD = .04;
+        topConfig.slot0.kD = .05;
         flywheelBot.configAllSettings(botConfig);
         flywheelBot.setNeutralMode(NeutralMode.Coast);
         flywheelTop.setNeutralMode(NeutralMode.Coast);
@@ -37,7 +38,11 @@ public class Shooter {
 
     public boolean atSpeed(double topSetpoint, double botSetpoint){
         rev(topSetpoint, botSetpoint);
+        SmartDashboard.putNumber("top setpoint", topSetpoint);
+        SmartDashboard.putNumber("bot setpoint", botSetpoint);
         boolean atSpeed =  (Math.abs(topSetpoint - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(botSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
+        SmartDashboard.putNumber("error", topSetpoint-getTopRPM());
+        SmartDashboard.putNumber("actual top", getTopRPM());
         return atSpeed;
     }
     

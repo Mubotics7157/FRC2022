@@ -22,7 +22,7 @@ public class Serializer extends Threaded {
     Shooter shooter = new Shooter();
 
     double topSpeed = 1250;
-    double bottomSpeed = 1250/1.08;
+    double bottomSpeed = 1250*1.08;
 
     DoubleSolenoid intakeSolenoid;
 
@@ -42,7 +42,7 @@ public class Serializer extends Threaded {
         intakeMotor.setInverted(true);
 
 
-        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 5, 7);
+        intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     }
 
     private enum IntakeState{
@@ -97,13 +97,11 @@ public class Serializer extends Threaded {
         intakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
         //if(hasBallStowed())
         feeder.set(IntakeConstants.INDEX_SPEED);
-        shoot(-530, -530);
+        shoot(-130, -130);
     }
 
     private void shoot(double top, double bot){
-        if(shooter.atSpeed(top, bot)){
-            index();
-        }
+        shooter.atSpeed(top, bot);
     }
 
     public synchronized void setArbitrary(double top, double bot){
@@ -158,6 +156,15 @@ public class Serializer extends Threaded {
     public synchronized void setShooterSpeed(double topSpeed, double botSpeed){
         this.topSpeed = topSpeed;
         this.bottomSpeed = botSpeed;
+    }
+
+    public synchronized void runIndexer(){
+        feeder.set(IntakeConstants.INDEX_SPEED);
+    }
+
+    public synchronized void adjustShooterSpeeds(double topAdj, double botAdj){
+        topSpeed += topAdj;
+        bottomSpeed += botAdj;
     }
     
 }
