@@ -16,8 +16,11 @@ public class Constants {
         public static final double WHEEL_CIRCUMFERENCE_INCHES = WHEEL_DIAMETER_INCHES*Math.PI;
         public static final double WHEEL_CIRCUMFERENCE_METERS = Units.inchesToMeters(WHEEL_DIAMETER_INCHES)*Math.PI;
 
+        public static final double MAX_ANGULAR_VELOCITY_RAD_TELEOP = .85*Math.PI;
+        public static final double MAX_TANGENTIAL_VELOCITY_TELEOP=3.5;
+
+        public static final double MAX_TANGENTIAL_VELOCITY= 4;
         public static final double MAX_ANGULAR_VELOCITY_RAD = 2*Math.PI;
-        public static final double MAX_TANGENTIAL_VELOCITY = 4;
 
         public static final double CLOSED_LOOP_RAMP = .2;
         public static final double OPEN_LOOP_RAMP = .25;
@@ -48,7 +51,8 @@ public class Constants {
 
         public static final double FWD_kP = 2;
         public static final double STR_kP = 2;
-        public static final double THETA_kP = .22;
+        public static final double THETA_kP = 3;
+        public static final double THETA_kD = .015;
 
         public static final double FL_OFFSET = 2.724609375;
         public static final double FR_OFFSET = -111.263671875;

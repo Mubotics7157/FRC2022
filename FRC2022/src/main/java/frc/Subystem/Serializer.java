@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.Threading.Threaded;
@@ -61,21 +62,27 @@ public class Serializer extends Threaded {
         }
         switch(snapIntakeState){
             case OFF:
+                SmartDashboard.putString("intake state", "OFF");
                 break;
             case REVERSE_INTAKE:
                 reverseIntake();
+                SmartDashboard.putString("intake state", "INTAKE REVERSED");
                 break;
             case REVERSE_INDEXER:
                 spitBall();
+                SmartDashboard.putString("intake state", "INDEXER REVERSED");
                 break;
             case INTAKE_INDEXER:
                 runBoth();
+                SmartDashboard.putString("intake state", "INTAKE + INDEX");
                 break;
             case SHOOT:
                 shoot(topSpeed,bottomSpeed);
+                SmartDashboard.putString("intake state", "SHOOTING");
                 break;
             case INTAKE:
                 intake();
+                SmartDashboard.putString("intake state", "INTAKING");
                 break;
         }
     }

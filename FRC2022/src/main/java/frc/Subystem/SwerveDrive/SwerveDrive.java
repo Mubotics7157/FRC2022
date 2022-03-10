@@ -46,7 +46,7 @@ public class SwerveDrive extends Threaded{
     PIDController strController = new PIDController(DriveConstants.STR_kP, 0, 0);
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(3*Math.PI,3*Math.PI);
-    ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.THETA_kP, 0, .02,visionRotProfile); //.2
+    ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.THETA_kP, 0, DriveConstants.THETA_kD,visionRotProfile); //.2
     ProfiledPIDController rotController = new ProfiledPIDController(DriveConstants.THETA_kP, 0, 0,rotProfile); //.2
     Rotation2d desiredAutoHeading;
 
@@ -101,18 +101,23 @@ public class SwerveDrive extends Threaded{
         switch(snapSwerveState){
             case ROBOT_ORIENTED:
                 updateManual(false);
+                SmartDashboard.putString("drive state", "robot oriented");
                 break;
             case FIELD_ORIENTED:
                 updateManual(true);
+                SmartDashboard.putString("drive state", "field oriented");
                 break;
             case ALIGN:
                 updateAlign();
+                SmartDashboard.putString("drive state", "aligning");
                 break;
             case AUTO:
                 updateAuto();
+                SmartDashboard.putString("drive state", "auto running");
                 break;
             case DONE:
                 stopMotors();
+                SmartDashboard.putString("drive state", "done");
                 break;
         }
     }
@@ -130,9 +135,9 @@ public class SwerveDrive extends Threaded{
             rot = 0;
 
         if(fieldOriented)
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD, getDriveHeading().unaryMinus());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP, getDriveHeading().unaryMinus());
         else
-            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD);
+            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP);
 
         driveFromChassis(speeds);
     }
@@ -149,9 +154,9 @@ public class SwerveDrive extends Threaded{
         if(Math.abs(str) <= .05)
             str = 0;
         if(fieldOriented)
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD, getDriveHeading());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP, getDriveHeading().unaryMinus());
         else
-            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD);
+            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP);
         
         driveFromChassis(speeds);
     }
@@ -219,7 +224,7 @@ public class SwerveDrive extends Threaded{
     }
 
     public synchronized Rotation2d getDriveHeading(){
-        return gyro.getRotation2d().unaryMinus();
+        return Rotation2d.fromDegrees(gyro.getYaw());
     }
 
     private double getPathPercentage(){

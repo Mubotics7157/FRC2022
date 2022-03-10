@@ -41,7 +41,7 @@ public void robotInit() {
     serializer.setPeriod(Duration.ofMillis(20));
     swerve.setPeriod(Duration.ofMillis(20));
     tracker.setPeriod(Duration.ofMillis(30));
-    climb.setPeriod(Duration.ofMillis(50));
+    climb.setPeriod(Duration.ofMillis(30));
     vision.setPeriod(Duration.ofMillis(30));
     scheduler.schedule(vision, executor);
     scheduler.schedule(serializer, executor);
@@ -75,6 +75,7 @@ public void autonomousPeriodic() {
     serializer.setOff();
     compressor.enableDigital();
     swerve.setFieldOriented();
+    climb.setManual();
   }
 
   
@@ -101,14 +102,12 @@ public void teleopPeriodic() {
       serializer.toggleIntake(true);
 
     //setting the modes for the swerve drive
-    /*
     if(operator.getRawButtonPressed(1))
         swerve.setTargetAlign();
       else if(operator.getRawButtonPressed(3))
         swerve.setFieldOriented();
       else if(operator.getRawButton(12))
         swerve.setRobotOriented();
-*/
     //toggle the vision on and off
     if(operator.getRawButtonPressed(4))
       vision.setOff();
@@ -118,8 +117,6 @@ public void teleopPeriodic() {
     if(driver.getRawButtonPressed(5))
       swerve.zeroYaw();
     
-    //serializer.adjustShooterSpeeds(operator.getRawAxis(3)*-200, operator.getRawAxis(3)*-200/1.08);
-
     if(operator.getRawButtonPressed(11))
       climb.toggleClimbSolenoid();
     
@@ -132,6 +129,7 @@ public void teleopPeriodic() {
 @Override
 public void testInit() {
   scheduler.resume();
+  climb.setHoming();
 }
 @Override
 public void testPeriodic() {
