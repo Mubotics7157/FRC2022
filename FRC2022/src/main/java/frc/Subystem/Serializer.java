@@ -87,6 +87,7 @@ public class Serializer extends Threaded {
                 SmartDashboard.putString("intake state", "INTAKING");
                 break;
         }
+        System.out.println("intake updating");
     }
 
     private void reverseIntake(){

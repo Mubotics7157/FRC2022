@@ -2,8 +2,10 @@ package frc.Subystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -41,15 +43,11 @@ public class Climb extends Threaded {
 
         midClimb.configReverseSoftLimitEnable(true);
         midClimb.configReverseSoftLimitThreshold(-1, 20);
-        midClimb.configPeakOutputForward(.7);
-        midClimb.configPeakOutputReverse(-.7);
-        midClimb.configForwardSoftLimitEnable(true);
-        midClimb.configForwardSoftLimitThreshold(309000);
-        highClimb.configReverseSoftLimitEnable(true);
-        highClimb.configReverseSoftLimitThreshold(-1, 20);
-        highClimb.configPeakOutputForward(.3);
-        highClimb.configPeakOutputReverse(-.3);
+        midClimb.configPeakOutputForward(1);
+        midClimb.configPeakOutputReverse(-1);
         midClimb.setSelectedSensorPosition(0);
+
+        midClimb.setNeutralMode(NeutralMode.Brake);
 
     }
     private enum ClimbState{
@@ -168,9 +166,13 @@ public class Climb extends Threaded {
         climbState = ClimbState.MANUAL_JOG;
     }
 
+     public synchronized void setOff(){
+        climbState = ClimbState.OFF;
+    }
     public synchronized void setHoming(){
-        highClimb.configFactoryDefault();
         midClimb.configFactoryDefault();
+        midClimb.setNeutralMode(NeutralMode.Brake);
+        highClimb.setNeutralMode(NeutralMode.Brake);
         climbState = ClimbState.HOMING;
     }
 }

@@ -37,7 +37,7 @@ public class AutoRoutineGenerator {
 		Pose2d startPos = move.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(startPos);
 		SwerveDrive.getInstance().zeroYaw();
-		initialDrive.addCommands(new SetDrivePath(move,false));
+		initialDrive.addCommands(new SetShooting(true, true));
 		return initialDrive;
 	}
 

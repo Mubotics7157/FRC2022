@@ -120,6 +120,7 @@ public class SwerveDrive extends Threaded{
                 SmartDashboard.putString("drive state", "done");
                 break;
         }
+    
     }
         private void updateManual(boolean fieldOriented){
         ChassisSpeeds speeds;
@@ -149,9 +150,9 @@ public class SwerveDrive extends Threaded{
         double str = Robot.driver.getRawAxis(0);
         double rot = rotModifier;
 
-        if(Math.abs(fwd) <= .05)
+        if(Math.abs(fwd) <= .1)
             fwd = 0;
-        if(Math.abs(str) <= .05)
+        if(Math.abs(str) <= .1)
             str = 0;
         if(fieldOriented)
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP, getDriveHeading().unaryMinus());

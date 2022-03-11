@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.Climb;
 import frc.Subystem.Serializer;
@@ -32,6 +33,7 @@ public class Robot extends TimedRobot {
   ThreadScheduler scheduler = new ThreadScheduler();
   Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   Thread auto;
+  SendableChooser<AutoRoutine> sendableChooser = new SendableChooser<AutoRoutine>();
 
   
   Serializer serializer = Serializer.getInstance();
@@ -48,38 +50,59 @@ public void robotInit() {
     scheduler.schedule(swerve, executor);
     scheduler.schedule(tracker, executor);
     scheduler.schedule(climb, executor);
+    //new Thread(scheduler).start();
     swerve.calibrateGyro();
     swerve.resetGyro();
-}
+    sendableChooser.addOption("two ball", AutoRoutineGenerator.TwoBallAuto());
+    sendableChooser.setDefaultOption("default", AutoRoutineGenerator.oneBallAuto());
+
+    /*new Thread(new Runnable() {
+      public void run(){
+        serializer.update();
+        try{
+          Thread.sleep(20);
+        } catch (InterruptedException e){
+          return;
+        }
+        
+      }
+    }).start();*/
+scheduler.resume();
+serializer.setOff();
+
+compressor.enableDigital();}
   @Override
   public void robotPeriodic() {
   }
 
 @Override
 public void autonomousInit() {
-  scheduler.resume();
-  //AutoRoutine option = AutoRoutineGenerator.TwoBallAuto();
-  AutoRoutine option = AutoRoutineGenerator.TwoBallAuto();
+  
+  AutoRoutine option = AutoRoutineGenerator.oneBallAuto();
   auto = new Thread(option);
   auto.start();
+  scheduler.resume();
+
   
 }
 
 @Override
 public void autonomousPeriodic() {
+  //System.out.print();
 }
 
   public void teleopInit() {
-  if(auto!=null)
+    
+    if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    compressor.enableDigital();
+    
     SwerveDrive.getInstance().setFieldOriented();
-    Serializer.getInstance().setOff();
+   Serializer.getInstance().setOff();
     VisionManager.getInstance().setOn();
-    Serializer.getInstance().setShooterSpeed(1350, 1350/1.08);
 
-    //climb.setManual();
+    
+    serializer.setShooterSpeed(1250, 1250*1.08);
   }
 
   
@@ -88,7 +111,7 @@ public void teleopPeriodic() {
     //intake states
     if(driver.getRawAxis(2)>.2)
       serializer.setAll();  
-    else if(operator.getRawButton(2))
+    else if(driver.getRawButton(1))
       serializer.setShooting();
     else if(driver.getRawButton(6))
       serializer.setIndexing();
@@ -108,7 +131,7 @@ public void teleopPeriodic() {
       serializer.toggleIntake(true);
 
     //setting the modes for the swerve drive
-    if(operator.getRawButtonPressed(1))
+    if(driver.getRawButtonPressed(3))
         swerve.setTargetAlign();
       else if(operator.getRawButtonPressed(3))
         swerve.setFieldOriented();
@@ -126,6 +149,9 @@ public void teleopPeriodic() {
     
     if(operator.getRawButtonPressed(7))
       climb.setManual();
+      else if (operator.getRawButtonPressed(10))
+        climb.setOff();
+    
       
 
 }
