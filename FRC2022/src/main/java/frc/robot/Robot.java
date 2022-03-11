@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -55,6 +56,7 @@ public void robotInit() {
     swerve.resetGyro();
     sendableChooser.addOption("two ball", AutoRoutineGenerator.TwoBallAuto());
     sendableChooser.setDefaultOption("default", AutoRoutineGenerator.oneBallAuto());
+    SmartDashboard.putData(sendableChooser);
 
     /*new Thread(new Runnable() {
       public void run(){
@@ -69,8 +71,7 @@ public void robotInit() {
     }).start();*/
 scheduler.resume();
 serializer.setOff();
-
-compressor.enableDigital();}
+  }
   @Override
   public void robotPeriodic() {
   }
@@ -78,11 +79,11 @@ compressor.enableDigital();}
 @Override
 public void autonomousInit() {
   
-  AutoRoutine option = AutoRoutineGenerator.oneBallAuto();
+  AutoRoutine option = AutoRoutineGenerator.TwoBallAuto();
   auto = new Thread(option);
   auto.start();
   scheduler.resume();
-
+  climb.setOff();
   
 }
 
@@ -91,18 +92,19 @@ public void autonomousPeriodic() {
   //System.out.print();
 }
 
+
   public void teleopInit() {
     
     if(auto!=null)
       auto.interrupt();
     scheduler.resume();
-    
+    compressor.enableDigital();
     SwerveDrive.getInstance().setFieldOriented();
    Serializer.getInstance().setOff();
     VisionManager.getInstance().setOn();
 
     
-    serializer.setShooterSpeed(1250, 1250*1.08);
+    serializer.setShooterSpeed(1350, 1350*1.08);
   }
 
   

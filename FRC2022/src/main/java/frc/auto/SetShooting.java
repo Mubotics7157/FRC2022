@@ -19,6 +19,7 @@ public class SetShooting extends AutoCommand {
         this.topSpeed = top;
         this.botSpeed = bot;
         Serializer.getInstance().setShooterSpeed(top,bot);
+        this.setBlocking(false);
     }
 
     @Override

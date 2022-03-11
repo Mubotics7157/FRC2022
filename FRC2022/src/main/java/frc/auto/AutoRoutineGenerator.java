@@ -53,7 +53,8 @@ public class AutoRoutineGenerator {
 		Pose2d startPos = moveToShootingPoint.getInitialPose();
 		SwerveTracker.getInstance().setOdometry(startPos);
 		SwerveDrive.getInstance().zeroYaw();
-		initialDrive.addCommands(new SetDrivePath(moveToShootingPoint,true,PathTrigger.create(new SetIntaking(false, true, false),.1),PathTrigger.create(new SetShooting(true,1450,1450*1.08), .8)));
+		//initialDrive.addCommands(new SetDrivePath(moveToShootingPoint,true,PathTrigger.create(new SetIntaking(false, true, false),.1),PathTrigger.create(new SetShooting(true,1450,1450*1.08), .8)));
+		initialDrive.addCommands(new SetIntaking(false,true,false),new SetShooting(true,true));
 		return initialDrive;
 	}
 	public static AutoRoutine TestPath(){
@@ -90,7 +91,8 @@ public class AutoRoutineGenerator {
 		initialDrive = new AutoRoutine();
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
 		SwerveDrive.getInstance().zeroYaw();
-		initialDrive.addCommands(new SetDrivePath(test,false,PathTrigger.create(new SetIntaking(true, true, false), .05), PathTrigger.create(new SetIntaking(true, true, false), .8),PathTrigger.create(new SetIndexing(true,false),.82), PathTrigger.create(new SetIndexing(false,false), .85),PathTrigger.create(new SetShooting(true, false),.97)));
+		initialDrive.addCommands(new SetDrivePath(test,false,PathTrigger.create(new SetIntaking(true, true, false), .05),
+		 PathTrigger.create(new IndexForwards(true, false), .15),PathTrigger.create(new SetIndexing(true,false),.82), PathTrigger.create(new SetIndexing(false,false), .85),PathTrigger.create(new SetShooting(true,1350,1350),.97)));
 		return initialDrive;
 	}
 

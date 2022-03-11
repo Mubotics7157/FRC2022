@@ -54,7 +54,8 @@ public class Serializer extends Threaded {
         REVERSE_INDEXER,
         INTAKE_INDEXER,
         SHOOT,
-        INTAKE
+        INTAKE,
+        EJECTING
     }
     @Override
     public void update() {
@@ -86,8 +87,10 @@ public class Serializer extends Threaded {
                 intake();
                 SmartDashboard.putString("intake state", "INTAKING");
                 break;
+            case EJECTING:
+                runBothBackwards();
+                break;
         }
-        System.out.println("intake updating");
     }
 
     private void reverseIntake(){
@@ -110,6 +113,9 @@ public class Serializer extends Threaded {
         shoot(-130, -130);
     }
 
+     private void runBothBackwards(){
+        feeder.set(IntakeConstants.INDEX_SPEED);
+    }
     private void shoot(double top, double bot){
         if(DriverStation.isAutonomous()&&shooter.atSpeed(top, bot)){
             index();
@@ -127,6 +133,10 @@ public class Serializer extends Threaded {
     public synchronized void setArbitrary(double top, double bot){
         if(shooter.atSpeed(top, bot))
             index();
+    }
+
+    public synchronized void setIntakeAndIndexBackwards(){
+        intakeState = IntakeState.EJECTING;
     }
 
     private void stopMotors(){
