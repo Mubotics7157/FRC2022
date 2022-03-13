@@ -41,8 +41,8 @@ public class Shooter {
         SmartDashboard.putNumber("top setpoint", topSetpoint);
         SmartDashboard.putNumber("bot setpoint", botSetpoint);
         boolean atSpeed =  (Math.abs(topSetpoint - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(botSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
-        SmartDashboard.putNumber("error", topSetpoint-getTopRPM());
         SmartDashboard.putNumber("actual top", getTopRPM());
+        SmartDashboard.putNumber("actual bot", getBotRPM());
         return atSpeed;
     }
     

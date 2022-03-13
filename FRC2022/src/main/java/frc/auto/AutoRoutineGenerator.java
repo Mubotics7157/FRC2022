@@ -80,7 +80,7 @@ public class AutoRoutineGenerator {
 
 	
 	public static AutoRoutine TwoBallAuto(){
-		TrajectoryConfig config = createConfig(3, 3, false);
+		TrajectoryConfig config = createConfig(2, 2, false);
 		config.setEndVelocity(0);
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,new Rotation2d(0)));
 		Trajectory test = TrajectoryGenerator.generateTrajectory(List.of(
@@ -91,8 +91,8 @@ public class AutoRoutineGenerator {
 		initialDrive = new AutoRoutine();
 		SwerveTracker.getInstance().setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
 		SwerveDrive.getInstance().zeroYaw();
-		initialDrive.addCommands(new SetDrivePath(test,false,PathTrigger.create(new SetIntaking(true, true, false), .05),
-		 PathTrigger.create(new IndexForwards(true, false), .15),PathTrigger.create(new SetIndexing(true,false),.82), PathTrigger.create(new SetIndexing(false,false), .85),PathTrigger.create(new SetShooting(true,1350,1350),.97)));
+		initialDrive.addCommands(new SetDrivePath(test,false,PathTrigger.create(new SetIntaking(true,true, false), .05),PathTrigger.create(new SetIntaking(false, true, false), .75),PathTrigger.create(new SetIndexing(true,false),.82), PathTrigger.create(new SetIndexing(false,false), .85),PathTrigger.create(new SetShooting(true,1350,1350),.97)));
+		//initialDrive.addCommands(new SetDrivePath(test,false,PathTrigger.create(new RunIntake(true), .05)));
 		return initialDrive;
 	}
 

@@ -42,7 +42,7 @@ public class Serializer extends Threaded {
         intakeMotor = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
         feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
         feeder.setInverted(false);
-        intakeMotor.setInverted(true);
+        intakeMotor.setInverted(false);
 
 
         intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
@@ -114,7 +114,9 @@ public class Serializer extends Threaded {
     }
 
      private void runBothBackwards(){
+        intakeMotor.set(ControlMode.PercentOutput,1);
         feeder.set(IntakeConstants.INDEX_SPEED);
+        shoot(-230, -230);
     }
     private void shoot(double top, double bot){
         if(DriverStation.isAutonomous()&&shooter.atSpeed(top, bot)){

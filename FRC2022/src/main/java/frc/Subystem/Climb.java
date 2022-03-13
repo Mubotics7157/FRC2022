@@ -43,8 +43,6 @@ public class Climb extends Threaded {
 
         midClimb.configReverseSoftLimitEnable(true);
         midClimb.configReverseSoftLimitThreshold(-1, 20);
-        midClimb.configPeakOutputForward(1);
-        midClimb.configPeakOutputReverse(-1);
         midClimb.setSelectedSensorPosition(0);
 
         midClimb.setNeutralMode(NeutralMode.Brake);
