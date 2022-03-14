@@ -34,11 +34,11 @@ public class Module {
         turnMotor = new WPI_TalonFX(turnPort,ModuleConstants.SWERVE_CANIVORE_ID);
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
-        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,25);
+        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
         driveMotor.setNeutralMode(NeutralMode.Brake);
 
         turnMotor.enableVoltageCompensation(true);
-        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,25);
+        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
         turnMotor.setNeutralMode(NeutralMode.Brake);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;

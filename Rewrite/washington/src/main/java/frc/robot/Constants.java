@@ -2,12 +2,12 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import frc.Subsystem.Module;
 
 public interface Constants {
     
     public static class DriveConstants{
-
         public static final int MAX_TANGENTIAL_VELOCITY = 4; 
         public static final double MAX_TELE_TANGENTIAL_VELOCITY = 3.5; 
         public static final double MAX_TELE_ANGULAR_VELOCITY = .85*Math.PI; 
@@ -36,16 +36,17 @@ public interface Constants {
         private static final double REAR_LEFT_ENCODER_OFFSET = -6-2.263671875;
         private static final double REAR_RIGHT_ENCODER_OFFSET = -80.439453125;
         
-        public Module FRONT_LEFT_MODULE = new Module(FRONT_LEFT_DRIVE_PORT,FRONT_LEFT_TURN_PORT,FRONT_LEFT_ENCODER_PORT,FRONT_LEFT_ENCODER_OFFSET);
-        public Module FRONT_RIGHT_MODULE = new Module(FRONT_RIGHT_DRIVE_PORT,FRONT_RIGHT_TURN_PORT,FRONT_RIGHT_ENCODER_PORT,FRONT_RIGHT_ENCODER_OFFSET);
-        public Module REAR_LEFT_MODULE = new Module(REAR_LEFT_DRIVE_PORT,REAR_LEFT_TURN_PORT,REAR_LEFT_ENCODER_PORT,REAR_LEFT_ENCODER_OFFSET);
-        public Module REAR_RIGHT_MODULE = new Module(REAR_RIGHT_DRIVE_PORT,REAR_RIGHT_TURN_PORT,REAR_RIGHT_ENCODER_PORT,REAR_RIGHT_ENCODER_OFFSET);
+        public static Module FRONT_LEFT_MODULE = new Module(FRONT_LEFT_DRIVE_PORT,FRONT_LEFT_TURN_PORT,FRONT_LEFT_ENCODER_PORT,FRONT_LEFT_ENCODER_OFFSET);
+        public static Module FRONT_RIGHT_MODULE = new Module(FRONT_RIGHT_DRIVE_PORT,FRONT_RIGHT_TURN_PORT,FRONT_RIGHT_ENCODER_PORT,FRONT_RIGHT_ENCODER_OFFSET);
+        public static Module REAR_LEFT_MODULE = new Module(REAR_LEFT_DRIVE_PORT,REAR_LEFT_TURN_PORT,REAR_LEFT_ENCODER_PORT,REAR_LEFT_ENCODER_OFFSET);
+        public static Module REAR_RIGHT_MODULE = new Module(REAR_RIGHT_DRIVE_PORT,REAR_RIGHT_TURN_PORT,REAR_RIGHT_ENCODER_PORT,REAR_RIGHT_ENCODER_OFFSET);
 
         public static final Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d(-WHEELBASE_WIDTH/2,WHEELBASE_LENGTH/2);
-        public static final Translation2d BACK_LEFT_MODULE_POSITION = new Translation2d(-WHEELBASE_WIDTH/2,-WHEELBASE_LENGTH/2);
+        public static final Translation2d REAR_LEFT_MODULE_POSITION = new Translation2d(-WHEELBASE_WIDTH/2,-WHEELBASE_LENGTH/2);
         public static final Translation2d FRONT_RIGHT_MODULE_POSITION = new Translation2d(WHEELBASE_WIDTH/2,WHEELBASE_LENGTH/2);
-        public static final Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(WHEELBASE_WIDTH/2,-WHEELBASE_LENGTH/2);
+        public static final Translation2d REAR_RIGHT_MODULE_POSITION = new Translation2d(WHEELBASE_WIDTH/2,-WHEELBASE_LENGTH/2);
 
+        public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(FRONT_LEFT_MODULE_POSITION,REAR_LEFT_MODULE_POSITION,FRONT_RIGHT_MODULE_POSITION,REAR_RIGHT_MODULE_POSITION);
     }     
 
     public static final class ModuleConstants{
@@ -63,7 +64,7 @@ public interface Constants {
         public static final double DRIVE_GEAR_RATIO  = 6.75;
 
         public static final String SWERVE_CANIVORE_ID = "swerve";
-        
-        public static final double TIMEOUT_MS = 25;
+
+        public static final int TIMEOUT_MS = 25;
     }
 }
