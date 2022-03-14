@@ -33,7 +33,7 @@ public class Drive extends AbstractSubsystem{
     AHRS gyro = new AHRS(SPI.Port.kMXP);
         
     private Drive() {
-        super(20);
+        super(20,20);
     }
     
     public static Drive getInstance(){
@@ -129,7 +129,7 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized void resetHeading(){
         gyro.reset();
-        // Odometry.getInstance().resetHeading();
+        Odometry.getInstance().resetHeading();
     }
     
     public synchronized void setDriveState(DriveState state){
