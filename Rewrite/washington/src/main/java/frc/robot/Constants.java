@@ -67,4 +67,14 @@ public interface Constants {
 
         public static final int TIMEOUT_MS = 25;
     }
+
+    public static final class VisionConstants{
+        public static final String REAR_CAM_NAME = "LifeCam";
+        public static final String VISION_CAM_NAME = "gloworm";
+
+        public static final double CAM_HEIGHT_METERS = 0;
+        public static final double CAM_MOUNTING_PITCH_RADIANS = 0;
+
+        public static final double TARGET_HEIGHT_METERS = 0;
+    }
 }
