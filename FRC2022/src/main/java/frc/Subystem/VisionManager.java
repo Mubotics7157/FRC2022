@@ -36,7 +36,6 @@ public class VisionManager extends Threaded{
             return 0;
     }
 
-
     public synchronized Rotation2d getTargetYawRotation2d(){
         var result = targetCam.getLatestResult();
         if(result.hasTargets()){
@@ -103,5 +102,12 @@ public class VisionManager extends Threaded{
         targetCam.setDriverMode(false);
         targetCam.setLED(VisionLEDMode.kOn);
         cargoCam.setDriverMode(false);
+    }
+
+    public synchronized void toggleOnOff(){
+        if(visionState==VisionState.ON)
+            setOn();
+        else
+            setOff();
     }
 }

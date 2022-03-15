@@ -14,10 +14,12 @@ public class SetShooting extends AutoCommand {
         this.setBlocking(blocking);
     }
 
-    public SetShooting(boolean shoot, double top, double bot,boolean blocking){
+    public SetShooting(boolean shoot, double top, double bot){
         this.shoot = shoot;
         this.topSpeed = top;
         this.botSpeed = bot;
+        Serializer.getInstance().setShooterSpeed(top,bot);
+        this.setBlocking(false);
     }
 
     @Override

@@ -31,7 +31,7 @@ public abstract class Threaded implements Runnable {
 			update();
 			synchronized (this) {
 				lastRuntime = Timer.getFPGATimestamp() - start;
-				//if(lastRuntime*1e9 > period) System.out.println("overrun in threaded: " + lastRuntime);
+				//x`if(lastRuntime*1e9 > period) System.out.println("overrun in threaded: " + lastRuntime);
 				isUpdated = true;
 			}
 		}

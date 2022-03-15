@@ -23,9 +23,9 @@ public class SwerveTracker extends Threaded{
     @Override
     public void update() {
         odometry.update(swerve.getDriveHeading(), swerve.getModuleStates());
-        //SmartDashboard.putNumber("pose x", odometry.getPoseMeters().getX());
-        //SmartDashboard.putNumber("pose y", odometry.getPoseMeters().getY());
-        //SmartDashboard.putNumber("pose r", odometry.getPoseMeters().getRotation().getDegrees());
+        SmartDashboard.putNumber("pose x", odometry.getPoseMeters().getX());
+        SmartDashboard.putNumber("pose y", odometry.getPoseMeters().getY());
+        SmartDashboard.putNumber("pose r", odometry.getPoseMeters().getRotation().getDegrees());
     }
 
     public synchronized void setOdometry(Pose2d pose){

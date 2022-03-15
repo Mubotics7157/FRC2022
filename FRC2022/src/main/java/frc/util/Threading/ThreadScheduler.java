@@ -34,6 +34,7 @@ public class ThreadScheduler implements Runnable {
 		while (isRunning) {
 			if (!paused) {
 				synchronized (this) {
+					//System.out.println("Schedules: " + schedules);
 					for (Schedule schedule : schedules) {
 						/*if (schedule.removeNextFrame) {
 							safeRemove(schedule);
@@ -47,7 +48,7 @@ public class ThreadScheduler implements Runnable {
 		}
 	}
 
-	public void schedule(Threaded task, ExecutorService thread) {
+	public synchronized void schedule(Threaded task, ExecutorService thread) {
 		schedules.add(new Schedule(task, thread));
 	}
 
@@ -91,5 +92,12 @@ public class ThreadScheduler implements Runnable {
 				}
 			}
 		}
+		@Override
+		public String toString(){
+			return task.getClass().getName();
+		}
 	}
+
+
+
 }
