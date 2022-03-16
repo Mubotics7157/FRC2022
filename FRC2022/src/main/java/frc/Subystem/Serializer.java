@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -27,6 +28,8 @@ public class Serializer extends Threaded {
     double topSpeed = 1250;
     double bottomSpeed = 1250*1.08;
 
+    DigitalInput beamBreak;
+
     DoubleSolenoid intakeSolenoid;
 
     private static Serializer instance;
@@ -43,7 +46,7 @@ public class Serializer extends Threaded {
         feeder = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
         feeder.setInverted(false);
         intakeMotor.setInverted(false);
-
+        beamBreak = new DigitalInput(1);
 
         intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     }
@@ -130,6 +133,17 @@ public class Serializer extends Threaded {
     private void shootAutomated(double top, double bot){
         if(shooter.atSpeed(top, bot))
             index();
+    }
+
+    private boolean beamScan(){
+        if(beamBreak.get())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public synchronized void setArbitrary(double top, double bot){
