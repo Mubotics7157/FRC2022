@@ -18,7 +18,7 @@ public abstract class TemplateAuto implements Runnable {
      */
     ArrayList<SendableScript> delayedExecutions;
 
-    Odometry Odometry = Odometry.getInstance();
+    Odometry odometry = Odometry.getInstance();
 
 
     public TemplateAuto() {

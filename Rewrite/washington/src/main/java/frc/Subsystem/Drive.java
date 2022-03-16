@@ -1,16 +1,23 @@
 package frc.Subsystem;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
@@ -41,6 +48,20 @@ public class Drive extends AbstractSubsystem{
 
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
+
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
+    ProfiledPIDController rotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
+
+    PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
+    PIDController yController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
+
+    HolonomicDriveController autoController = new HolonomicDriveController(xController, yController, rotController); 
+
+    final Lock currentAutoTrajectoryLock = new ReentrantLock();
+    Trajectory currTrajectory;
+    private volatile Rotation2d desiredAutoHeading;
+    private double autoStartTime;
+
         
     private Drive() {
         super(20,20);
@@ -68,6 +89,7 @@ public class Drive extends AbstractSubsystem{
             case VISION:
                 break;
             case AUTO:
+                updateAuto();
                 break;
             case DONE:
                 break;
@@ -133,6 +155,50 @@ public class Drive extends AbstractSubsystem{
         setModuleStates(states);
     }
 
+    private void updateAuto(){
+        currentAutoTrajectoryLock.lock();
+
+        try{
+            Trajectory.State goal = currTrajectory.sample(getAutoTime());
+            Rotation2d target = desiredAutoHeading;
+
+            ChassisSpeeds desiredSpeeds = autoController.calculate(Odometry.getInstance().getOdometry(), goal,  target);
+
+            driveFromChassis(desiredSpeeds);
+
+            if(autoController.atReference()||getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+                setDriveState(DriveState.DONE);
+            }
+
+        }
+
+        finally{
+            currentAutoTrajectoryLock.unlock();
+        }
+    }
+
+    public synchronized void setAutoPath(Trajectory trajectory){
+        currentAutoTrajectoryLock.lock();
+        try{
+            rotController.reset(getDriveHeading().getRadians());
+            setDriveState(DriveState.AUTO);
+            this.currTrajectory = trajectory;
+            autoStartTime = Timer.getFPGATimestamp();
+        }
+
+        finally{
+            currentAutoTrajectoryLock.unlock();
+        }
+    }
+
+    public synchronized void setAutoRotation(Rotation2d heading){
+        desiredAutoHeading = heading;
+    }
+
+    public synchronized double getAutoTime(){
+        return Timer.getFPGATimestamp()-autoStartTime;
+    }
+
     public synchronized void stopMotors(){
         driveFromChassis(new ChassisSpeeds(0, 0, 0));
     }
@@ -169,6 +235,10 @@ public class Drive extends AbstractSubsystem{
     public synchronized double getDriveRoll(){
         return gyro.getRoll();
     }
+
+    public synchronized boolean isFinished(){
+        return getDriveState()==DriveState.DONE || getDriveState() == DriveState.FIELD_ORIENTED;
+    }
     
     public synchronized void setDriveState(DriveState state){
         driveState= state;
@@ -186,6 +256,8 @@ public class Drive extends AbstractSubsystem{
     public void logData() {
         SmartDashboard.putString("Drive State", getDriveState().toString());
         SmartDashboard.putNumber("Gyro Angle", -gyro.getAngle());
+        //auto
+        SmartDashboard.putNumber("desired rotation", desiredAutoHeading.getDegrees());
     }
 
 

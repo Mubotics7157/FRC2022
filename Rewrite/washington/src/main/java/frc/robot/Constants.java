@@ -51,6 +51,8 @@ public interface Constants {
 
         public static final double TURN_kP = 3;
         public static final double TURN_kD = .015;
+
+        public static final double AUTO_CONTROLLER_kP = 2;
     }     
 
     public static final class ModuleConstants{

@@ -51,28 +51,28 @@ public class TrajectoryAutonomousStep extends AbstractAutonomousStep {
         int rotationIndex = 1; // Start at the second rotation (the first is the starting rotation)
         while (!Drive.getInstance().isFinished()) { // Wait till the auto is done
             if (rotationIndex < rotations.size() &&
-                    Drive.getInstance().getAutoElapsedTime() > rotations.get(rotationIndex).time) {
+                    Drive.getInstance().getAutoTime() > rotations.get(rotationIndex).time) {
                 // We've passed the time for the next rotation
                 Drive.getInstance().setAutoRotation(rotations.get(rotationIndex).rotation); //Set the rotation
                 rotationIndex++; // Increment the rotation index
             }
 
             if (!scriptsToExecuteByTime.isEmpty() &&
-                    scriptsToExecuteByTime.get(0).getDelay() <= Drive.getInstance().getAutoElapsedTime()) {
+                    scriptsToExecuteByTime.get(0).getDelay() <= Drive.getInstance().getAutoTime()) {
                 // We have a script to execute, and it is time to execute it
                 scriptsToExecuteByTime.get(0).execute();
                 scriptsToExecuteByTime.remove(0);
             }
 
             if (!scriptsToExecuteByPercent.isEmpty() && scriptsToExecuteByPercent.get(0).getDelay() <=
-                    (Drive.getInstance().getAutoElapsedTime() / trajectory.getTotalTimeSeconds())) {
+                    (Drive.getInstance().getAutoTime() / trajectory.getTotalTimeSeconds())) {
                 // We have a script to execute, and it is time to execute it
                 scriptsToExecuteByPercent.get(0).execute();
                 scriptsToExecuteByPercent.remove(0);
             }
             Thread.sleep(10); // Throws an exception to exit if Interrupted
         }
-        Drive.getInstance().stopMovement();
+        Drive.getInstance().stopMotors();
 
         //Execute any remain scripts
         for (SendableScript sendableScript : scriptsToExecuteByTime) {
@@ -84,12 +84,12 @@ public class TrajectoryAutonomousStep extends AbstractAutonomousStep {
 
         if (rotationIndex < rotations.size()) {
             Drive.getInstance().setAutoRotation(rotations.get(rotations.size() - 1).rotation);
-            Drive.getInstance().setDriveState(Drive.DriveState.RAMSETE);
+            Drive.getInstance().setDriveState(Drive.DriveState.AUTO);
         }
         
         scriptsToExecuteByTime.clear();
         scriptsToExecuteByPercent.clear();
 
-        Drive.getInstance().stopMovement();
+        Drive.getInstance().stopMotors();
     }
 }

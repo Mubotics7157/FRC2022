@@ -37,8 +37,7 @@ public final class TimedRotation {
     }
 
     @JsonIgnore
-    @Contract(value = " -> new", pure = true)
-    @NotNull
+    //@Contract(value = " -> new", pure = true)
     public TimedRotation copy() {
         return new TimedRotation(this);
     }
