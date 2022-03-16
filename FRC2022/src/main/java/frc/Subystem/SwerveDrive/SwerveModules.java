@@ -29,8 +29,8 @@ public class SwerveModules {
        public SwerveModules(int drivePort, int turnPort, int turnEncoderPort, double angleOffset){
         turnPID = new PIDController(.25, 0, 0); //.39
 
-        driveMotor = new WPI_TalonFX(drivePort,"swerve");
-        turnMotor = new WPI_TalonFX(turnPort,"swerve");
+        driveMotor = new WPI_TalonFX(drivePort,"Default Name");
+        turnMotor = new WPI_TalonFX(turnPort,"Default Name");
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,25);
@@ -45,7 +45,7 @@ public class SwerveModules {
 
 
         driveMotor.configAllSettings(driveConfig);
-        absEncoder = new WPI_CANCoder(turnEncoderPort,"swerve");
+        absEncoder = new WPI_CANCoder(turnEncoderPort,"Default Name");
 
         absEncoder.configFactoryDefault();
         
@@ -54,6 +54,7 @@ public class SwerveModules {
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         config.magnetOffsetDegrees = angleOffset;
         absEncoder.configAllSettings(config);
+
     }
 
     public void setState(SwerveModuleState state){
