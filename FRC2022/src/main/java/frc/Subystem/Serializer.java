@@ -136,14 +136,7 @@ public class Serializer extends Threaded {
     }
 
     private boolean beamScan(){
-        if(beamBreak.get())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return beamBreak.get();
     }
 
     public synchronized void setArbitrary(double top, double bot){
