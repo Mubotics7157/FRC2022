@@ -23,6 +23,8 @@ public class Serializer extends Threaded {
     IntakeState intakeState;
 
     Shooter shooter = new Shooter();
+    LED ledclass = new LED();
+    VisionManager visionmanager = new VisionManager();
 
     double topSpeed = 1250;
     double bottomSpeed = 1250*1.08;
@@ -44,6 +46,7 @@ public class Serializer extends Threaded {
         feeder.setInverted(false);
         intakeMotor.setInverted(false);
 
+        
 
         intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
     }
@@ -199,6 +202,20 @@ public class Serializer extends Threaded {
         bottomSpeed += botAdj;
     }
     
+    public synchronized void setLEDs(){
+        if(ledclass.isAligning && visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) < 2){
+            ledclass.red = 0;
+            ledclass.green = 255;
+            ledclass.blue = 0;
+        //^^^if on align mode and the target is within 2 degrees of the crosshair
+            }
+        else if(ledclass.isAligning && visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) > 2){
+            ledclass.red = 255;
+            ledclass.green = 0;
+            ledclass.blue = 0;
+        //^^^if on align mode and the target is not within 2 degrees of the crosshair
+            }
+    }
 
     
 }

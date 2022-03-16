@@ -1,28 +1,49 @@
 package frc.Subystem;
 
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class LED {
-    Spark shooterLED;
-    Spark ballStatusLED;
-    Spark looksLED;
+    AddressableLED led;
+    AddressableLEDBuffer ledBuffer;
 
+    int red;
+    int green;
+    int blue;
+
+    public boolean isAligning;
+    
     public LED(){
-        shooterLED = new Spark(0);
-        ballStatusLED = new Spark(1);
-        looksLED = new Spark(2);
-    }
+      led = new AddressableLED(0);
+      //^^makes the led with the PWM port of 0 
+      ledBuffer = new AddressableLEDBuffer(300);
+      
+        led.setLength(ledBuffer.getLength());
+        led.setData(ledBuffer);
+        led.start();
 
-    public void setShooterLED(double setShooterLED){
-        shooterLED.set(setShooterLED);
-    }
+        red = 0;
+        blue = 0;
+        green = 0;
 
-    public void setBallStatusLED(double setBallLED){
-        ballStatusLED.set(setBallLED);
-    }
+        MathUtil.clamp(red, 0, 255);
+        MathUtil.clamp(green, 0, 255);
+        MathUtil.clamp(blue, 0, 255);  
+  }
 
-    public void setLooksLED(double setLooksLED){
-        looksLED.set(setLooksLED);
-    }
+  public void setLED(){
+      
+    for(var bob = 0; bob < ledBuffer.getLength(); bob++){
+        ledBuffer.setRGB(bob, Math.abs(red), Math.abs(green), Math.abs(blue));
+        //^^ orange is 255, 25, 0
+        }
+    
+        led.setData(ledBuffer);
+
+        SmartDashboard.putNumber("red value", red);
+        SmartDashboard.putNumber("green value", green);
+        SmartDashboard.putNumber("blue value", blue);
+  }
 }
-
