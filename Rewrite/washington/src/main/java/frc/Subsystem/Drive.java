@@ -131,7 +131,10 @@ public class Drive extends AbstractSubsystem{
         var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds,centerOfRotation);
         SwerveDriveKinematics.desaturateWheelSpeeds(getModuleStates(), DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
+    }
 
+    public synchronized void stopMotors(){
+        driveFromChassis(new ChassisSpeeds(0, 0, 0));
     }
 
     private void setModuleStates(SwerveModuleState[] states){
