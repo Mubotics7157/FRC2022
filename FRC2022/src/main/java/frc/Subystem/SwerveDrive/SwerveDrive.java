@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subystem.LED;
 import frc.Subystem.VisionManager;
 import frc.auto.PathTrigger;
 import frc.robot.Robot;
@@ -27,6 +28,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
+    LED ledclass = new LED();
+    VisionManager visionmanager = new VisionManager();
 
     SwerveModules backRight = new SwerveModules(25, 2, 3,DriveConstants.BR_OFFSET);
     SwerveModules frontRight = new SwerveModules(7,8,9,DriveConstants.FR_OFFSET);
@@ -89,6 +92,9 @@ public class SwerveDrive extends Threaded{
         FIELD_ORIENTED,
         AUTO,
         ALIGN,
+        RED,
+        GREEN,
+        ORANGE,
         DONE
     }
 
@@ -109,7 +115,24 @@ public class SwerveDrive extends Threaded{
                 break;
             case ALIGN:
                 updateAlign();
+                if(visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) < 2){
+                    ledclass.setLED(0, 0, 255);
+                //^^^if on align mode and the target is within 2 degrees of the crosshair led will be green
+                    }
+                else if(visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) > 2){
+                    ledclass.setLED(255, 0, 0);
+                //^^^if on align mode and the target is not within 2 degrees of the crosshair led will be red
+                    }
                 SmartDashboard.putString("drive state", "aligning");
+                break;
+            case RED:
+                setRED();
+                break;
+            case GREEN:
+                setGREEN();
+                break;
+            case ORANGE:
+                setORANGE();
                 break;
             case AUTO:
                 updateAuto();
@@ -122,6 +145,8 @@ public class SwerveDrive extends Threaded{
         }
     
     }
+
+    
         private void updateManual(boolean fieldOriented){
         ChassisSpeeds speeds;
         double fwd = Robot.driver.getRawAxis(1);
@@ -177,6 +202,17 @@ public class SwerveDrive extends Threaded{
         }
     }
 
+    private void setRED(){
+        ledclass.setLED(255, 0, 0);
+    }
+
+    private void setGREEN(){
+        ledclass.setLED(0, 255, 0);
+    }
+
+    private void setORANGE(){
+        ledclass.setLED(255, 30, 0);
+    }
     private void updateAuto(){
         double currentTime = autoTimer.get();
         //SmartDashboard.putBoolean("finished", isFinished());

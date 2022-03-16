@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.Climb;
-import frc.Subystem.LED;
 import frc.Subystem.Serializer;
 import frc.Subystem.VisionManager;  
 import frc.Subystem.SwerveDrive.SwerveDrive;
@@ -30,7 +29,6 @@ public class Robot extends TimedRobot {
   SwerveTracker tracker = SwerveTracker.getInstance();
   VisionManager vision = VisionManager.getInstance();
   Climb climb = new Climb();
-  LED led = new LED();
 
   ExecutorService executor = Executors.newFixedThreadPool(2); 
   ThreadScheduler scheduler = new ThreadScheduler();
@@ -96,7 +94,7 @@ public void autonomousPeriodic() {
 
 
   public void teleopInit() {
-    led.isAligning = false;
+    
     if(auto!=null)
       auto.interrupt();
     scheduler.resume();
@@ -135,18 +133,12 @@ public void teleopPeriodic() {
       serializer.toggleIntake(true);
 
     //setting the modes for the swerve drive
-    if(driver.getRawButtonPressed(3)){
+    if(driver.getRawButtonPressed(3))
         swerve.setTargetAlign();
-        led.isAligning = true;
-    }
-      else if(operator.getRawButtonPressed(3)){
+      else if(operator.getRawButtonPressed(3))
         swerve.setFieldOriented();
-        led.isAligning = false;
-      }
-      else if(operator.getRawButton(11)){
+      else if(operator.getRawButton(11))
         swerve.setRobotOriented();
-        led.isAligning = false;
-      }
     //toggle the vision on and off
     if(operator.getRawButtonPressed(12))
       vision.setOff();
