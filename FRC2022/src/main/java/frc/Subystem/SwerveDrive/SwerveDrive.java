@@ -3,6 +3,7 @@ package frc.Subystem.SwerveDrive;
 
 import java.util.ArrayList;
 
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
@@ -18,20 +19,19 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subystem.VisionManager;
 import frc.auto.PathTrigger;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.ModuleConstants;
 import frc.util.Threading.Threaded;
 public class SwerveDrive extends Threaded{
 
-    SwerveModules backRight = new SwerveModules(25, 2, 3,DriveConstants.BR_OFFSET);
-    SwerveModules frontRight = new SwerveModules(7,8,9,DriveConstants.FR_OFFSET);
-    SwerveModules backLeft = new SwerveModules(4, 5, 6,DriveConstants.BL_OFFSET);
-    SwerveModules frontLeft = new SwerveModules(10, 11, 12,DriveConstants.FL_OFFSET);
+    SwerveModules backRight = new SwerveModules(25, 2, 3,-80.439453125);
+    SwerveModules frontRight = new SwerveModules(7,8,9,-111.263671875);
+    SwerveModules backLeft = new SwerveModules(4, 5, 6,-6-2.263671875);
+    SwerveModules frontLeft = new SwerveModules(10, 11, 12,2.724609375);
     SwerveModules[] modules = { 
         frontLeft,
         frontRight,
@@ -42,36 +42,33 @@ public class SwerveDrive extends Threaded{
     private AHRS gyro = new AHRS(Port.kMXP);
 
 
-    PIDController fwdController = new PIDController(DriveConstants.FWD_kP, 0, 0);
-    PIDController strController = new PIDController(DriveConstants.STR_kP, 0, 0);
+    PIDController fwdController = new PIDController(2, 0, 0);
+    PIDController strController = new PIDController(2, 0, 0);
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(3*Math.PI,3*Math.PI);
-    ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.THETA_kP, 0, DriveConstants.THETA_kD,visionRotProfile); //.2
-    ProfiledPIDController rotController = new ProfiledPIDController(DriveConstants.THETA_kP, 0, 0,rotProfile); //.2
+    ProfiledPIDController visionRotController = new ProfiledPIDController(.22, 0, .02,visionRotProfile); //.2
+    ProfiledPIDController rotController = new ProfiledPIDController(.22, 0, 0,rotProfile); //.2
     Rotation2d desiredAutoHeading;
 
     HolonomicDriveController controller = new HolonomicDriveController(strController, fwdController, rotController);
 
     
-    Timer autoTimer;
+    Timer autoTimer = new Timer();
 
     Trajectory currTrajectory;
-    private ArrayList<PathTrigger> triggers;
+    private ArrayList<PathTrigger> triggers = new ArrayList<>();
 
     private static SwerveDrive instance;
 
     private SwerveState swerveState = SwerveState.ROBOT_ORIENTED;
-    boolean rotateOnCenter = true;
 
     public SwerveDrive(){
         rotController.enableContinuousInput(-Math.PI, Math.PI);
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
 
-        //gyro.reset();
-        //gyro.zeroYaw();
-        //gyro.calibrate();
-        autoTimer = new Timer();
-        triggers = new ArrayList<>();
+        gyro.reset();
+        gyro.zeroYaw();
+        gyro.calibrate();
         rotController.setTolerance(Units.degreesToRadians(10));
         visionRotController.setTolerance(Units.degreesToRadians(10));
         controller.setTolerance(new Pose2d(.5,.5,Rotation2d.fromDegrees(10)));
@@ -101,26 +98,26 @@ public class SwerveDrive extends Threaded{
         switch(snapSwerveState){
             case ROBOT_ORIENTED:
                 updateManual(false);
-                SmartDashboard.putString("drive state", "robot oriented");
+                SmartDashboard.putString("Swerve State", "Driver Oriented");
                 break;
             case FIELD_ORIENTED:
+                SmartDashboard.putString("Swerve State", "Field Oriented");
                 updateManual(true);
-                SmartDashboard.putString("drive state", "field oriented");
                 break;
             case ALIGN:
+                SmartDashboard.putString("Swerve State", "Align");
                 updateAlign();
-                SmartDashboard.putString("drive state", "aligning");
                 break;
             case AUTO:
                 updateAuto();
-                SmartDashboard.putString("drive state", "auto running");
+                SmartDashboard.putString("Swerve State", "Auto");
                 break;
             case DONE:
                 stopMotors();
-                SmartDashboard.putString("drive state", "done");
+                SmartDashboard.putString("Swerve State", "Done");
                 break;
         }
-    
+        SmartDashboard.putNumber("gyro heading", gyro.getRotation2d().getDegrees());
     }
         private void updateManual(boolean fieldOriented){
         ChassisSpeeds speeds;
@@ -128,36 +125,35 @@ public class SwerveDrive extends Threaded{
         double str = Robot.driver.getRawAxis(0);
         double rot = Robot.driver.getRawAxis(4);
 
-        if(Math.abs(fwd) <= .1)
+        if(Math.abs(fwd) <= .05)
             fwd = 0;
-        if(Math.abs(str) <= .1)
+        if(Math.abs(str) <= .05)
             str = 0;
-        if(Math.abs(rot) <= .15)
+        if(Math.abs(rot) <= .05)
             rot = 0;
 
         if(fieldOriented)
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP, getDriveHeading().unaryMinus());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD, getDriveHeading().unaryMinus());
         else
-            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP);
+            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD);
 
         driveFromChassis(speeds);
     }
 
-    
     private void updateManual(boolean fieldOriented, double rotModifier){
         ChassisSpeeds speeds;
         double fwd = Robot.driver.getRawAxis(1);
         double str = Robot.driver.getRawAxis(0);
         double rot = rotModifier;
 
-        if(Math.abs(fwd) <= .1)
+        if(Math.abs(fwd) <= .05)
             fwd = 0;
-        if(Math.abs(str) <= .1)
+        if(Math.abs(str) <= .05)
             str = 0;
         if(fieldOriented)
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP, getDriveHeading().unaryMinus());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD, getDriveHeading());
         else
-            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, str*DriveConstants.MAX_TANGENTIAL_VELOCITY_TELEOP, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD_TELEOP);
+            speeds = new ChassisSpeeds(fwd*DriveConstants.MAX_TANGENTIAL_VELOCITY, str*DriveConstants.MAX_TANGENTIAL_VELOCITY, rot*DriveConstants.MAX_ANGULAR_VELOCITY_RAD);
         
         driveFromChassis(speeds);
     }
@@ -169,10 +165,12 @@ public class SwerveDrive extends Threaded{
         double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
         if(Math.abs(error)<Units.degreesToRadians(3))
             error = 0;
+        //SmartDashboard.putNumber("Yaw error", error);
         double deltaSpeed = visionRotController.calculate(error);
+        //SmartDashboard.putNumber("deltaSpeed", deltaSpeed);
         updateManual(true,deltaSpeed);
         }
-       else{
+        else{
             setFieldOriented();
         }
     }
@@ -212,6 +210,11 @@ public class SwerveDrive extends Threaded{
         setModuleStates(states);
     }   
 
+    private void driveFromChassis(ChassisSpeeds speeds, Translation2d centerOfRotation) {
+        var states = DriveConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds, centerOfRotation);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_TANGENTIAL_VELOCITY);
+        setModuleStates(states);
+    }
     private void setModuleStates(SwerveModuleState[] states){
         frontLeft.setState(states[0]);
         frontRight.setState(states[1]);
@@ -227,6 +230,7 @@ public class SwerveDrive extends Threaded{
     public synchronized Rotation2d getDriveHeading(){
         return Rotation2d.fromDegrees(gyro.getYaw());
     }
+
 
     private double getPathPercentage(){
         return autoTimer.get()/currTrajectory.getTotalTimeSeconds();
@@ -293,11 +297,7 @@ public class SwerveDrive extends Threaded{
 
     public synchronized void resetGyro(){
         gyro.reset();
-    }
-
-    public synchronized void calibrateGyro(){
         gyro.calibrate();
     }
-
 
 }

@@ -15,19 +15,14 @@ public class SetIntaking extends AutoCommand {
 
     @Override
     public void start() {
-        /*if(run)
+        if(run)
+            Serializer.getInstance().setAll();
         else
             Serializer.getInstance().setOff();
         if(down)
+            Serializer.getInstance().toggleIntake(true);
         else
             Serializer.getInstance().toggleIntake(false);
-            */
-            /*if(down)
-            else
-            //Serializer.getInstance().setIntakeAndIndexBackwards();
-            */
-            Serializer.getInstance().toggleIntake(true);
-            Serializer.getInstance().setAll();
     }
 
     @Override
