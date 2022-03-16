@@ -2,10 +2,14 @@ package frc.Subsystem;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -31,9 +35,17 @@ public class Drive extends AbstractSubsystem{
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;
 
     AHRS gyro = new AHRS(SPI.Port.kMXP);
+
+    private Translation2d centerOfRotation = new Translation2d();
+
+
+    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
+    ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
         
     private Drive() {
         super(20,20);
+        visionRotController.enableContinuousInput(-Math.PI, Math.PI);
+        visionRotController.setTolerance(Units.degreesToRadians(3));
     }
     
     public static Drive getInstance(){
@@ -100,8 +112,23 @@ public class Drive extends AbstractSubsystem{
             getDriveHeading()));
     }
 
+    private void updateAlign(){
+        if(VisionManager.getInstance().hasVisionTarget()){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+        if(Math.abs(error)<Units.degreesToRadians(3))
+            error = 0;
+        double deltaSpeed = visionRotController.calculate(error);
+        updateManual(true,deltaSpeed);
+        //}
+       //else{
+           if(visionRotController.atGoal())
+            setDriveState(DriveState.FIELD_ORIENTED);
+        }
+    }
+
     private void driveFromChassis(ChassisSpeeds speeds){
-        var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
+        var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds,centerOfRotation);
         SwerveDriveKinematics.desaturateWheelSpeeds(getModuleStates(), DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
 
@@ -119,6 +146,10 @@ public class Drive extends AbstractSubsystem{
         return states;
     }
 
+    public synchronized void setCenterOfRotation(Translation2d center){
+        centerOfRotation = center;
+    }
+
     public synchronized Rotation2d getDriveHeading(){
         return Rotation2d.fromDegrees(-gyro.getAngle());
     }
@@ -130,6 +161,10 @@ public class Drive extends AbstractSubsystem{
     public synchronized void resetHeading(){
         gyro.reset();
         Odometry.getInstance().resetHeading();
+    }
+
+    public synchronized double getDriveRoll(){
+        return gyro.getRoll();
     }
     
     public synchronized void setDriveState(DriveState state){
@@ -147,6 +182,7 @@ public class Drive extends AbstractSubsystem{
     @Override
     public void logData() {
         SmartDashboard.putString("Drive State", getDriveState().toString());
+        SmartDashboard.putNumber("Gyro Angle", -gyro.getAngle());
     }
 
 

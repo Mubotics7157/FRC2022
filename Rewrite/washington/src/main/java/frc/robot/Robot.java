@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subsystem.Drive;
+import frc.Subsystem.Drive.DriveState;
 
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
@@ -18,12 +20,14 @@ public class Robot extends TimedRobot {
 
   public static XboxController driver = new XboxController(0);
   public static Joystick operator = new Joystick(1);
+  Drive swerve = Drive.getInstance();
 
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    swerve.calibrateGyro();
   }
 
   @Override
@@ -50,10 +54,16 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    swerve.resetHeading();
+    swerve.setDriveState(DriveState.FIELD_ORIENTED);
+  }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if(driver.getLeftBumper())
+      swerve.resetHeading();
+  }
 
   @Override
   public void disabledInit() {}

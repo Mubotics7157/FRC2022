@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.Subsystem.Module;
 
 public interface Constants {
@@ -47,6 +48,9 @@ public interface Constants {
         public static final Translation2d REAR_RIGHT_MODULE_POSITION = new Translation2d(WHEELBASE_WIDTH/2,-WHEELBASE_LENGTH/2);
 
         public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(FRONT_LEFT_MODULE_POSITION,REAR_LEFT_MODULE_POSITION,FRONT_RIGHT_MODULE_POSITION,REAR_RIGHT_MODULE_POSITION);
+
+        public static final double TURN_kP = 3;
+        public static final double TURN_kD = .015;
     }     
 
     public static final class ModuleConstants{
@@ -76,5 +80,26 @@ public interface Constants {
         public static final double CAM_MOUNTING_PITCH_RADIANS = 0;
 
         public static final double TARGET_HEIGHT_METERS = 0;
+    }
+
+    public static final class IntakeConstants{
+        public static final int DEVICE_ID_INTAKE = 32;
+        public static final int DEVICE_ID_INDEXER = 21;
+        public static final double OPEN_LOOP_RAMP = .2;
+        public static final double INTAKE_SPEED = 1;
+        public static final double INDEX_SPEED = 1;
+        public static final boolean STOWED = false;
+
+        public static final Value INTAKE_DOWN = Value.kReverse;
+        public static final Value INTAKE_UP = Value.kForward;
+
+        public static final int INTAKE_SOLENOID_FORWARD = 6;
+        public static final int INTAKE_SOLENOID_REVERSE = 7;
+    }
+    public static final class ShooterConstants{
+        public static final int DEVICE_ID_TOP_WHEEL = 19;
+        public static final int DEVICE_ID_BOT_WHEEL = 20;
+
+        public static final double TOLERANCE_RPM = 35;
     }
 }

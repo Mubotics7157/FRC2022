@@ -15,6 +15,7 @@ import com.ctre.phoenix.sensors.WPI_CANCoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.Constants.ModuleConstants;
 import frc.util.CommonConversions;
@@ -29,27 +30,24 @@ public class Module {
 
        public Module(int drivePort, int turnPort, int encoderPort, double angleOffset){
         turnPID = new PIDController(Constants.ModuleConstants.TURNING_KP, 0, 0); 
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
         driveMotor = new WPI_TalonFX(drivePort,ModuleConstants.SWERVE_CANIVORE_ID);
         turnMotor = new WPI_TalonFX(turnPort,ModuleConstants.SWERVE_CANIVORE_ID);
-        turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
-        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
-        driveMotor.setNeutralMode(NeutralMode.Brake);
 
-        turnMotor.enableVoltageCompensation(true);
-        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
-        turnMotor.setNeutralMode(NeutralMode.Brake);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         driveConfig.openloopRamp = ModuleConstants.OPEN_LOOP_RAMP_RATE;
         driveConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
-
-
         driveMotor.configAllSettings(driveConfig);
-        absEncoder = new WPI_CANCoder(encoderPort,ModuleConstants.SWERVE_CANIVORE_ID);
+        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
+        driveMotor.setNeutralMode(NeutralMode.Brake);
 
+        turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
+        turnMotor.setNeutralMode(NeutralMode.Brake);
+
+        absEncoder = new WPI_CANCoder(encoderPort,ModuleConstants.SWERVE_CANIVORE_ID);
         absEncoder.configFactoryDefault();
-        
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
@@ -72,7 +70,7 @@ public class Module {
             driveMotor.set(ControlMode.PercentOutput, 0);
         } 
         else 
-        driveMotor.set(ControlMode.Velocity, CommonConversions.metersPerSecToStepsPerDecisec(driveSetpoint),DemandType.ArbitraryFeedForward,driveFFVolts/12);
+        driveMotor.set(ControlMode.Velocity, CommonConversions.metersPerSecToStepsPerDecisec(driveSetpoint),DemandType.ArbitraryFeedForward,driveFFVolts/RobotController.getBatteryVoltage());
     }
 
 
