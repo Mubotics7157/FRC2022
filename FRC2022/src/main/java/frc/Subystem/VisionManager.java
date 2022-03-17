@@ -12,7 +12,7 @@ import frc.util.Threading.Threaded;
 
 public class VisionManager extends Threaded{
     static VisionManager instance;
-    PhotonCamera targetCam;
+    public PhotonCamera targetCam;
     PhotonCamera cargoCam;
     VisionState visionState =VisionState.ON;
     double yaw; 

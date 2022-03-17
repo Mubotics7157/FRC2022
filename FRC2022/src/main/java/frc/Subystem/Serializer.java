@@ -24,6 +24,7 @@ public class Serializer extends Threaded {
     IntakeState intakeState;
 
     Shooter shooter = new Shooter();
+    VisionManager visionmanager = new VisionManager();
 
     double topSpeed = 1250;
     double bottomSpeed = 1250*1.08;
