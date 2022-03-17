@@ -69,6 +69,11 @@ public class VisionManager extends AbstractSubsystem{
         return distance;
     }
 
+    public synchronized double getCargoDistance(){
+        var result = targetCam.getLatestResult();
+        return result.getBestTarget().getPitch();
+    }
+
     public static VisionManager getInstance(){
         if(instance == null)
             instance = new VisionManager();
