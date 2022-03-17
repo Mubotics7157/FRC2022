@@ -112,14 +112,6 @@ public class SwerveDrive extends Threaded{
                 break;
             case ALIGN:
                 updateAlign();
-                if(visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) < 2){
-                    ledclass.setGREEN();
-                //^^^if on align mode and the target is within 2 degrees of the crosshair led will be green
-                    }
-                else if(visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) > 2){
-                    ledclass.setRED();
-                //^^^if on align mode and the target is not within 2 degrees of the crosshair led will be red
-                    }
                 SmartDashboard.putString("drive state", "aligning");
                 break;
             case AUTO:
@@ -188,6 +180,15 @@ public class SwerveDrive extends Threaded{
        else{
             setFieldOriented();
         }
+
+        if(visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) < 2){
+            ledclass.setGREEN();
+        //^^^if on align mode and the target is within 2 degrees of the crosshair led will be green
+            }
+        else if(visionmanager.targetCam.getLatestResult().hasTargets() && Math.abs(visionmanager.targetCam.getLatestResult().getBestTarget().getYaw()) > 2){
+            ledclass.setRED();
+        //^^^if on align mode and the target is not within 2 degrees of the crosshair led will be red
+            }
     }
 
     private void updateAuto(){
