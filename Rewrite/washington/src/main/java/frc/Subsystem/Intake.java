@@ -14,6 +14,7 @@ import frc.util.AbstractSubsystem;
 public class Intake extends AbstractSubsystem {
     
     public enum IntakeState{
+        OFF,
         INTAKE_REVERSE,
         INDEX,
         INTAKE,
@@ -23,8 +24,9 @@ public class Intake extends AbstractSubsystem {
     }
 
     IntakeState intakeState = IntakeState.RUN_ALL;
-    TalonSRX intake = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+    CANSparkMax intake = new CANSparkMax(IntakeConstants.DEVICE_ID_INTAKE,MotorType.kBrushless);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+    private static Intake instance = new Intake();
 
     Shooter shooter = new Shooter();
     
@@ -40,6 +42,10 @@ public class Intake extends AbstractSubsystem {
         indexer.setInverted(true);
     }
 
+    public static Intake getInstance(){
+        return instance;
+    }
+
     @Override
     public void update() {
         IntakeState snapIntakeState;       
@@ -48,6 +54,9 @@ public class Intake extends AbstractSubsystem {
         }
 
         switch(snapIntakeState){
+            case OFF:
+                stopMotors();
+                break;
             case INTAKE_REVERSE:
                 reverseIntake();
                 break;
@@ -58,20 +67,22 @@ public class Intake extends AbstractSubsystem {
                 intake();
                 break;
             case INDEX:
+                index();
                 break;
             case RUN_ALL:
                 runBoth();
                 break;
             case SHOOTING:
+                shooter.atSpeed(topSpeed, botSpeed);
                 break;
         }
     }
 
     private void intake(){
-        intake.set(ControlMode.PercentOutput, IntakeConstants.INTAKE_SPEED);
+        intake.set(IntakeConstants.INDEX_SPEED);
     }
     private void reverseIntake(){
-        intake.set(ControlMode.PercentOutput, -IntakeConstants.INTAKE_SPEED);
+        intake.set(-IntakeConstants.INDEX_SPEED);
     }
     private void index(){
         indexer.set(IntakeConstants.INDEX_SPEED);
@@ -86,7 +97,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     private void stopMotors(){
-        intake.set(ControlMode.PercentOutput,0);
+        intake.set(0);
         indexer.set(0);
     }
 

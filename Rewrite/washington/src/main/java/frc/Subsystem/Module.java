@@ -3,6 +3,7 @@ package frc.Subsystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -29,7 +30,7 @@ public class Module {
 
 
        public Module(int drivePort, int turnPort, int encoderPort, double angleOffset){
-        turnPID = new PIDController(Constants.ModuleConstants.TURNING_KP, 0, 0); 
+        turnPID = new PIDController(.39, 0, 0); 
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
         driveMotor = new WPI_TalonFX(drivePort,ModuleConstants.SWERVE_CANIVORE_ID);
@@ -45,6 +46,7 @@ public class Module {
 
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
         turnMotor.setNeutralMode(NeutralMode.Brake);
+        turnMotor.setInverted(false);
 
         absEncoder = new WPI_CANCoder(encoderPort,ModuleConstants.SWERVE_CANIVORE_ID);
         absEncoder.configFactoryDefault();

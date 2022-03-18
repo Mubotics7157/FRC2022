@@ -1,8 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
+
+import javax.lang.model.util.ElementScanner6;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -10,7 +8,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Drive;
+import frc.Subsystem.Intake;
+import frc.Subsystem.Odometry;
 import frc.Subsystem.Drive.DriveState;
+import frc.Subsystem.Intake.IntakeState;
 
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
@@ -21,12 +22,17 @@ public class Robot extends TimedRobot {
   public static XboxController driver = new XboxController(0);
   public static Joystick operator = new Joystick(1);
   Drive swerve = Drive.getInstance();
+  Odometry tracker = Odometry.getInstance();
+  Intake intake = Intake.getInstance();
 
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    tracker.start();
+    swerve.start();
+    intake.start();
     swerve.calibrateGyro();
   }
 
@@ -63,6 +69,15 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     if(driver.getLeftBumper())
       swerve.resetHeading();
+
+    if(driver.getRawAxis(3)>.2)
+      intake.setIntakeState(IntakeState.INDEX);
+    else if(driver.getRawAxis(2)>.2)
+      intake.setIntakeState(IntakeState.RUN_ALL);
+    else
+      intake.setIntakeState(IntakeState.OFF);
+    
+  
   }
 
   @Override

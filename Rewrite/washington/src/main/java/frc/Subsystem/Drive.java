@@ -29,7 +29,7 @@ public class Drive extends AbstractSubsystem{
     private static DriveState driveState = DriveState.ROBOT_ORIENTED;
     private static final Drive driveInstance = new Drive();
 
-    private Module frontLeft = DriveConstants.FRONT_LEFT_MODULE;
+    private Module frontLeft = new Module(1,2,3,0);
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
     private Module rearRight = DriveConstants.REAR_RIGHT_MODULE;
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;
@@ -128,9 +128,10 @@ public class Drive extends AbstractSubsystem{
     }
 
     private void driveFromChassis(ChassisSpeeds speeds){
-        var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds,centerOfRotation);
+        var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(getModuleStates(), DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
+
 
     }
 
@@ -183,6 +184,12 @@ public class Drive extends AbstractSubsystem{
     public void logData() {
         SmartDashboard.putString("Drive State", getDriveState().toString());
         SmartDashboard.putNumber("Gyro Angle", -gyro.getAngle());
+
+        SmartDashboard.putNumber("left front", frontLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("left rear", rearLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("right rear", rearRight.getState().angle.getDegrees());
+        SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
+
     }
 
 
