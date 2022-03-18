@@ -66,6 +66,7 @@ public class Drive extends AbstractSubsystem{
                 updateManual(false);
                 break;
             case VISION:
+                updateAlign();
                 break;
             case AUTO:
                 break;

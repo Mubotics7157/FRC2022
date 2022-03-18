@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
   Odometry tracker = Odometry.getInstance();
   Intake intake = Intake.getInstance();
 
+
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
@@ -76,11 +77,11 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.RUN_ALL);
     else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
+    else if(driver.getAButton())
+      intake.setIntakeState(IntakeState.SHOOTING);
     else
       intake.setIntakeState(IntakeState.OFF);
     
-    if(driver.getAButton())
-      intake.setIntakeState(IntakeState.SHOOTING);
   
   }
 

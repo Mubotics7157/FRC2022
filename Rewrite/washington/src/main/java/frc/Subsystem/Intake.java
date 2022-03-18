@@ -43,10 +43,14 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350/1.08;
     double ratio = 1.08;
 
+    LED led = new LED();
+
     private Intake(){
         super(40);
         intake.setInverted(false);
         indexer.setInverted(false);
+
+        led.setGREEN();
 
         colorMatcher.addColorMatch(IntakeConstants.BLUE);
         colorMatcher.addColorMatch(IntakeConstants.OTHER_BLUE);
