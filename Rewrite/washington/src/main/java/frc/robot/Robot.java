@@ -11,6 +11,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
 import edu.wpi.first.networktables.NetworkTable;
@@ -33,7 +34,8 @@ import frc.util.OrangeUtility;
 
 public class Robot extends TimedRobot {
 
-    //GUI
+    public static XboxController driver = new XboxController(0);
+       //GUI
     NetworkTableInstance instance = NetworkTableInstance.getDefault();
     NetworkTable autoDataTable = instance.getTable("autodata");
     NetworkTableEntry autoPath = autoDataTable.getEntry("autoPath");
@@ -45,20 +47,29 @@ public class Robot extends TimedRobot {
     NetworkTableEntry pathProcessingStatusEntry = autoDataTable.getEntry("processing");
     NetworkTableEntry pathProcessingStatusIdEntry = autoDataTable.getEntry("processingid");
 
-    //auto
-    TemplateAuto selectedAuto;
-    Thread autoThread;
-    private static final String DEFAULT_AUTO = "Default";
-    private static final String CUSTOM_AUTO = "My Auto";
-    private final SendableChooser<String> autoChooser = new SendableChooser<>();
-
-
     private final Lock networkAutoLock = new ReentrantLock();
     NetworkAuto networkAuto;
 
     String lastAutoPath = null;
 
     ExecutorService deserializerExecutor = Executors.newSingleThreadExecutor();
+
+    //Auto
+    TemplateAuto selectedAuto;
+    Thread autoThread;
+    private static final String DEFAULT_AUTO = "Default";
+    private static final String CUSTOM_AUTO = "My Auto";
+    private final SendableChooser<String> autoChooser = new SendableChooser<>();
+
+    //Subsystems
+    private final Odometry odometry = Odometry.getInstance();
+    private final Drive drive = Drive.getInstance();
+
+    //Inputs
+
+
+    //Control loop states
+    boolean limelightTakeSnapshots;
 
     Consumer<EntryNotification> autoPathListener = (event ->
             deserializerExecutor.execute(() -> { //Start deserializing on another thread
@@ -82,61 +93,78 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  public static XboxController driver = new XboxController(0);
-  public static Joystick operator = new Joystick(1);
-  public Drive swerve = Drive.getInstance();
-  public Odometry odometry = Odometry.getInstance();
+    /**
+     * This function is run when the robot is first started up and should be used for any initialization code.
+     */
+    @Override
+    public void robotInit() {
+        if (autoPath.getString(null) != null) {
+            autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
+        }
 
-  @Override
-  public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-    swerve.start();
-    swerve.calibrateGyro();
-    OrangeUtility.sleep(50);
-    swerve.resetHeading();
-    odometry.start();
-  }
+        autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-  @Override
-  public void robotPeriodic() {
-      if (isEnabled()) {
-        //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-        xPos.setDouble(odometry.getOdometry().getX());
-        yPos.setDouble(odometry.getOdometry().getY());
-      }
+        autoChooser.setDefaultOption("Default Auto", DEFAULT_AUTO);
+        autoChooser.addOption("My Auto", CUSTOM_AUTO);
+        SmartDashboard.putData("Auto choices", autoChooser);
+
+
+        startSubsystems();
+        drive.resetHeading();
+        OrangeUtility.sleep(50);
+        odometry.setOdometry(new Pose2d());
+    }
+
+    /**
+     * This function is called every robot packet, no matter the mode. Use this for items like diagnostics that you want ran
+     * during disabled, autonomous, teleoperated and test.
+     *
+     * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+     * SmartDashboard integrated updating.
+     */
+    @Override
+    public void robotPeriodic() {
+        if (isEnabled()) {
+            //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
+            xPos.setDouble(odometry.getOdometry().getX());
+            yPos.setDouble(odometry.getOdometry().getY());
+        }
 
         //Listen changes in the network auto
-      if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
-        lastAutoPath = autoPath.getString(null);
-        deserializerExecutor.execute(() -> { //Start deserializing on another thread
-         System.out.println("start parsing autonomous");
-        //Set networktable entries for the gui notifications
-        pathProcessingStatusEntry.setDouble(1);
-        pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
+        if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
+            lastAutoPath = autoPath.getString(null);
+            deserializerExecutor.execute(() -> { //Start deserializing on another thread
+                System.out.println("start parsing autonomous");
+                //Set networktable entries for the gui notifications
+                pathProcessingStatusEntry.setDouble(1);
+                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
 
-        networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
-        // ready to be run
-        System.out.println("done parsing autonomous");
-        //Set networktable entries for the gui notifications
-        pathProcessingStatusEntry.setDouble(2);
-        pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-        });
-      }
-  }
+                networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
+                // ready to be run
+                System.out.println("done parsing autonomous");
+                //Set networktable entries for the gui notifications
+                pathProcessingStatusEntry.setDouble(2);
+                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
+            });
+        }
 
-  @Override
-  public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
+    }
 
-    networkAutoLock.lock();
-       try {
+    /**
+     * This autonomous (along with the chooser code above) shows how to select between different autonomous modes using the
+     * dashboard. The sendable chooser code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of
+     * the chooser code and uncomment the getString line to get the auto name from the text box below the Gyro
+     *
+     * <p>You can add additional auto modes by adding additional comparisons to the switch structure
+     * below with additional strings. If using the SendableChooser make sure to add them to the chooser code above as well.
+     */
+    @Override
+    public void autonomousInit() {
+        enabled.setBoolean(true);
+
+        networkAutoLock.lock();
+        try {
             if (networkAuto == null) {
                 System.out.println("Using normal autos");
                 String auto = autoChooser.getSelected();
@@ -150,98 +178,106 @@ public class Robot extends TimedRobot {
         } finally {
             networkAutoLock.unlock();
         }
-        
+
         assert selectedAuto != null;
         //Since autonomous objects can be reused they need to be reset them before we can reuse them again 
-        selectedAuto.reset();
+        //if(selectedAuto!=null){
+          selectedAuto.reset();
+        //}
+        //else
+          //System.out.println("no selected auto!");
 
         //We then create a new thread to run the auto and run it
         autoThread = new Thread(selectedAuto);
         autoThread.start();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-
-    if(autoPath.getString(null)!=null)
-      autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(),1,1,"",null,12));
-    
-    autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
     }
-  }
 
-  @Override
-  public void teleopInit() {
-    killAuto();
-    enabled.setBoolean(true);
-    swerve.resetHeading();
-    swerve.setDriveState(DriveState.FIELD_ORIENTED);
+    /**
+     * This function is called periodically during autonomous.
+     */
+    @Override
+    public void autonomousPeriodic() {
+    }
 
-  }
+    /**
+     * This function is called once when teleop is enabled.
+     */
+    @Override
+    public void teleopInit() {
+        killAuto();
+        enabled.setBoolean(true);
+        startSubsystems();
+    }
 
-  @Override
-  public void teleopPeriodic() {
-    if(driver.getLeftBumper())
-      swerve.resetHeading();
-  }
+    /**
+     * This function is called periodically during operator control.
+     */
+    @Override
+    public void teleopPeriodic() {}
 
-  @Override
-  public void disabledInit() {
-    killAuto();
-    enabled.setBoolean(false);
-  }
+    /**
+     * This function is called once when the robot is disabled.
+     */
+    @Override
+    public void disabledInit() {
+        killAuto();
+        enabled.setBoolean(false);
+    }
 
-  @Override
-  public void disabledPeriodic() {}
+    /**
+     * This function is called periodically when disabled.
+     */
+    @Override
+    public void disabledPeriodic() {
+    }
 
-  @Override
-  public void testInit() {}
+    /**
+     * This function is called once when test mode is enabled.
+     */
+    @Override
+    public void testInit() {
+        startSubsystems();
+    }
 
-  @Override
-  public void testPeriodic() {}
+    /**
+     * This function is called periodically during test mode.
+     */
+    @Override
+    public void testPeriodic() {
+    }
+
+    private void startSubsystems() {
+        odometry.start();
+        drive.start();
+    }
+
+    public synchronized void killAuto() {
+        System.out.println("Killing Auto");
+        if (selectedAuto != null) {
+            assert autoThread != null;
+            autoThread.interrupt();
+            double nextStackTracePrint = Timer.getFPGATimestamp() + 1;
+            while (!(selectedAuto.isFinished() || autoThread.getState() == Thread.State.TERMINATED)) {
+                if (Timer.getFPGATimestamp() > nextStackTracePrint) {
+                    Exception throwable = new Exception(
+                            "Waiting for auto to die. selectedAuto.isFinished() = " + selectedAuto.isFinished() +
+                                    " autoThread.getState() = " + autoThread.getState());
+                    throwable.setStackTrace(autoThread.getStackTrace());
+                    throwable.printStackTrace();
+                    nextStackTracePrint = Timer.getFPGATimestamp() + 5;
+                }
 
 
-  @Override
-  public void simulationInit() {
-      ClassInformationSender.updateReflectionInformation(
-              new File(OsUtil.getUserConfigDirectory("AutoBuilder") + "/robotCodeData.json"));
-  }
-
-  @Override
-  public void simulationPeriodic() {}
-
-  public synchronized void killAuto() {
-    System.out.println("Killing Auto");
-    if (selectedAuto != null) {
-        assert autoThread != null;
-        autoThread.interrupt();
-        double nextStackTracePrint = Timer.getFPGATimestamp() + 1;
-        while (!(selectedAuto.isFinished() || autoThread.getState() == Thread.State.TERMINATED)) {
-            if (Timer.getFPGATimestamp() > nextStackTracePrint) {
-                Exception throwable = new Exception(
-                        "Waiting for auto to die. selectedAuto.isFinished() = " + selectedAuto.isFinished() +
-                                " autoThread.getState() = " + autoThread.getState());
-                throwable.setStackTrace(autoThread.getStackTrace());
-                throwable.printStackTrace();
-                nextStackTracePrint = Timer.getFPGATimestamp() + 5;
+                OrangeUtility.sleep(10);
             }
-
-
-            OrangeUtility.sleep(10);
+            drive.stopMotors();
+            drive.setTeleop();
         }
-        swerve.stopMotors();
-        swerve.setDriveState(DriveState.FIELD_ORIENTED);
     }
-  }
+
+    @Override
+    public void simulationInit() {
+        ClassInformationSender.updateReflectionInformation(
+                new File(OsUtil.getUserConfigDirectory("AutoBuilder") + "/robotCodeData.json"));
+    }
 }

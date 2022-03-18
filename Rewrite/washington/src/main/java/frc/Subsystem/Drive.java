@@ -248,6 +248,10 @@ public class Drive extends AbstractSubsystem{
         return driveState;
     }
 
+    public synchronized void setTeleop(){
+        driveState = DriveState.FIELD_ORIENTED;
+    }
+
     @Override
     public void selfTest() {
     }
@@ -257,7 +261,7 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putString("Drive State", getDriveState().toString());
         SmartDashboard.putNumber("Gyro Angle", -gyro.getAngle());
         //auto
-        SmartDashboard.putNumber("desired rotation", desiredAutoHeading.getDegrees());
+        //SmartDashboard.putNumber("desired rotation", desiredAutoHeading.getDegrees());
     }
 
 

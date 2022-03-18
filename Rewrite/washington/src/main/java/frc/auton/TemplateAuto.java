@@ -48,6 +48,6 @@ public abstract class TemplateAuto implements Runnable {
     public synchronized void reset() {
         this.killSwitch = false;
         this.done = false;
-        delayedExecutions.clear();
+        //delayedExecutions.clear();
     }
 }
