@@ -74,9 +74,13 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.INDEX);
     else if(driver.getRawAxis(2)>.2)
       intake.setIntakeState(IntakeState.RUN_ALL);
+    else if(driver.getRightBumper())
+      intake.setIntakeState(IntakeState.INDEX_REVERSE);
     else
       intake.setIntakeState(IntakeState.OFF);
     
+    if(driver.getAButton())
+      intake.setIntakeState(IntakeState.SHOOTING);
   
   }
 

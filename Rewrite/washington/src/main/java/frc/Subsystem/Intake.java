@@ -3,9 +3,13 @@ package frc.Subsystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
@@ -24,9 +28,12 @@ public class Intake extends AbstractSubsystem {
     }
 
     IntakeState intakeState = IntakeState.RUN_ALL;
-    CANSparkMax intake = new CANSparkMax(IntakeConstants.DEVICE_ID_INTAKE,MotorType.kBrushless);
+    TalonSRX intake = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
+
+    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    ColorMatch colorMatcher = new ColorMatch();
 
     Shooter shooter = new Shooter();
     
@@ -39,7 +46,13 @@ public class Intake extends AbstractSubsystem {
     private Intake(){
         super(40);
         intake.setInverted(false);
-        indexer.setInverted(true);
+        indexer.setInverted(false);
+
+        colorMatcher.addColorMatch(IntakeConstants.BLUE);
+        colorMatcher.addColorMatch(IntakeConstants.OTHER_BLUE);
+        colorMatcher.addColorMatch(IntakeConstants.OTHER_RED);
+        colorMatcher.addColorMatch(IntakeConstants.RED);
+        colorMatcher.addColorMatch(IntakeConstants.PASSIVE);
     }
 
     public static Intake getInstance(){
@@ -55,7 +68,7 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
-                stopMotors();
+                autoIntake();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -79,10 +92,10 @@ public class Intake extends AbstractSubsystem {
     }
 
     private void intake(){
-        intake.set(IntakeConstants.INDEX_SPEED);
+        intake.set(ControlMode.PercentOutput,IntakeConstants.INDEX_SPEED);
     }
     private void reverseIntake(){
-        intake.set(-IntakeConstants.INDEX_SPEED);
+        intake.set(ControlMode.PercentOutput,-IntakeConstants.INDEX_SPEED);
     }
     private void index(){
         indexer.set(IntakeConstants.INDEX_SPEED);
@@ -91,13 +104,20 @@ public class Intake extends AbstractSubsystem {
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
+    private void autoIntake(){
+        if(getSweetSpotStatus())
+            indexer.set(-.3);
+        else
+            stopMotors();
+    }
+
     private void runBoth(){
         intake();
         index();
     }
 
     private void stopMotors(){
-        intake.set(0);
+        intake.set(ControlMode.PercentOutput,0);
         indexer.set(0);
     }
 
@@ -113,6 +133,11 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void setShooterRatio(){
         ratio = SmartDashboard.getNumber("shooter ratio", 1);
+    }
+
+    private boolean getSweetSpotStatus(){
+        ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
+        return match.color.equals(IntakeConstants.PASSIVE);
     }
 
     public synchronized IntakeState getIntakeState(){
