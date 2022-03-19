@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import java.io.File;
@@ -25,9 +21,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subsystem.Climb;
 import frc.Subsystem.Drive;
+import frc.Subsystem.Intake;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.Drive.DriveState;
+import frc.Subsystem.Intake.IntakeState;
 import frc.auton.TemplateAuto;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.OsUtil;
@@ -37,7 +36,8 @@ import frc.util.OrangeUtility;
 public class Robot extends TimedRobot {
 
     public static XboxController driver = new XboxController(0);
-       //GUI
+    public static Joystick operator = new Joystick(1);
+    //GUI
     NetworkTableInstance instance = NetworkTableInstance.getDefault();
     NetworkTable autoDataTable = instance.getTable("autodata");
     NetworkTableEntry autoPath = autoDataTable.getEntry("autoPath");
@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
     //Subsystems
     private final Odometry odometry = Odometry.getInstance();
     private final Drive drive = Drive.getInstance();
+    private final Intake intake = Intake.getInstance();
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
@@ -140,7 +141,6 @@ public class Robot extends TimedRobot {
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(1);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-
                 networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
                 // ready to be run
                 System.out.println("done parsing autonomous");
@@ -149,8 +149,8 @@ public class Robot extends TimedRobot {
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
             });
         }
-
     }
+
 
     /**
      * This autonomous (along with the chooser code above) shows how to select between different autonomous modes using the
@@ -206,13 +206,43 @@ public class Robot extends TimedRobot {
         startSubsystems();
         compressor.enableDigital();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
+        drive.resetHeading();
+        drive.setDriveState(DriveState.FIELD_ORIENTED);
+        compressor.enableDigital();
     }
 
     /**
      * This function is called periodically during operator control.
      */
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+    if(driver.getLeftBumper())
+      drive.resetHeading();
+
+    if(driver.getRawAxis(2)>.2)
+      intake.setIntakeState(IntakeState.RUN_ALL);
+    else if(driver.getRightBumper())
+      intake.setIntakeState(IntakeState.INDEX_REVERSE);
+    else if(driver.getAButton())
+      intake.setIntakeState(IntakeState.SHOOTING);
+    else
+      intake.setOff();
+    
+
+    if(driver.getYButton())
+      intake.toggleIntake(true);
+    else if (driver.getBButton())
+      intake.toggleIntake(false);
+  
+
+    if(operator.getRawButtonPressed(3)){
+      Intake.getInstance().setShooterSpeeds();
+      Intake.getInstance().setShooterRatio();
+    }
+
+    if(driver.getXButtonPressed())
+      drive.setDriveState(DriveState.VISION);
+    }
 
     /**
      * This function is called once when the robot is disabled.

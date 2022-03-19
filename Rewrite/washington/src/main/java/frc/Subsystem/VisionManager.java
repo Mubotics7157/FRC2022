@@ -1,11 +1,15 @@
 package frc.Subsystem;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.util.AbstractSubsystem;
 
 public class VisionManager extends AbstractSubsystem{
@@ -63,10 +67,28 @@ public class VisionManager extends AbstractSubsystem{
 
     public synchronized double getDistanceToTarget(){
         var result = targetCam.getLatestResult();
-        double TargetPitch = result.getBestTarget().getPitch();
+        if(result.hasTargets()){
+        double TargetPitch = -result.getBestTarget().getPitch();
 
         double distance = Units.metersToInches(Constants.VisionConstants.CAM_HEIGHT_METERS - Constants.VisionConstants.TARGET_HEIGHT_METERS)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + TargetPitch));
-        return distance;
+        return Units.inchesToMeters(distance);
+         }
+
+         else
+            return 0;
+    }
+
+    public synchronized double getPhotonDistanceToTarget(){
+        var result = targetCam.getLatestResult();
+        if(result.hasTargets())
+        return PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.CAM_HEIGHT_METERS, VisionConstants.TARGET_HEIGHT_METERS, VisionConstants.CAM_MOUNTING_PITCH_RADIANS,Units.degreesToRadians(result.getBestTarget().getPitch()))   ;
+        else
+            return 0;
+    }
+
+    public synchronized double getCargoDistance(){
+        var result = targetCam.getLatestResult();
+        return result.getBestTarget().getPitch();
     }
 
     public static VisionManager getInstance(){
@@ -106,6 +128,9 @@ public class VisionManager extends AbstractSubsystem{
     public void selfTest() {}
 
     @Override
-    public void logData() {}
+    public void logData() {
+        SmartDashboard.putNumber("distance to target", getDistanceToTarget());
+        SmartDashboard.putNumber("photon distance to target", getPhotonDistanceToTarget());
+    }
 
 }

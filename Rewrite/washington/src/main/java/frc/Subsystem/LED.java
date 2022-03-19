@@ -1,4 +1,4 @@
-package frc.Subystem;
+package frc.Subsystem;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.AddressableLED;

@@ -19,6 +19,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subsystem.Intake.IntakeState;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.util.AbstractSubsystem;
@@ -29,6 +30,7 @@ public class Drive extends AbstractSubsystem{
         FIELD_ORIENTED,
         ROBOT_ORIENTED,
         VISION,
+        BAGLE,
         AUTO,
         DONE
     }
@@ -36,7 +38,7 @@ public class Drive extends AbstractSubsystem{
     private static DriveState driveState = DriveState.ROBOT_ORIENTED;
     private static final Drive driveInstance = new Drive();
 
-    private Module frontLeft = DriveConstants.FRONT_LEFT_MODULE;
+    private Module frontLeft = new Module(1,2,3,0);
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
     private Module rearRight = DriveConstants.REAR_RIGHT_MODULE;
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;
@@ -87,6 +89,10 @@ public class Drive extends AbstractSubsystem{
                 updateManual(false);
                 break;
             case VISION:
+                updateAlign();
+                break;
+            case BAGLE:
+                updateBagle();
                 break;
             case AUTO:
                 updateAuto();
@@ -150,8 +156,21 @@ public class Drive extends AbstractSubsystem{
         }
     }
 
+    private void updateBagle(){
+                if(VisionManager.getInstance().hasVisionTarget()){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+        if(Math.abs(error)<Units.degreesToRadians(3))
+            error = 0;
+        double deltaSpeed = visionRotController.calculate(error);
+        updateManual(true,deltaSpeed);
+           if(visionRotController.atGoal())
+                Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
+        }
+    }
+
     private void driveFromChassis(ChassisSpeeds speeds){
-        var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds,centerOfRotation);
+        var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(getModuleStates(), DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
     }
@@ -264,8 +283,12 @@ public class Drive extends AbstractSubsystem{
     public void logData() {
         SmartDashboard.putString("Drive State", getDriveState().toString());
         SmartDashboard.putNumber("Gyro Angle", -gyro.getAngle());
-        //auto
-        //SmartDashboard.putNumber("desired rotation", desiredAutoHeading.getDegrees());
+
+        SmartDashboard.putNumber("left front", frontLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("left rear", rearLeft.getState().angle.getDegrees());
+        SmartDashboard.putNumber("right rear", rearRight.getState().angle.getDegrees());
+        SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
+
     }
 
 
