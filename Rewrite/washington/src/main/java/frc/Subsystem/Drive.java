@@ -30,6 +30,7 @@ public class Drive extends AbstractSubsystem{
 
     private static DriveState driveState = DriveState.ROBOT_ORIENTED;
     private static final Drive driveInstance = new Drive();
+    private static LED ledclass = new LED();
 
     private Module frontLeft = new Module(1,2,3,0);
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
@@ -122,6 +123,17 @@ public class Drive extends AbstractSubsystem{
         if(VisionManager.getInstance().hasVisionTarget()){
         Rotation2d onTarget = new Rotation2d(0);
         double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+
+        if(Math.abs(VisionManager.targetCam.getLatestResult().getBestTarget().getYaw()) < 2){
+            ledclass.setGREEN();
+        //^^^if on align mode and the target is within 2 degrees of the crosshair led will be green
+        }
+        else if(Math.abs(VisionManager.targetCam.getLatestResult().getBestTarget().getYaw()) > 2){
+            ledclass.setRED();
+            //hehe
+        //^^^if on align mode and the target is not within 2 degrees of the crosshair led will be red
+            }
+
         if(Math.abs(error)<Units.degreesToRadians(3))
             error = 0;
         double deltaSpeed = visionRotController.calculate(error);
@@ -130,6 +142,7 @@ public class Drive extends AbstractSubsystem{
        //else{
            if(visionRotController.atGoal())
             setDriveState(DriveState.FIELD_ORIENTED);
+            
         }
     }
 

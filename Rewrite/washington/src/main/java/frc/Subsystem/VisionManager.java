@@ -15,8 +15,8 @@ import frc.util.AbstractSubsystem;
 public class VisionManager extends AbstractSubsystem{
 
     static VisionManager instance;
-    PhotonCamera targetCam;
-    PhotonCamera cargoCam;
+    static PhotonCamera targetCam;
+    static PhotonCamera cargoCam;
     VisionState visionState =VisionState.ON;
     double yaw; 
  
@@ -69,9 +69,11 @@ public class VisionManager extends AbstractSubsystem{
         var result = targetCam.getLatestResult();
         if(result.hasTargets()){
         double TargetPitch = -result.getBestTarget().getPitch();
+        double TargetYaw = result.getBestTarget().getYaw();
 
-        double distance = Units.metersToInches(Constants.VisionConstants.CAM_HEIGHT_METERS - Constants.VisionConstants.TARGET_HEIGHT_METERS)/Math.tan(Units.degreesToRadians(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + TargetPitch));
-        return Units.inchesToMeters(distance);
+        double distance = Units.metersToInches(Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
+        double trueDistance = distance * Math.cos(Units.degreesToRadians(TargetYaw));
+        return Units.inchesToMeters(trueDistance);
          }
 
          else

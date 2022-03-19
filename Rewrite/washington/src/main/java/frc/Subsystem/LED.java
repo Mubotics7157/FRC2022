@@ -16,7 +16,7 @@ public class LED {
     public LED(){
       led = new AddressableLED(0);
       //^^makes the led with the PWM port of 0 
-      ledBuffer = new AddressableLEDBuffer(300);
+      ledBuffer = new AddressableLEDBuffer(130);
       
         led.setLength(ledBuffer.getLength());
         led.setData(ledBuffer);
