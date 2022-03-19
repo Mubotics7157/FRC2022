@@ -8,10 +8,10 @@ import java.io.File;
 import java.io.IOException;
 
 public final class Serializer {
-    static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static String serializeToString(Object obj) throws IOException {
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT,true);
         return objectMapper.writeValueAsString(obj);
     }
 

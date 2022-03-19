@@ -181,11 +181,7 @@ public class Robot extends TimedRobot {
 
         assert selectedAuto != null;
         //Since autonomous objects can be reused they need to be reset them before we can reuse them again 
-        //if(selectedAuto!=null){
           selectedAuto.reset();
-        //}
-        //else
-          //System.out.println("no selected auto!");
 
         //We then create a new thread to run the auto and run it
         autoThread = new Thread(selectedAuto);
