@@ -50,7 +50,7 @@ public class Drive extends AbstractSubsystem{
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
-    ProfiledPIDController rotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
+    ProfiledPIDController rotController = new ProfiledPIDController(.125, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
     PIDController yController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
@@ -92,6 +92,7 @@ public class Drive extends AbstractSubsystem{
                 updateAuto();
                 break;
             case DONE:
+                stopMotors();
                 break;
         }
     }
@@ -161,8 +162,10 @@ public class Drive extends AbstractSubsystem{
         try{
             Trajectory.State goal = currTrajectory.sample(getAutoTime());
             Rotation2d target = desiredAutoHeading;
+            SmartDashboard.putNumber("desired rotation", target.getDegrees());
+            SmartDashboard.putNumber("heading error",target.rotateBy(Odometry.getInstance().getOdometry().getRotation()).getDegrees());
 
-            ChassisSpeeds desiredSpeeds = autoController.calculate(Odometry.getInstance().getOdometry(), goal,  target);
+            ChassisSpeeds desiredSpeeds = autoController.calculate(Odometry.getInstance().getOdometry(), goal, target.unaryMinus());
 
             driveFromChassis(desiredSpeeds);
 
@@ -208,6 +211,7 @@ public class Drive extends AbstractSubsystem{
         frontRight.setState(states[1]);
         rearLeft.setState(states[2]);
         rearRight.setState(states[3]);
+
     }
 
     public synchronized SwerveModuleState[] getModuleStates(){

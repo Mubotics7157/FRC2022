@@ -17,7 +17,9 @@ import edu.wpi.first.networktables.EntryNotification;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -40,9 +42,6 @@ public class Robot extends TimedRobot {
     NetworkTable autoDataTable = instance.getTable("autodata");
     NetworkTableEntry autoPath = autoDataTable.getEntry("autoPath");
 
-    NetworkTable position = autoDataTable.getSubTable("position");
-    NetworkTableEntry xPos = position.getEntry("x");
-    NetworkTableEntry yPos = position.getEntry("y");
     NetworkTableEntry enabled = autoDataTable.getEntry("enabled");
     NetworkTableEntry pathProcessingStatusEntry = autoDataTable.getEntry("processing");
     NetworkTableEntry pathProcessingStatusIdEntry = autoDataTable.getEntry("processingid");
@@ -64,6 +63,8 @@ public class Robot extends TimedRobot {
     //Subsystems
     private final Odometry odometry = Odometry.getInstance();
     private final Drive drive = Drive.getInstance();
+
+    Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
     //Inputs
 
@@ -127,8 +128,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         if (isEnabled()) {
             //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-            xPos.setDouble(odometry.getOdometry().getX());
-            yPos.setDouble(odometry.getOdometry().getY());
+            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
+            SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
 
         //Listen changes in the network auto
@@ -203,6 +204,8 @@ public class Robot extends TimedRobot {
         killAuto();
         enabled.setBoolean(true);
         startSubsystems();
+        compressor.enableDigital();
+        drive.setDriveState(DriveState.FIELD_ORIENTED);
     }
 
     /**
