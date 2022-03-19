@@ -1,5 +1,6 @@
 package frc.Subsystem;
 
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -33,6 +34,8 @@ public class Shooter {
         flywheelTop.overrideLimitSwitchesEnable(false);
         flywheelBot.enableVoltageCompensation(true);
         flywheelTop.enableVoltageCompensation(true);
+        flywheelBot.configVoltageCompSaturation(10);
+        flywheelTop.configVoltageCompSaturation(10);
 
     }
 

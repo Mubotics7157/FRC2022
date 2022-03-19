@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.Subsystem.Module;
@@ -77,10 +78,10 @@ public interface Constants {
         public static final String REAR_CAM_NAME = "LifeCam";
         public static final String VISION_CAM_NAME = "gloworm";
 
-        public static final double CAM_HEIGHT_METERS = 0;
-        public static final double CAM_MOUNTING_PITCH_RADIANS = 0;
+        public static final double CAM_HEIGHT_METERS = Units.inchesToMeters(30);
+        public static final double CAM_MOUNTING_PITCH_RADIANS = Units.degreesToRadians(63);
 
-        public static final double TARGET_HEIGHT_METERS = 0;
+        public static final double TARGET_HEIGHT_METERS = 2.64;
     }
 
     public static final class IntakeConstants{
@@ -98,7 +99,7 @@ public interface Constants {
         public static final int INTAKE_SOLENOID_REVERSE = 7;
 
         public static final Color RED = new Color(0.261962890625, 0.457275390625, 0.28125);
-        public static final Color PASSIVE = new Color(0.22509765625,0.48828125,0.286865234375);
+        public static final Color PASSIVE = new Color(0.259033203125,0.4716796875,0.27001953125);
         public static final Color BLUE = new Color(0.2294921875,0.46484375,0.30615234375);
         public static final Color OTHER_BLUE = new Color(0.24072265625,0.474609375,0.284912109375);
         public static final Color OTHER_RED = new Color(0.243408203125,0.4736328125,0.283447265625);

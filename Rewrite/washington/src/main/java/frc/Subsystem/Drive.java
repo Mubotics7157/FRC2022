@@ -12,6 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.Subsystem.Intake.IntakeState;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.util.AbstractSubsystem;
@@ -22,6 +23,7 @@ public class Drive extends AbstractSubsystem{
         FIELD_ORIENTED,
         ROBOT_ORIENTED,
         VISION,
+        BAGLE,
         AUTO,
         DONE
     }
@@ -67,6 +69,9 @@ public class Drive extends AbstractSubsystem{
                 break;
             case VISION:
                 updateAlign();
+                break;
+            case BAGLE:
+                updateBagle();
                 break;
             case AUTO:
                 break;
@@ -125,6 +130,19 @@ public class Drive extends AbstractSubsystem{
        //else{
            if(visionRotController.atGoal())
             setDriveState(DriveState.FIELD_ORIENTED);
+        }
+    }
+
+    private void updateBagle(){
+                if(VisionManager.getInstance().hasVisionTarget()){
+        Rotation2d onTarget = new Rotation2d(0);
+        double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+        if(Math.abs(error)<Units.degreesToRadians(3))
+            error = 0;
+        double deltaSpeed = visionRotController.calculate(error);
+        updateManual(true,deltaSpeed);
+           if(visionRotController.atGoal())
+                Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
         }
     }
 
