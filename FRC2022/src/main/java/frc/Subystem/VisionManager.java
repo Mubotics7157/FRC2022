@@ -6,8 +6,12 @@ import org.photonvision.common.hardware.VisionLEDMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.util.Threading.Threaded;
 
 public class VisionManager extends Threaded{
@@ -109,5 +113,18 @@ public class VisionManager extends Threaded{
             setOn();
         else
             setOff();
+    }
+
+    public double limeLightDist(){
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+        NetworkTableEntry ty = table.getEntry("ty");
+        double targetOffsetAngle_Vertical = ty.getDouble(0.0);
+        double totalAngleDeg = 2 + targetOffsetAngle_Vertical;
+        double totalAngleRad = Units.degreesToRadians(totalAngleDeg);
+
+        double limeLightDist = 0;
+        limeLightDist = (VisionConstants.TARGET_HEIGHT_METERS - VisionConstants.CAMERA_HEIGHT_METERS)/Math.tan(totalAngleRad);
+
+        return limeLightDist;
     }
 }

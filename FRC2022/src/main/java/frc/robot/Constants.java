@@ -111,6 +111,6 @@ public class Constants {
     public static final class VisionConstants{
         public static final double TARGET_HEIGHT_METERS = 0;
         public static final double CAMERA_HEIGHT_METERS = 0;
-        public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0);
+        public static final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(2);
     }
 }
