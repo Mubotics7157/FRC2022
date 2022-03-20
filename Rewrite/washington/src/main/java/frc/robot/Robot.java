@@ -26,6 +26,7 @@ import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.VisionManager;
+import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.TemplateAuto;
@@ -122,7 +123,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-750000,-1200000),new ClimbCommand(-15000,-1200000), new ClimbCommand(-15000,-1400000),new ClimbCommand(-500000,-1250000));
+        routine.addCommands(new ClimbCommand(-750000,-1200000),new ClimbCommand(-12000,-1200000), new ClimbCommand(-12000,-1455000),new ClimbCommand(-197631,-1440000),new ClimbCommand(-679460,-1078343), new ClimbCommand(-197631,-1078343));
     }
     @Override
     public void robotPeriodic() {
@@ -245,8 +246,12 @@ public class Robot extends TimedRobot {
      else if(operator.getRawButtonReleased(1)){
          if(climbRoutine!=null)
             climbRoutine.suspend();
-         System.out.println("killing climb sequence");
+        //
     }
+
+    if(operator.getRawButtonPressed(2))
+        climb.setClimbState(ClimbState.MANUAL);
+
 }
 
 
@@ -259,7 +264,8 @@ public class Robot extends TimedRobot {
         enabled.setBoolean(false);
         if(climbRoutine!=null)
             climbRoutine.interrupt();
-    }
+       // climbRoutine = null;  
+     }
 
     /**
      * This function is called periodically when disabled.
