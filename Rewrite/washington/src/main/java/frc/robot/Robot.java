@@ -33,6 +33,8 @@ import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
+import frc.util.ClimbRoutine.ClimbCommand;
+import frc.util.ClimbRoutine.ClimbRoutine;
 
 public class Robot extends TimedRobot {
 
@@ -70,8 +72,6 @@ public class Robot extends TimedRobot {
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
-    //Inputs
-
 
     //Control loop states
     boolean limelightTakeSnapshots;
@@ -98,6 +98,9 @@ public class Robot extends TimedRobot {
                     }
             ));
 
+    ClimbRoutine routine;
+
+    Thread climbRoutine;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -119,6 +122,8 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
+        routine.addCommands(new ClimbCommand(-10000,10000));
+        climbRoutine = new Thread(routine);
     }
     @Override
     public void robotPeriodic() {
@@ -228,7 +233,13 @@ public class Robot extends TimedRobot {
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
+
+    if(operator.getRawButtonPressed(1))
+        climbRoutine.start();
+    else if(operator.getRawButtonReleased(1))
+        climbRoutine.interrupt();
     }
+
 
     /**
      * This function is called once when the robot is disabled.
