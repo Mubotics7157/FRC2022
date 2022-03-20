@@ -58,7 +58,9 @@ public final class ReflectionUtils {
                 String periodClassName;
                 periodClassName = packageName.replace("/", ".").substring(1, packageName.length());
                 System.out.println(periodClassName + "." + file.getName().substring(0, file.getName().length() - 6));
-                classes.add(Class.forName(periodClassName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                if(!(periodClassName + '.' + file.getName().substring(0, file.getName().length() - 6)).contains("$")){
+                    classes.add(Class.forName(periodClassName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+                }
             }
         }
         return classes;

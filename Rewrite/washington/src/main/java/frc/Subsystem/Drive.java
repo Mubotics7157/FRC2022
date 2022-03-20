@@ -183,10 +183,12 @@ public class Drive extends AbstractSubsystem{
             Rotation2d target = desiredAutoHeading;
             SmartDashboard.putNumber("desired rotation", target.getDegrees());
             SmartDashboard.putNumber("heading error",target.rotateBy(Odometry.getInstance().getOdometry().getRotation()).getDegrees());
+            SmartDashboard.putNumber("time elapsed", getAutoTime());
 
-            ChassisSpeeds desiredSpeeds = autoController.calculate(Odometry.getInstance().getOdometry(), goal, target.unaryMinus());
+            ChassisSpeeds desiredSpeeds = autoController.calculate(Odometry.getInstance().getOdometry(), goal, target);
 
             driveFromChassis(desiredSpeeds);
+
 
             if(autoController.atReference()||getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);

@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -87,7 +88,8 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
-                autoIntake();
+                //if(DriverStation.isTeleop())
+                //autoIntake();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -105,13 +107,13 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                //shoot();
-                autoShot();
+                shoot();
+                //autoShot();
                 break;
         }
     }
 
-    private void intake(){
+    public synchronized void intake(){
         intake.set(ControlMode.PercentOutput,IntakeConstants.INDEX_SPEED);
     }
     private void reverseIntake(){
@@ -120,7 +122,7 @@ public class Intake extends AbstractSubsystem {
     public synchronized void index(){
         indexer.set(IntakeConstants.INDEX_SPEED);
     }
-    private void reverseIndexer(){
+    public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
@@ -131,22 +133,23 @@ public class Intake extends AbstractSubsystem {
             stopMotors();
     }
 
-    private void runBoth(){
+    public synchronized void runBoth(){
         shooter.atSpeed(-250, -250);
         intake();
         index();
     }
 
-    private void stopMotors(){
+    public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
         intake.set(ControlMode.PercentOutput,0);
         indexer.set(0);
     }
 
-    private void shoot(){
-        shooter.atSpeed(topSpeed, botSpeed);
-        if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED/2);
+    public synchronized void shoot(){
+        if(shooter.atSpeed(topSpeed, botSpeed))
+            index();
+        SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
+
     }
 
     private void autoShot(){
@@ -195,10 +198,23 @@ public class Intake extends AbstractSubsystem {
         intakeState = state;
     }
 
+    public synchronized void setIntakeAndIndexing(){
+        intakeState = IntakeState.RUN_ALL;
+    }
+
     public synchronized void setOff(){
         stopMotors();
         intakeState = IntakeState.OFF;
     }
+
+    public synchronized void setIndexBackwards(){
+        intakeState= IntakeState.INDEX_REVERSE;
+    }
+
+    public synchronized void setShooting(){
+        intakeState= IntakeState.SHOOTING;
+    }
+
     @Override
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 

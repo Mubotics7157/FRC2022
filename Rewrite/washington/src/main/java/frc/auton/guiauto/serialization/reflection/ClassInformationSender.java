@@ -29,6 +29,7 @@ public final class ClassInformationSender {
                 Serializer.serializeToFile(reflectionClassData, file);
             }
         } catch (ClassNotFoundException | IOException e) {
+            System.out.println("------------------------------------------------------------------------------------------------------------------------");
             e.printStackTrace();
         }
     }

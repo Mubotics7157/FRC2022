@@ -25,6 +25,7 @@ import frc.Subsystem.Climb;
 import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
 import frc.Subsystem.Odometry;
+import frc.Subsystem.VisionManager;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.TemplateAuto;
@@ -64,6 +65,7 @@ public class Robot extends TimedRobot {
     private final Odometry odometry = Odometry.getInstance();
     private final Drive drive = Drive.getInstance();
     private final Intake intake = Intake.getInstance();
+    private final VisionManager vision = VisionManager.getInstance();
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
@@ -123,42 +125,7 @@ public class Robot extends TimedRobot {
      * during disabled, autonomous, teleoperated and test.
      *
      * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-     * SmartDashboard integrated updating.
-     */
-    @Override
-    public void robotPeriodic() {
-        if (isEnabled()) {
-            //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
-            SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
-        }
-
-        //Listen changes in the network auto
-        if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
-            lastAutoPath = autoPath.getString(null);
-            deserializerExecutor.execute(() -> { //Start deserializing on another thread
-                System.out.println("start parsing autonomous");
-                //Set networktable entries for the gui notifications
-                pathProcessingStatusEntry.setDouble(1);
-                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-                networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
-                // ready to be run
-                System.out.println("done parsing autonomous");
-                //Set networktable entries for the gui notifications
-                pathProcessingStatusEntry.setDouble(2);
-                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-            });
-        }
-    }
-
-
-    /**
-     * This autonomous (along with the chooser code above) shows how to select between different autonomous modes using the
-     * dashboard. The sendable chooser code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of
-     * the chooser code and uncomment the getString line to get the auto name from the text box below the Gyro
-     *
-     * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-     * below with additional strings. If using the SendableChooser make sure to add them to the chooser code above as well.
+     * SmartDashboard integrated updating below with additional strings. If using the SendableChooser make sure to add them to the chooser code above as well.
      */
     @Override
     public void autonomousInit() {
@@ -278,6 +245,9 @@ public class Robot extends TimedRobot {
     private void startSubsystems() {
         odometry.start();
         drive.start();
+        intake.start();
+        //vision.start();
+
     }
 
     public synchronized void killAuto() {
@@ -307,6 +277,6 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationInit() {
         ClassInformationSender.updateReflectionInformation(
-                new File(OsUtil.getUserConfigDirectory("AutoBuilder") + "/robotCodeData.json"));
+                new File("C:/Users/60002/AppData/Roaming/AutoBuilder"+ "/robotCodeData.json"));
     }
 }
