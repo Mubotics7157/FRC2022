@@ -81,7 +81,7 @@ public interface Constants {
         public static final String VISION_CAM_NAME = "gloworm";
 
         public static final double CAM_HEIGHT_METERS = Units.inchesToMeters(30);
-        public static final double CAM_MOUNTING_PITCH_RADIANS = Units.degreesToRadians(23.5);
+        public static final double CAM_MOUNTING_PITCH_RADIANS = Units.degreesToRadians(22.28);
 
         public static final double TARGET_HEIGHT_METERS = 2.64;
     }
