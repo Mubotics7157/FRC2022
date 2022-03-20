@@ -35,7 +35,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     IntakeState intakeState = IntakeState.OFF;
-    TalonSRX intake = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+    CANSparkMax intake = new CANSparkMax(IntakeConstants.DEVICE_ID_INTAKE,MotorType.kBrushless);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
 
@@ -115,10 +115,10 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void intake(){
-        intake.set(ControlMode.PercentOutput,IntakeConstants.INDEX_SPEED);
+        intake.set(IntakeConstants.INDEX_SPEED);
     }
     private void reverseIntake(){
-        intake.set(ControlMode.PercentOutput,-IntakeConstants.INDEX_SPEED);
+        intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
         indexer.set(IntakeConstants.INDEX_SPEED);
@@ -142,7 +142,7 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
-        intake.set(ControlMode.PercentOutput,0);
+        intake.set(0);
         indexer.set(0);
     }
 
@@ -153,7 +153,7 @@ public class Intake extends AbstractSubsystem {
 
     }
 
-    private void autoShot(){
+    public synchronized void autoShot(){
         ShooterSpeed shooterSpeeds = shotGen.getShot(lidar.getDistance());
         shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
         if(Robot.driver.getRawAxis(3)>.2)
