@@ -53,6 +53,7 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350/1.08;
     double ratio = 1.08;
 
+
     LED led = new LED();
 
     Color PassiveColor;
@@ -134,7 +135,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void runBoth(){
-        shooter.atSpeed(-250, -250);
+        shooter.atSpeed(-750, -750);
         intake();
         index();
     }
@@ -169,6 +170,7 @@ public class Intake extends AbstractSubsystem {
         topSpeed = top;
         botSpeed = bot;
     }
+
 
     public synchronized void setShooterSpeeds(){
         topSpeed = SmartDashboard.getNumber("top wheel setpoint", 1350);

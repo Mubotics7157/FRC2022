@@ -66,6 +66,7 @@ public class Robot extends TimedRobot {
     private final Drive drive = Drive.getInstance();
     private final Intake intake = Intake.getInstance();
     private final VisionManager vision = VisionManager.getInstance();
+    Climb climb = Climb.getInstance();
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
@@ -119,14 +120,32 @@ public class Robot extends TimedRobot {
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
     }
+    @Override
+    public void robotPeriodic() {
+        if (isEnabled()) {
+            //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
+            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
+            SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
+        }
 
-    /**
-     * This function is called every robot packet, no matter the mode. Use this for items like diagnostics that you want ran
-     * during disabled, autonomous, teleoperated and test.
-     *
-     * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-     * SmartDashboard integrated updating below with additional strings. If using the SendableChooser make sure to add them to the chooser code above as well.
-     */
+        //Listen changes in the network auto
+        if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
+            lastAutoPath = autoPath.getString(null);
+            deserializerExecutor.execute(() -> { //Start deserializing on another thread
+                System.out.println("start parsing autonomous");
+                //Set networktable entries for the gui notifications
+                pathProcessingStatusEntry.setDouble(1);
+                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
+                networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
+                // ready to be run
+                System.out.println("done parsing autonomous");
+                //Set networktable entries for the gui notifications
+                pathProcessingStatusEntry.setDouble(2);
+                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
+            });
+        }
+    }
+
     @Override
     public void autonomousInit() {
         enabled.setBoolean(true);
@@ -246,7 +265,8 @@ public class Robot extends TimedRobot {
         odometry.start();
         drive.start();
         intake.start();
-        //vision.start();
+        vision.start();
+        climb.start();
 
     }
 

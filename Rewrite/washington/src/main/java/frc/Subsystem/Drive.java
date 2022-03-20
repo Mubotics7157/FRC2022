@@ -154,6 +154,8 @@ public class Drive extends AbstractSubsystem{
            if(visionRotController.atGoal())
             setDriveState(DriveState.FIELD_ORIENTED);
         }
+        else
+            setDriveState(DriveState.FIELD_ORIENTED);
     }
 
     private void updateBagle(){
@@ -275,6 +277,10 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized void setTeleop(){
         driveState = DriveState.FIELD_ORIENTED;
+    }
+
+    public synchronized void setVisionAlign(){
+        driveState = DriveState.VISION;
     }
 
     @Override
