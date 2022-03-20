@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-    ClimbRoutine routine;
+    ClimbRoutine routine = new ClimbRoutine();
 
     Thread climbRoutine;
 
@@ -122,8 +122,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-10000,10000));
-        climbRoutine = new Thread(routine);
+        routine.addCommands(new ClimbCommand(-750000,-1400000),new ClimbCommand(-10000,-100000), new ClimbCommand(-500000,-1000000));
     }
     @Override
     public void robotPeriodic() {
@@ -234,11 +233,21 @@ public class Robot extends TimedRobot {
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
-    if(operator.getRawButtonPressed(1))
-        climbRoutine.start();
-    else if(operator.getRawButtonReleased(1))
-        climbRoutine.interrupt();
+    if(operator.getRawButtonPressed(1)){
+        if(climbRoutine==null){
+            climbRoutine = new Thread(routine);
+            climbRoutine.start();
+        }
+        else
+            climbRoutine.resume();  
+        //climbRoutine.start();
     }
+     else if(operator.getRawButtonReleased(1)){
+         if(climbRoutine!=null)
+            climbRoutine.suspend();
+         System.out.println("killing climb sequence");
+    }
+}
 
 
     /**
@@ -248,6 +257,8 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
+        if(climbRoutine!=null)
+            climbRoutine.interrupt();
     }
 
     /**
@@ -263,6 +274,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         startSubsystems();
+        Climb.getInstance().setManual();
     }
 
     /**

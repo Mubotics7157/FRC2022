@@ -22,6 +22,22 @@ public class Climb extends AbstractSubsystem {
         highClimb.setSelectedSensorPosition(0);
         midClimb.configFactoryDefault();
         highClimb.configFactoryDefault();
+
+
+        midClimb.configForwardSoftLimitEnable(true);
+        midClimb.configReverseSoftLimitEnable(true);
+        midClimb.configReverseSoftLimitThreshold(-754059);
+        midClimb.configForwardSoftLimitThreshold(1);
+
+        midClimb.config_kP(0, 1);
+        midClimb.config_kD(0, .3);
+
+        highClimb.configForwardSoftLimitEnable(true);
+        highClimb.configReverseSoftLimitEnable(true);
+        highClimb.configReverseSoftLimitThreshold(-1422315);
+        highClimb.configForwardSoftLimitThreshold(1);
+        highClimb.config_kP(0, .5);
+        highClimb.config_kD(0, .05);
     }
 
     public static Climb getInstance(){
@@ -51,6 +67,7 @@ public class Climb extends AbstractSubsystem {
                 updateSubRoutine();
                 break;
             case DONE:
+                setMotors(0, 0);
                 break;
         }
     }
@@ -74,7 +91,7 @@ public class Climb extends AbstractSubsystem {
     private boolean withinTolerance(){
         double midTolerance =  Math.abs(midClimb.getSelectedSensorPosition()-midSetpoint);
         double highTolerance = Math.abs( highClimb.getSelectedSensorPosition()-highSetpoint);
-        return (midTolerance<4000&&highTolerance<4000);
+        return (midTolerance<100&&highTolerance<100);
     }
 
     public synchronized boolean isFinished(){
@@ -87,15 +104,39 @@ public class Climb extends AbstractSubsystem {
         highSetpoint = high;
     }
 
+    public synchronized void setClimbState(ClimbState state){
+        climbState = state;
+    }
+
+    public synchronized void setManual(){
+        midClimb.configFactoryDefault();
+        highClimb.configFactoryDefault();
+        climbState = ClimbState.MANUAL;
+
+    }
+    public ClimbState getClimbState(){
+        return climbState;
+    }
+
     @Override
     public void logData() {
         SmartDashboard.putNumber("mid height", midClimb.getSelectedSensorPosition());
         SmartDashboard.putNumber("high height", highClimb.getSelectedSensorPosition());
+
+        SmartDashboard.putString("Climb State", getClimbState().toString());
+
+        SmartDashboard.putNumber("mid setpoint", midSetpoint);
+        SmartDashboard.putNumber("high setpoint", highSetpoint);
+
+        SmartDashboard.putBoolean("is finished?", isFinished());
         
     }
 
     @Override
     public void selfTest() {
+        midClimb.configFactoryDefault();
+        highClimb.configFactoryDefault();
+
         
     }
 
