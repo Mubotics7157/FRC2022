@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-750000,-1400000),new ClimbCommand(-10000,-100000), new ClimbCommand(-500000,-1000000));
+        routine.addCommands(new ClimbCommand(-750000,-1200000),new ClimbCommand(-15000,-1200000), new ClimbCommand(-15000,-1400000),new ClimbCommand(-500000,-1250000));
     }
     @Override
     public void robotPeriodic() {
