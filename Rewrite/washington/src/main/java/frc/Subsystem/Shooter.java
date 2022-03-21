@@ -18,15 +18,15 @@ public class Shooter {
         flywheelTop = new TalonFX(19);
         TalonFXConfiguration topConfig = new TalonFXConfiguration();
         topConfig.voltageCompSaturation = 10;
-        topConfig.slot0.kP = .65;
-        topConfig.slot0.kD = .04;
-        topConfig.slot0.kF = .05;
+        topConfig.slot0.kP = .3;
+        //topConfig.slot0.kD = .04;
+        topConfig.slot0.kF = .0575;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
         botConfig.voltageCompSaturation = 10;
-        botConfig.slot0.kP =.65; //.2
-        botConfig.slot0.kF =.045;
-        topConfig.slot0.kD = .05;
+        botConfig.slot0.kP =.3; //.2
+        botConfig.slot0.kF =.0575;
+        //topConfig.slot0.kD = .05;
         flywheelBot.configAllSettings(botConfig);
         flywheelBot.setNeutralMode(NeutralMode.Coast);
         flywheelTop.setNeutralMode(NeutralMode.Coast);

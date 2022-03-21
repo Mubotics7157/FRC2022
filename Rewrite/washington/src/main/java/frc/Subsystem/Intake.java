@@ -112,9 +112,10 @@ public class Intake extends AbstractSubsystem {
                 break;
             case SHOOTING:
             //if(interpolatedShot)
-                autoShot();
+                //autoShot();
+                //shooter.atSpeed(3000, 3000);
             //else
-              //  shoot();
+            autoShot();
                 break;
         }
     }
@@ -152,7 +153,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void shoot(){
-        shooter.atSpeed(topSpeed, botSpeed);
+        shooter.atSpeed(3000, 3000);
         if(Robot.driver.getRawAxis(3)>.2)
         indexer.set(IntakeConstants.INDEX_SPEED*.85);
            // index();\

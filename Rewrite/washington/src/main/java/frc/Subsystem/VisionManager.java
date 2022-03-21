@@ -24,7 +24,8 @@ public class VisionManager extends AbstractSubsystem{
     VisionState visionState =VisionState.ON;
     double yaw; 
     boolean TargetFound;
- 
+    
+    double lastKnownDistance = 0;
     public VisionManager(){
         super(20);
         tableLime = NetworkTableInstance.getDefault().getTable("limelight");
@@ -72,9 +73,15 @@ public class VisionManager extends AbstractSubsystem{
 
     public synchronized double getDistanceToTarget(){
         double TargetPitch = tableLime.getEntry("ty").getDouble(0);
+        if(hasVisionTarget()&&TargetPitch!=0){
 
-        double distance = Units.metersToInches(Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
-        return Units.inchesToMeters(distance);
+            double distance = Units.metersToInches(Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
+            lastKnownDistance = distance;
+            return Units.inchesToMeters(distance);
+        }
+        else 
+            return lastKnownDistance;
+ 
     }
 
     public synchronized double getCargoDistance(){
