@@ -8,6 +8,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -37,6 +38,7 @@ public class Drive extends AbstractSubsystem{
 
     private static DriveState driveState = DriveState.ROBOT_ORIENTED;
     private static final Drive driveInstance = new Drive();
+    
 
     private Module frontLeft = new Module(1,2,3,0);
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
@@ -51,8 +53,8 @@ public class Drive extends AbstractSubsystem{
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
-    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
-    ProfiledPIDController rotController = new ProfiledPIDController(1.5, 0, DriveConstants.TURN_kD,visionRotProfile);
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,2*Math.PI);
+    ProfiledPIDController rotController = new ProfiledPIDController(.25, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
     PIDController yController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
@@ -67,6 +69,8 @@ public class Drive extends AbstractSubsystem{
         
     private Drive() {
         super(20,20);
+        rotController.enableContinuousInput(-Math.PI, Math.PI);
+        autoController.setTolerance(new Pose2d(.5,.5,Rotation2d.fromDegrees(10)));
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
         visionRotController.setTolerance(Units.degreesToRadians(3));
     }
@@ -192,7 +196,7 @@ public class Drive extends AbstractSubsystem{
             driveFromChassis(desiredSpeeds);
 
 
-            if(autoController.atReference()||getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+            if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);
             }
 

@@ -63,6 +63,8 @@ public class Intake extends AbstractSubsystem {
 
     ShotGenerator shotGen = new ShotGenerator();
 
+    boolean interpolatedShot = false;
+
     private Intake(){
         super(40);
         intake.setInverted(false);
@@ -109,8 +111,10 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                shoot();
-                //autoShot();
+            //if(interpolatedShot)
+                autoShot();
+            //else
+              //  shoot();
                 break;
         }
     }
@@ -136,7 +140,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void runBoth(){
-        shooter.atSpeed(-750, -750);
+        shooter.atSpeed(-250, -250);
         intake();
         index();
     }
@@ -148,17 +152,21 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void shoot(){
-        if(shooter.atSpeed(topSpeed, botSpeed))
-            index();
+        shooter.atSpeed(topSpeed, botSpeed);
+        if(Robot.driver.getRawAxis(3)>.2)
+        indexer.set(IntakeConstants.INDEX_SPEED*.85);
+           // index();\
         SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
 
     }
 
     public synchronized void autoShot(){
-        ShooterSpeed shooterSpeeds = shotGen.getShot(lidar.getDistance());
+        ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
         if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED/2);
+        indexer.set(IntakeConstants.INDEX_SPEED*.85);
+        SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
+        SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
     }
 
      public synchronized void toggleIntake(boolean down){
@@ -180,6 +188,11 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void setShooterRatio(){
         ratio = SmartDashboard.getNumber("shooter ratio", 1);
+    }
+
+    public synchronized void toggleInterpolatedMode(){
+        interpolatedShot=!interpolatedShot;
+        SmartDashboard.putBoolean("interpolating", interpolatedShot);
     }
 
     public synchronized void calibratePassiveColor(){

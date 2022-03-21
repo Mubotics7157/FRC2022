@@ -36,6 +36,7 @@ import frc.util.OrangeUtility;
 
 public class Robot extends TimedRobot {
 
+    Joystick pController = new Joystick(2);
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
     //GUI
@@ -104,8 +105,11 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        SmartDashboard.putNumber("top wheel setpoint", 1000);
+        SmartDashboard.putNumber("shooter ratio", 1);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
+       
         }
 
         autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
@@ -144,6 +148,7 @@ public class Robot extends TimedRobot {
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
             });
         }
+
     }
 
     @Override
@@ -195,6 +200,8 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
+
+
     }
 
     /**
@@ -228,6 +235,10 @@ public class Robot extends TimedRobot {
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
+
+    if(operator.getRawButtonPressed(4))
+        Intake.getInstance().toggleInterpolatedMode();
+    
     }
 
     /**
@@ -266,7 +277,7 @@ public class Robot extends TimedRobot {
         drive.start();
         intake.start();
         vision.start();
-        climb.start();
+        //climb.start();
 
     }
 
