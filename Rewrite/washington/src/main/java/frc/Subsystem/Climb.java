@@ -26,26 +26,27 @@ public class Climb extends AbstractSubsystem {
 
         midClimb.configForwardSoftLimitEnable(true);
         midClimb.configReverseSoftLimitEnable(true);
-        midClimb.configReverseSoftLimitThreshold(-754059);
-        midClimb.configForwardSoftLimitThreshold(1);
+        midClimb.configReverseSoftLimitThreshold(-865466);
+        midClimb.configForwardSoftLimitThreshold(5000);
 
-        midClimb.config_kP(0, 1);
+        midClimb.config_kP(0, .5);
         midClimb.config_kD(0, .3);
 
         highClimb.configForwardSoftLimitEnable(true);
         highClimb.configReverseSoftLimitEnable(true);
-        highClimb.configReverseSoftLimitThreshold(-1462315);
-        highClimb.configForwardSoftLimitThreshold(1);
+        highClimb.configReverseSoftLimitThreshold(-1468417);//-1302192
+        highClimb.configForwardSoftLimitThreshold(5000);
         highClimb.config_kP(0, .5);
         highClimb.config_kD(0, .05);
     }
-
     public static Climb getInstance(){
         return instance;
     }
 
     public enum ClimbState{
         MANUAL,
+        OFF,
+        JOG,
         ROUTINE,
         DONE
     }
@@ -60,14 +61,20 @@ public class Climb extends AbstractSubsystem {
         }
 
         switch(snapClimbState){
+            case OFF:
+                setMotors(0, 0);
+                break;
             case MANUAL:
+                setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
+            break;
+            case JOG:
                 setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
             break;
             case ROUTINE:
                 updateSubRoutine();
                 break;
             case DONE:
-                setMotors(0, 0);
+                setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
                 break;
         }
     }
@@ -109,10 +116,16 @@ public class Climb extends AbstractSubsystem {
     }
 
     public synchronized void setManual(){
-        midClimb.configFactoryDefault();
-        highClimb.configFactoryDefault();
+       // midClimb.configFactoryDefault();
+        //highClimb.configFactoryDefault();
         climbState = ClimbState.MANUAL;
 
+    }
+
+    public synchronized void setJog(){
+        midClimb.configFactoryDefault();
+        highClimb.configFactoryDefault();
+        climbState = ClimbState.JOG;
     }
     public ClimbState getClimbState(){
         return climbState;
