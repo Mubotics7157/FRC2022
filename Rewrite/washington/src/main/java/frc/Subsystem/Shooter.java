@@ -3,6 +3,7 @@ package frc.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.FilterConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
@@ -19,14 +20,12 @@ public class Shooter {
         TalonFXConfiguration topConfig = new TalonFXConfiguration();
         topConfig.voltageCompSaturation = 10;
         topConfig.slot0.kP = .3;
-        //topConfig.slot0.kD = .04;
         topConfig.slot0.kF = .0575;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
         botConfig.voltageCompSaturation = 10;
         botConfig.slot0.kP =.3; //.2
         botConfig.slot0.kF =.0575;
-        //topConfig.slot0.kD = .05;
         flywheelBot.configAllSettings(botConfig);
         flywheelBot.setNeutralMode(NeutralMode.Coast);
         flywheelTop.setNeutralMode(NeutralMode.Coast);
@@ -37,8 +36,10 @@ public class Shooter {
         flywheelBot.configVoltageCompSaturation(10);
         flywheelTop.configVoltageCompSaturation(10);
 
+        flywheelTop.configVelocityMeasurementWindow(1, 1);
+        flywheelBot.configVelocityMeasurementWindow(1, 1);
     }
-
+    
     public boolean atSpeed(double topSetpoint, double botSetpoint){
         rev(topSetpoint, botSetpoint);
         SmartDashboard.putNumber("top setpoint", topSetpoint);

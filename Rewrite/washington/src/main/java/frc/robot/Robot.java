@@ -128,7 +128,9 @@ public class Robot extends TimedRobot {
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
         routine.addCommands(new ClimbCommand(-750000,-1200000),new ClimbCommand(-12000,-1200000), new ClimbCommand(-12000,-1455000),new ClimbCommand(-197631,-1440000),new ClimbCommand(-679460,-1078343), new ClimbCommand(-197631,-1078343));
+
     }
+    
     @Override
     public void robotPeriodic() {
         if (isEnabled()) {
@@ -221,8 +223,10 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.RUN_ALL);
     else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
-    else if(driver.getAButton())
+    else if(operator.getRawButton(4))
       intake.setIntakeState(IntakeState.SHOOTING);
+    else if(driver.getAButton())
+        drive.setDriveState(DriveState.BAGLE);
     else
       intake.setOff();
     
@@ -258,7 +262,6 @@ public class Robot extends TimedRobot {
 
     if(operator.getRawButtonPressed(2))
         climb.setClimbState(ClimbState.MANUAL);
-
 }
 
 
@@ -302,7 +305,7 @@ public class Robot extends TimedRobot {
         drive.start();
         intake.start();
         vision.start();
-        //climb.start();
+        climb.start();
 
     }
 

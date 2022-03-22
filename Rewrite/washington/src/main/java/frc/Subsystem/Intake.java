@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
@@ -21,6 +22,8 @@ import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
 import frc.util.LidarLite;
 import frc.util.ShotGenerator;
+import frc.util.Shooting.InterpolatingDouble;
+import frc.util.Shooting.InterpolatingTreeMap;
 import frc.util.ShotGenerator.ShooterSpeed;
 
 public class Intake extends AbstractSubsystem {
@@ -32,7 +35,8 @@ public class Intake extends AbstractSubsystem {
         INTAKE,
         RUN_ALL,
         SHOOTING,
-        INDEX_REVERSE
+        INDEX_REVERSE,
+        AUTO_SHOT
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -63,7 +67,6 @@ public class Intake extends AbstractSubsystem {
 
     ShotGenerator shotGen = new ShotGenerator();
 
-    boolean interpolatedShot = false;
 
     private Intake(){
         super(40);
@@ -92,8 +95,6 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
-                //if(DriverStation.isTeleop())
-                //autoIntake();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -111,11 +112,11 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-            //if(interpolatedShot)
-                //autoShot();
-                //shooter.atSpeed(3000, 3000);
-            //else
-            autoShot();
+                shoot();
+                break;
+            case AUTO_SHOT:
+                autoShot();
+                //mapShot();
                 break;
         }
     }
@@ -153,27 +154,52 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void shoot(){
-        shooter.atSpeed(3000, 3000);
-        if(Robot.driver.getRawAxis(3)>.2)
-        indexer.set(IntakeConstants.INDEX_SPEED*.85);
+       if( shooter.atSpeed(topSpeed, botSpeed))
+        index();
+
+        //if(Robot.driver.getRawAxis(3)>.2)
+        //indexer.set(IntakeConstants.INDEX_SPEED*.85);
            // index();\
         SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
 
     }
 
     public synchronized void autoShot(){
+        double indexSpeed=.9;
+        if(VisionManager.getInstance().getDistanceToTarget()<3)
+            indexSpeed = .85;
         ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
         if(Robot.driver.getRawAxis(3)>.2)
-        indexer.set(IntakeConstants.INDEX_SPEED*.85);
+        indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
         SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+    }
+
+    public synchronized void mapShot(){
+        double wheelSpeed = IntakeConstants.FLYWHEEL_RPM_MAP.getInterpolated(new InterpolatingDouble(VisionManager.getInstance().getDistanceToTarget())).value;
+        double wheelRatio = IntakeConstants.FLYWHEEL_RATIO_MAP.getInterpolated(new InterpolatingDouble(VisionManager.getInstance().getDistanceToTarget())).value;
+
+        shooter.atSpeed(wheelSpeed, wheelSpeed*wheelRatio);
+
+        SmartDashboard.putNumber("interpolated top", wheelSpeed);
+        SmartDashboard.putNumber("interpolated bot", wheelRatio);
+
+         if(Robot.driver.getRawAxis(3)>.2)
+        indexer.set(IntakeConstants.INDEX_SPEED*.8);
     }
 
      public synchronized void toggleIntake(boolean down){
         if(!down)
             stopMotors();
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
+    }
+
+    public synchronized void toggleIntake(){
+        if(intakeSolenoid.get()==Value.kForward)
+            intakeSolenoid.set(Value.kReverse);
+        else if(intakeSolenoid.get()==Value.kReverse)
+            intakeSolenoid.set(Value.kForward);
     }
 
     public synchronized void setShooterSpeeds(double top, double bot){
@@ -191,10 +217,6 @@ public class Intake extends AbstractSubsystem {
         ratio = SmartDashboard.getNumber("shooter ratio", 1);
     }
 
-    public synchronized void toggleInterpolatedMode(){
-        interpolatedShot=!interpolatedShot;
-        SmartDashboard.putBoolean("interpolating", interpolatedShot);
-    }
 
     public synchronized void calibratePassiveColor(){
         Color sensedColor = colorSensor.getColor();

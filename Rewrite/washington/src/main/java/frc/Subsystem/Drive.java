@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -47,14 +46,13 @@ public class Drive extends AbstractSubsystem{
 
     AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-    private Translation2d centerOfRotation = new Translation2d();
 
 
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
-    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,2*Math.PI);
-    ProfiledPIDController rotController = new ProfiledPIDController(.25, 0, DriveConstants.TURN_kD,visionRotProfile);
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
+    ProfiledPIDController rotController = new ProfiledPIDController(.125, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
     PIDController yController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
@@ -70,7 +68,7 @@ public class Drive extends AbstractSubsystem{
     private Drive() {
         super(20,20);
         rotController.enableContinuousInput(-Math.PI, Math.PI);
-        autoController.setTolerance(new Pose2d(.5,.5,Rotation2d.fromDegrees(10)));
+       // autoController.setTolerance(new Pose2d(.125,.5,Rotation2d.fromDegrees(10)));
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
         visionRotController.setTolerance(Units.degreesToRadians(3));
     }
@@ -158,8 +156,9 @@ public class Drive extends AbstractSubsystem{
            if(visionRotController.atGoal())
             setDriveState(DriveState.FIELD_ORIENTED);
         }
-        else
-            setDriveState(DriveState.FIELD_ORIENTED);
+        else{
+           setDriveState(DriveState.FIELD_ORIENTED);
+        }
     }
 
     private void updateBagle(){
@@ -170,9 +169,14 @@ public class Drive extends AbstractSubsystem{
             error = 0;
         double deltaSpeed = visionRotController.calculate(error);
         updateManual(true,deltaSpeed);
-           if(visionRotController.atGoal())
-                Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
+           if(visionRotController.atGoal()){
+                Intake.getInstance().setIntakeState(IntakeState.AUTO_SHOT);
+                setDriveState(DriveState.FIELD_ORIENTED);
+
+           }
         }
+        else
+            setDriveState(DriveState.FIELD_ORIENTED);
     }
 
     private void driveFromChassis(ChassisSpeeds speeds){
@@ -196,7 +200,7 @@ public class Drive extends AbstractSubsystem{
             driveFromChassis(desiredSpeeds);
 
 
-            if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+            if(autoController.atReference()||getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);
             }
 
@@ -246,9 +250,6 @@ public class Drive extends AbstractSubsystem{
         return states;
     }
 
-    public synchronized void setCenterOfRotation(Translation2d center){
-        centerOfRotation = center;
-    }
 
     public synchronized Rotation2d getDriveHeading(){
         return Rotation2d.fromDegrees(-gyro.getAngle());

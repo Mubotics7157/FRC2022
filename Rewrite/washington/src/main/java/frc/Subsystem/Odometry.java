@@ -12,7 +12,6 @@ public class Odometry extends AbstractSubsystem{
     SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.DRIVE_KINEMATICS, Drive.getInstance().getDriveHeading());
     
     private static Odometry instance = new Odometry();
-    double p;
 
     private Odometry(){
         super(20,20);
@@ -39,9 +38,6 @@ public class Odometry extends AbstractSubsystem{
         odometry.resetPosition(new Pose2d(odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0));
     }
 
-    public synchronized void setP(double pAdjust){
-        p += pAdjust;
-    }
 
     @Override
     public void logData() {

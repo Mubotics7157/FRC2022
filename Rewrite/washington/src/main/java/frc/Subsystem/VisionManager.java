@@ -74,9 +74,9 @@ public class VisionManager extends AbstractSubsystem{
     public synchronized double getDistanceToTarget(){
         double TargetPitch = tableLime.getEntry("ty").getDouble(0);
         if(hasVisionTarget()&&TargetPitch!=0){
-
             double distance = Units.metersToInches(Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
-            lastKnownDistance = distance;
+            if(distance<5)
+                lastKnownDistance = distance;
             return Units.inchesToMeters(distance);
         }
         else 
