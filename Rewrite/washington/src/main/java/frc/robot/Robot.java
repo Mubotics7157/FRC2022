@@ -26,6 +26,7 @@ import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.VisionManager;
+import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.TemplateAuto;
@@ -33,6 +34,8 @@ import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
+import frc.util.ClimbRoutine.ClimbCommand;
+import frc.util.ClimbRoutine.ClimbRoutine;
 
 public class Robot extends TimedRobot {
 
@@ -71,8 +74,6 @@ public class Robot extends TimedRobot {
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
-    //Inputs
-
 
     //Control loop states
     boolean limelightTakeSnapshots;
@@ -99,6 +100,9 @@ public class Robot extends TimedRobot {
                     }
             ));
 
+    ClimbRoutine routine = new ClimbRoutine();
+
+    Thread climbRoutine;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -123,6 +127,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
+        routine.addCommands(new ClimbCommand(-750000,-1200000),new ClimbCommand(-12000,-1200000), new ClimbCommand(-12000,-1455000),new ClimbCommand(-197631,-1440000),new ClimbCommand(-679460,-1078343), new ClimbCommand(-197631,-1078343));
     }
     @Override
     public void robotPeriodic() {
@@ -236,10 +241,26 @@ public class Robot extends TimedRobot {
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
-    if(operator.getRawButtonPressed(4))
-        Intake.getInstance().toggleInterpolatedMode();
-    
+    if(operator.getRawButtonPressed(1)){
+        if(climbRoutine==null){
+            climbRoutine = new Thread(routine);
+            climbRoutine.start();
+        }
+        else
+            climbRoutine.resume();  
+        //climbRoutine.start();
     }
+     else if(operator.getRawButtonReleased(1)){
+         if(climbRoutine!=null)
+            climbRoutine.suspend();
+        //
+    }
+
+    if(operator.getRawButtonPressed(2))
+        climb.setClimbState(ClimbState.MANUAL);
+
+}
+
 
     /**
      * This function is called once when the robot is disabled.
@@ -248,7 +269,10 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-    }
+        if(climbRoutine!=null)
+            climbRoutine.interrupt();
+       // climbRoutine = null;  
+     }
 
     /**
      * This function is called periodically when disabled.
@@ -263,6 +287,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         startSubsystems();
+        Climb.getInstance().setManual();
     }
 
     /**
