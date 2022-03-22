@@ -161,6 +161,8 @@ public class Intake extends AbstractSubsystem {
         //indexer.set(IntakeConstants.INDEX_SPEED*.85);
            // index();\
         SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
+        if(Robot.driver.getRawAxis(3)>.2)
+            indexer.set(IntakeConstants.INDEX_SPEED/2);
 
     }
 
