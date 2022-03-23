@@ -57,7 +57,7 @@ public class LED {
   }
   public void setORANGE(){
     for(var b0b = 0; b0b< ledBuffer.getLength(); b0b++)
-    ledBuffer.setRGB(b0b, 255, 30, 0);
+    ledBuffer.setRGB(b0b, 255, 40, 0);
 
     led.setData(ledBuffer);
 }

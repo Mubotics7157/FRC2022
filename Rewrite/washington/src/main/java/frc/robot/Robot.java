@@ -31,6 +31,8 @@ import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.TemplateAuto;
+import frc.auton.ThreeBall;
+import frc.auton.TwoBall;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
@@ -40,7 +42,6 @@ import frc.util.ClimbRoutine.ClimbRoutine;
 
 public class Robot extends TimedRobot {
 
-    Joystick pController = new Joystick(2);
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
     //GUI
@@ -62,8 +63,8 @@ public class Robot extends TimedRobot {
     //Auto
     TemplateAuto selectedAuto;
     Thread autoThread;
-    private static final String DEFAULT_AUTO = "Default";
-    private static final String CUSTOM_AUTO = "My Auto";
+    private static final String DEFAULT_AUTO = "two";
+    private static final String THREE_AUTO = "three";
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     //Subsystems
@@ -120,7 +121,7 @@ public class Robot extends TimedRobot {
         autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
         autoChooser.setDefaultOption("Default Auto", DEFAULT_AUTO);
-        autoChooser.addOption("My Auto", CUSTOM_AUTO);
+        autoChooser.addOption("Three Ball", THREE_AUTO);
         SmartDashboard.putData("Auto choices", autoChooser);
 
 
@@ -169,7 +170,12 @@ public class Robot extends TimedRobot {
                 System.out.println("Using normal autos");
                 String auto = autoChooser.getSelected();
                 switch (auto) {
-                    //Put all your autos here
+                    case DEFAULT_AUTO:
+                        selectedAuto = new TwoBall();
+                        break;
+                    case THREE_AUTO:
+                        selectedAuto = new ThreeBall();
+                        break;
                 }
             } else {
                 System.out.println("Using autos from network tables");
