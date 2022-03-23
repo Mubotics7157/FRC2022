@@ -1,20 +1,29 @@
 package frc.Subsystem;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Intake.IntakeState;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.util.AbstractSubsystem;
 
 public class Drive extends AbstractSubsystem{
@@ -30,23 +39,43 @@ public class Drive extends AbstractSubsystem{
 
     private static DriveState driveState = DriveState.ROBOT_ORIENTED;
     private static final Drive driveInstance = new Drive();
-    private static LED ledclass = new LED();
+    
 
     private Module frontLeft = new Module(1,2,3,0);
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
     private Module rearRight = DriveConstants.REAR_RIGHT_MODULE;
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;
 
-    AHRS gyro = new AHRS(SPI.Port.kMXP);
+    //AHRS gyro = new AHRS(SPI.Port.kMXP);
+    WPI_Pigeon2 gyro =new WPI_Pigeon2(30, ModuleConstants.SWERVE_CANIVORE_ID);
 
-    private Translation2d centerOfRotation = new Translation2d();
+    LED led = LED.getInstance();
 
 
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
+
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
+    ProfiledPIDController rotController = new ProfiledPIDController(-4, 0, 0,rotProfile);
+
+    PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
+    PIDController yController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
+
+    HolonomicDriveController autoController; 
+
+    final Lock currentAutoTrajectoryLock = new ReentrantLock();
+    Trajectory currTrajectory;
+    private volatile Rotation2d desiredAutoHeading;
+    private double autoStartTime;
+
         
     private Drive() {
         super(20,20);
+        rotController.enableContinuousInput(-Math.PI, Math.PI);
+        //rotController.enableContinuousInput(-180, 180);
+        autoController = new HolonomicDriveController(xController, yController, rotController); 
+        led.setORANGE();
+        autoController.setTolerance(new Pose2d(.5,.5,Rotation2d.fromDegrees(10)));
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
         visionRotController.setTolerance(Units.degreesToRadians(3));
     }
@@ -75,8 +104,10 @@ public class Drive extends AbstractSubsystem{
                 updateBagle();
                 break;
             case AUTO:
+                updateAuto();
                 break;
             case DONE:
+                stopMotors();
                 break;
         }
     }
@@ -101,6 +132,7 @@ public class Drive extends AbstractSubsystem{
             driveFromChassis(new ChassisSpeeds (fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
             str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
             rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY));
+
     }
 
     private void updateManual(boolean fieldOriented, double rotModifier){
@@ -116,7 +148,7 @@ public class Drive extends AbstractSubsystem{
             driveFromChassis(ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
             str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
             rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY,
-            getDriveHeading()));
+            Odometry.getInstance().getOdometry().getRotation()));
     }
 
     private void updateAlign(){
@@ -124,15 +156,6 @@ public class Drive extends AbstractSubsystem{
         Rotation2d onTarget = new Rotation2d(0);
         double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
 
-        if(Math.abs(VisionManager.targetCam.getLatestResult().getBestTarget().getYaw()) < 2){
-            ledclass.setGREEN();
-        //^^^if on align mode and the target is within 2 degrees of the crosshair led will be green
-        }
-        else if(Math.abs(VisionManager.targetCam.getLatestResult().getBestTarget().getYaw()) > 2){
-            ledclass.setRED();
-            //hehe
-        //^^^if on align mode and the target is not within 2 degrees of the crosshair led will be red
-            }
 
         if(Math.abs(error)<Units.degreesToRadians(3))
             error = 0;
@@ -144,6 +167,9 @@ public class Drive extends AbstractSubsystem{
             setDriveState(DriveState.FIELD_ORIENTED);
             
         }
+        else{
+           setDriveState(DriveState.FIELD_ORIENTED);
+        }
     }
 
     private void updateBagle(){
@@ -154,8 +180,18 @@ public class Drive extends AbstractSubsystem{
             error = 0;
         double deltaSpeed = visionRotController.calculate(error);
         updateManual(true,deltaSpeed);
-           if(visionRotController.atGoal())
-                Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
+           if(visionRotController.atGoal()){
+                Intake.getInstance().setIntakeState(IntakeState.AUTO_SHOT);
+                setDriveState(DriveState.FIELD_ORIENTED);
+                led.setGREEN();
+
+           }
+           else
+            led.setRED();
+        }
+        else{
+            led.setORANGE();
+            setDriveState(DriveState.FIELD_ORIENTED);
         }
     }
 
@@ -163,8 +199,58 @@ public class Drive extends AbstractSubsystem{
         var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(getModuleStates(), DriveConstants.MAX_TANGENTIAL_VELOCITY);
         setModuleStates(states);
+    }
+
+    private void updateAuto(){
+        currentAutoTrajectoryLock.lock();
+
+        try{
+            Trajectory.State goal = currTrajectory.sample(getAutoTime());
+            Rotation2d target = desiredAutoHeading;
+            SmartDashboard.putNumber("desired rotation", target.getDegrees());
+            SmartDashboard.putNumber("heading error",Math.abs(target.rotateBy(Odometry.getInstance().getOdometry().getRotation()).getDegrees()));
+            SmartDashboard.putNumber("time elapsed", getAutoTime());
+
+            ChassisSpeeds desiredSpeeds = autoController.calculate(Odometry.getInstance().getOdometry(), goal, target);
+
+            driveFromChassis(desiredSpeeds);
 
 
+            if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+                setDriveState(DriveState.DONE);
+            }
+
+        }
+
+        finally{
+            currentAutoTrajectoryLock.unlock();
+        }
+    }
+
+    public synchronized void setAutoPath(Trajectory trajectory){
+        currentAutoTrajectoryLock.lock();
+        try{
+            rotController.reset(Odometry.getInstance().getOdometry().getRotation().getRadians());
+            setDriveState(DriveState.AUTO);
+            this.currTrajectory = trajectory;
+            autoStartTime = Timer.getFPGATimestamp();
+        }
+
+        finally{
+            currentAutoTrajectoryLock.unlock();
+        }
+    }
+
+    public synchronized void setAutoRotation(Rotation2d heading){
+        desiredAutoHeading = heading;
+    }
+
+    public synchronized double getAutoTime(){
+        return Timer.getFPGATimestamp()-autoStartTime;
+    }
+
+    public synchronized void stopMotors(){
+        driveFromChassis(new ChassisSpeeds(0, 0, 0));
     }
 
     private void setModuleStates(SwerveModuleState[] states){
@@ -172,6 +258,7 @@ public class Drive extends AbstractSubsystem{
         frontRight.setState(states[1]);
         rearLeft.setState(states[2]);
         rearRight.setState(states[3]);
+
     }
 
     public synchronized SwerveModuleState[] getModuleStates(){
@@ -179,12 +266,10 @@ public class Drive extends AbstractSubsystem{
         return states;
     }
 
-    public synchronized void setCenterOfRotation(Translation2d center){
-        centerOfRotation = center;
-    }
 
     public synchronized Rotation2d getDriveHeading(){
-        return Rotation2d.fromDegrees(-gyro.getAngle());
+        return gyro.getRotation2d();
+        //return Rotation2d.fromDegrees(-gyro.getAngle());
     }
 
     public synchronized void calibrateGyro(){
@@ -193,11 +278,15 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized void resetHeading(){
         gyro.reset();
-        Odometry.getInstance().resetHeading();
+        //Odometry.getInstance().resetHeading();
     }
 
     public synchronized double getDriveRoll(){
         return gyro.getRoll();
+    }
+
+    public synchronized boolean isFinished(){
+        return getDriveState()==DriveState.DONE || getDriveState() == DriveState.FIELD_ORIENTED;
     }
     
     public synchronized void setDriveState(DriveState state){
@@ -206,6 +295,14 @@ public class Drive extends AbstractSubsystem{
 
     private DriveState getDriveState(){
         return driveState;
+    }
+
+    public synchronized void setTeleop(){
+        driveState = DriveState.FIELD_ORIENTED;
+    }
+
+    public synchronized void setVisionAlign(){
+        driveState = DriveState.VISION;
     }
 
     @Override
@@ -221,6 +318,8 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putNumber("left rear", rearLeft.getState().angle.getDegrees());
         SmartDashboard.putNumber("right rear", rearRight.getState().angle.getDegrees());
         SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
+
+        SmartDashboard.putNumber("drive pitch", gyro.getPitch());
 
     }
 

@@ -7,6 +7,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.Subsystem.Module;
+import frc.util.Shooting.InterpolatingDouble;
+import frc.util.Shooting.InterpolatingTreeMap;
 
 public interface Constants {
     
@@ -51,8 +53,11 @@ public interface Constants {
 
         public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(FRONT_LEFT_MODULE_POSITION,REAR_LEFT_MODULE_POSITION,FRONT_RIGHT_MODULE_POSITION,REAR_RIGHT_MODULE_POSITION);
 
-        public static final double TURN_kP = 3;
+        public static final double TURN_kP = 3/2;
         public static final double TURN_kD = .015;
+
+        public static final double AUTO_CONTROLLER_kP = 2;
+
     }     
 
     public static final class ModuleConstants{
@@ -79,7 +84,7 @@ public interface Constants {
         public static final String VISION_CAM_NAME = "gloworm";
 
         public static final double CAM_HEIGHT_METERS = Units.inchesToMeters(30);
-        public static final double CAM_MOUNTING_PITCH_RADIANS = Units.degreesToRadians(63);
+        public static final double CAM_MOUNTING_PITCH_RADIANS = Units.degreesToRadians(22.28);
 
         public static final double TARGET_HEIGHT_METERS = 2.64;
     }
@@ -103,11 +108,44 @@ public interface Constants {
         public static final Color BLUE = new Color(0.2294921875,0.46484375,0.30615234375);
         public static final Color OTHER_BLUE = new Color(0.24072265625,0.474609375,0.284912109375);
         public static final Color OTHER_RED = new Color(0.243408203125,0.4736328125,0.283447265625);
+
+
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> FLYWHEEL_RPM_MAP = new InterpolatingTreeMap<>();
+        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> FLYWHEEL_RATIO_MAP = new InterpolatingTreeMap<>();
+
+           public static double[][] RPM_MAP = {
+               {2.05d,1250d},
+               {2.30d,1300d},
+               {2.76d,2000d},
+               {3.35d,2350d},
+               {3.587d,2650d},
+               {3.691d,2500d},
+               {3.8511d,4000d},
+    };
+
+           public static double[][] RATIO_MAP = {
+               {2.05d,1.2d},
+               {2.30d,1.08d},
+               {2.76d,.65d},
+               {3.35d,.5d},
+               {3.587d,.4d},
+               {3.691d,.35d},
+               {3.8511d,.175d},
+    };
+
+        static{
+            for(double[] pair :RPM_MAP){
+                FLYWHEEL_RPM_MAP.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
+            }
+            for(double[] pair :RATIO_MAP){
+                FLYWHEEL_RATIO_MAP.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
+            }
+        }
     }
     public static final class ShooterConstants{
         public static final int DEVICE_ID_TOP_WHEEL = 19;
         public static final int DEVICE_ID_BOT_WHEEL = 20;
 
-        public static final double TOLERANCE_RPM = 35;
+        public static final double TOLERANCE_RPM = 25;
     }
 }

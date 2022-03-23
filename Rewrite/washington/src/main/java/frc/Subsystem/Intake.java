@@ -2,6 +2,7 @@ package frc.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
@@ -10,15 +11,20 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
 import frc.util.LidarLite;
+import frc.util.OrangeUtility;
 import frc.util.ShotGenerator;
+import frc.util.Shooting.InterpolatingDouble;
+import frc.util.Shooting.InterpolatingTreeMap;
 import frc.util.ShotGenerator.ShooterSpeed;
 
 public class Intake extends AbstractSubsystem {
@@ -30,11 +36,12 @@ public class Intake extends AbstractSubsystem {
         INTAKE,
         RUN_ALL,
         SHOOTING,
-        INDEX_REVERSE
+        INDEX_REVERSE,
+        AUTO_SHOT
     }
 
     IntakeState intakeState = IntakeState.OFF;
-    TalonSRX intake = new TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+    WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
 
@@ -52,7 +59,7 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350/1.08;
     double ratio = 1.08;
 
-    LED led = new LED();
+
 
     Color PassiveColor;
 
@@ -60,12 +67,12 @@ public class Intake extends AbstractSubsystem {
 
     ShotGenerator shotGen = new ShotGenerator();
 
+
     private Intake(){
         super(40);
         intake.setInverted(false);
         indexer.setInverted(false);
 
-        led.setORANGE();
 
         colorMatcher.addColorMatch(IntakeConstants.BLUE);
         colorMatcher.addColorMatch(IntakeConstants.OTHER_BLUE);
@@ -87,7 +94,6 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
-                autoIntake();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -105,22 +111,25 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                //shoot();
+                shoot();
+                break;
+            case AUTO_SHOT:
                 autoShot();
+                //mapShot();
                 break;
         }
     }
 
-    private void intake(){
-        intake.set(ControlMode.PercentOutput,IntakeConstants.INDEX_SPEED);
+    public synchronized void intake(){
+        intake.set(IntakeConstants.INDEX_SPEED);
     }
     private void reverseIntake(){
-        intake.set(ControlMode.PercentOutput,-IntakeConstants.INDEX_SPEED);
+        intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
-        indexer.set(IntakeConstants.INDEX_SPEED);
+        indexer.set(.9);
     }
-    private void reverseIndexer(){
+    public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
@@ -131,29 +140,57 @@ public class Intake extends AbstractSubsystem {
             stopMotors();
     }
 
-    private void runBoth(){
+    public synchronized void runBoth(){
         shooter.atSpeed(-250, -250);
         intake();
         index();
     }
 
-    private void stopMotors(){
+    public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
-        intake.set(ControlMode.PercentOutput,0);
+        intake.set(0);
         indexer.set(0);
     }
 
-    private void shoot(){
-        shooter.atSpeed(topSpeed, botSpeed);
+    public synchronized void shoot(){
+       shooter.atSpeed(topSpeed, botSpeed);
+        //index();
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
+            index();
+
+
+        //if(Robot.driver.getRawAxis(3)>.2)
+        //indexer.set(IntakeConstants.INDEX_SPEED*.85);
+           // index();\
+        SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
         if(Robot.driver.getRawAxis(3)>.2)
             indexer.set(IntakeConstants.INDEX_SPEED/2);
+
     }
 
-    private void autoShot(){
-        ShooterSpeed shooterSpeeds = shotGen.getShot(lidar.getDistance());
+    public synchronized void autoShot(){
+        double indexSpeed=.9;
+        if(VisionManager.getInstance().getDistanceToTarget()<3)
+            indexSpeed = .85;
+        ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
         if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED/2);
+        indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
+        SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
+        SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+    }
+
+    public synchronized void mapShot(){
+        double wheelSpeed = IntakeConstants.FLYWHEEL_RPM_MAP.getInterpolated(new InterpolatingDouble(VisionManager.getInstance().getDistanceToTarget())).value;
+        double wheelRatio = IntakeConstants.FLYWHEEL_RATIO_MAP.getInterpolated(new InterpolatingDouble(VisionManager.getInstance().getDistanceToTarget())).value;
+
+        shooter.atSpeed(wheelSpeed, wheelSpeed*wheelRatio);
+
+        SmartDashboard.putNumber("interpolated top", wheelSpeed);
+        SmartDashboard.putNumber("interpolated bot", wheelRatio);
+
+         if(Robot.driver.getRawAxis(3)>.2)
+        indexer.set(IntakeConstants.INDEX_SPEED*.8);
     }
 
      public synchronized void toggleIntake(boolean down){
@@ -162,10 +199,19 @@ public class Intake extends AbstractSubsystem {
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
+    public synchronized void toggleIntake(){
+        if(intakeSolenoid.get()==Value.kForward)
+            intakeSolenoid.set(Value.kReverse);
+        else if(intakeSolenoid.get()==Value.kReverse)
+            intakeSolenoid.set(Value.kForward);
+        OrangeUtility.sleep(500);
+    }
+
     public synchronized void setShooterSpeeds(double top, double bot){
         topSpeed = top;
         botSpeed = bot;
     }
+
 
     public synchronized void setShooterSpeeds(){
         topSpeed = SmartDashboard.getNumber("top wheel setpoint", 1350);
@@ -175,6 +221,7 @@ public class Intake extends AbstractSubsystem {
     public synchronized void setShooterRatio(){
         ratio = SmartDashboard.getNumber("shooter ratio", 1);
     }
+
 
     public synchronized void calibratePassiveColor(){
         Color sensedColor = colorSensor.getColor();
@@ -195,10 +242,23 @@ public class Intake extends AbstractSubsystem {
         intakeState = state;
     }
 
+    public synchronized void setIntakeAndIndexing(){
+        intakeState = IntakeState.RUN_ALL;
+    }
+
     public synchronized void setOff(){
         stopMotors();
         intakeState = IntakeState.OFF;
     }
+
+    public synchronized void setIndexBackwards(){
+        intakeState= IntakeState.INDEX_REVERSE;
+    }
+
+    public synchronized void setShooting(){
+        intakeState= IntakeState.SHOOTING;
+    }
+
     @Override
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 

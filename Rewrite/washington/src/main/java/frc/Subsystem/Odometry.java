@@ -27,7 +27,7 @@ public class Odometry extends AbstractSubsystem{
     }
 
     public synchronized void setOdometry(Pose2d pose){
-        odometry.resetPosition(pose, pose.getRotation());  
+        odometry.resetPosition(pose, Drive.getInstance().getDriveHeading());  
     }
 
     public synchronized Pose2d getOdometry(){
@@ -37,6 +37,7 @@ public class Odometry extends AbstractSubsystem{
     public synchronized void resetHeading(){
         odometry.resetPosition(new Pose2d(odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0));
     }
+
 
     @Override
     public void logData() {
