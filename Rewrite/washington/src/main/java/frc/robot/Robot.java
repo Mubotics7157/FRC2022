@@ -129,8 +129,9 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        //routine.addCommands(new ClimbCommand(-750000,-1200000),new ClimbCommand(-12000,-1411700), new ClimbCommand(-121845,-1411700),new ClimbCommand(-121845,-878319));//),new ClimbCommand(-679460,-1078343), new ClimbCommand(-197631,-1078343));
+        //routine.addCommandn s(new ClimbCommand(-750000,-1200000),new ClimbCommand(-12000,-1411700), new ClimbCommand(-121845,-1411700),new ClimbCommand(-121845,-878319));//),new ClimbCommand(-679460,-1078343), new ClimbCommand(-197631,-1078343));
         routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1395842),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
+        //selectedAuto = new ThreeBall();
     }
     
     @Override

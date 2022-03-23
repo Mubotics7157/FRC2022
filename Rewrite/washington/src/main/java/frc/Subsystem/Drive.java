@@ -316,6 +316,8 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putNumber("right rear", rearRight.getState().angle.getDegrees());
         SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
 
+        SmartDashboard.putNumber("drive pitch", gyro.getPitch());
+
     }
 
 
