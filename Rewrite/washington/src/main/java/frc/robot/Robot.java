@@ -280,7 +280,7 @@ public class Robot extends TimedRobot {
         enabled.setBoolean(false);
         if(climbRoutine!=null)
             climbRoutine.interrupt();
-       // climbRoutine = null;  
+        climbRoutine = null;  
      }
 
     /**
