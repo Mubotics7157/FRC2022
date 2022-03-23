@@ -146,6 +146,6 @@ public interface Constants {
         public static final int DEVICE_ID_TOP_WHEEL = 19;
         public static final int DEVICE_ID_BOT_WHEEL = 20;
 
-        public static final double TOLERANCE_RPM = 45;
+        public static final double TOLERANCE_RPM = 25;
     }
 }

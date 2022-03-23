@@ -21,6 +21,7 @@ import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
 import frc.util.LidarLite;
+import frc.util.OrangeUtility;
 import frc.util.ShotGenerator;
 import frc.util.Shooting.InterpolatingDouble;
 import frc.util.Shooting.InterpolatingTreeMap;
@@ -59,7 +60,6 @@ public class Intake extends AbstractSubsystem {
     double ratio = 1.08;
 
 
-    LED led = new LED();
 
     Color PassiveColor;
 
@@ -73,7 +73,6 @@ public class Intake extends AbstractSubsystem {
         intake.setInverted(false);
         indexer.setInverted(false);
 
-        led.setORANGE();
 
         colorMatcher.addColorMatch(IntakeConstants.BLUE);
         colorMatcher.addColorMatch(IntakeConstants.OTHER_BLUE);
@@ -128,7 +127,7 @@ public class Intake extends AbstractSubsystem {
         intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
-        indexer.set(IntakeConstants.INDEX_SPEED);
+        indexer.set(.9);
     }
     public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
@@ -154,8 +153,11 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void shoot(){
-       if( shooter.atSpeed(topSpeed, botSpeed))
-        index();
+       shooter.atSpeed(topSpeed, botSpeed);
+        //index();
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
+            index();
+
 
         //if(Robot.driver.getRawAxis(3)>.2)
         //indexer.set(IntakeConstants.INDEX_SPEED*.85);
@@ -202,6 +204,7 @@ public class Intake extends AbstractSubsystem {
             intakeSolenoid.set(Value.kReverse);
         else if(intakeSolenoid.get()==Value.kReverse)
             intakeSolenoid.set(Value.kForward);
+        OrangeUtility.sleep(500);
     }
 
     public synchronized void setShooterSpeeds(double top, double bot){

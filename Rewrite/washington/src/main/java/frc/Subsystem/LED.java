@@ -12,15 +12,21 @@ public class LED {
     int red;
     int green;
     int blue;
+
+    private static LED instance = new LED();
     
     public LED(){
-      led = new AddressableLED(0);
+      led = new AddressableLED(1);
       //^^makes the led with the PWM port of 0 
       ledBuffer = new AddressableLEDBuffer(300);
       
         led.setLength(ledBuffer.getLength());
         led.setData(ledBuffer);
         led.start();
+  }
+
+  public static LED getInstance(){
+    return instance;
   }
 
   public void setLED(int red, int green, int blue){

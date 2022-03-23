@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Climb;
 import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
+import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.VisionManager;
 import frc.Subsystem.Climb.ClimbState;
@@ -232,7 +233,7 @@ public class Robot extends TimedRobot {
     
 
     if(driver.getYButton())
-      intake.toggleIntake(true);
+        intake.toggleIntake();
     else if (driver.getBButton())
       intake.toggleIntake(false);
   
