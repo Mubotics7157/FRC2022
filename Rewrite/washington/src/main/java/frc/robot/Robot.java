@@ -217,6 +217,8 @@ public class Robot extends TimedRobot {
     else
       intake.setOff();
     
+    if(driver.getRawButtonPressed(1))
+        LED.getInstance().setORANGE();
 
     if(driver.getYButton())
         intake.toggleIntake();

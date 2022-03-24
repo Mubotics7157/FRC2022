@@ -155,14 +155,8 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void shoot(){
        shooter.atSpeed(topSpeed, botSpeed);
-        //index();
         if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
             index();
-
-
-        //if(Robot.driver.getRawAxis(3)>.2)
-        //indexer.set(IntakeConstants.INDEX_SPEED*.85);
-           // index();\
         SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
         if(Robot.driver.getRawAxis(3)>.2)
             indexer.set(IntakeConstants.INDEX_SPEED/2);

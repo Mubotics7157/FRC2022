@@ -190,7 +190,6 @@ public class Drive extends AbstractSubsystem{
             led.setRED();
         }
         else{
-            led.setORANGE();
             setDriveState(DriveState.FIELD_ORIENTED);
         }
     }
