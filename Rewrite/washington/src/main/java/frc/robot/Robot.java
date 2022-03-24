@@ -34,7 +34,6 @@ import frc.auton.TemplateAuto;
 import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
 import frc.auton.guiauto.NetworkAuto;
-import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
 import frc.util.ClimbRoutine.ClimbCommand;
@@ -63,7 +62,7 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = twoBallAuto;
+    TemplateAuto selectedAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -131,7 +130,8 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1395842),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
+        routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1410000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
+        selectedAuto = threeBallAuto;
     }
     
     @Override
@@ -146,15 +146,15 @@ public class Robot extends TimedRobot {
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
             lastAutoPath = autoPath.getString(null);
             deserializerExecutor.execute(() -> { //Start deserializing on another thread
+                System.out.println("**************************");
                 System.out.println("start parsing autonomous");
-                SmartDashboard.putBoolean("done parsing auto?", false);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(1);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
                 networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
                 // ready to be run
+                System.out.println("**************************");
                 System.out.println("done parsing autonomous");
-                SmartDashboard.putBoolean("done parsing auto?", true);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
@@ -167,7 +167,7 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         enabled.setBoolean(true);
 
-        assert selectedAuto != null;
+        if(selectedAuto!=null)
           selectedAuto.reset();
 
         autoThread = new Thread(selectedAuto);
@@ -194,6 +194,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
+        climb.setClimbState(ClimbState.OFF);
 
 
     }
@@ -210,8 +211,6 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.RUN_ALL);
     else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
-    else if(operator.getRawButton(4))
-      intake.setIntakeState(IntakeState.SHOOTING);
     else if(driver.getAButton())
         drive.setDriveState(DriveState.BAGLE);
     else
@@ -220,16 +219,17 @@ public class Robot extends TimedRobot {
     if(driver.getRawButtonReleased(1))
         LED.getInstance().setORANGE();
 
+    if(operator.getRawButtonPressed(5))
+        Intake.getInstance().toggleDefault();
     if(driver.getYButton())
         intake.toggleIntake();
     else if (driver.getBButton())
       intake.toggleIntake(false);
   
 
-    if(operator.getRawButtonPressed(3)){
-      Intake.getInstance().setShooterSpeeds();
-      Intake.getInstance().setShooterRatio();
-    }
+
+    if(operator.getRawButtonPressed(2))
+        Drive.getInstance().setDriveState(DriveState.FIELD_ORIENTED);
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
