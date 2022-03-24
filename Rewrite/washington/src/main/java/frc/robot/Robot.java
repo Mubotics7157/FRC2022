@@ -61,7 +61,9 @@ public class Robot extends TimedRobot {
     ExecutorService deserializerExecutor = Executors.newSingleThreadExecutor();
 
     //Auto
-    TemplateAuto selectedAuto;
+    TwoBall twoBallAuto = new TwoBall();
+    ThreeBall threeBallAuto = new ThreeBall();
+    TemplateAuto selectedAuto = twoBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -129,9 +131,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        //routine.addCommandn s(new ClimbCommand(-750000,-1200000),new ClimbCommand(-12000,-1411700), new ClimbCommand(-121845,-1411700),new ClimbCommand(-121845,-878319));//),new ClimbCommand(-679460,-1078343), new ClimbCommand(-197631,-1078343));
         routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1395842),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
-        //selectedAuto = new ThreeBall();
     }
     
     @Override
@@ -147,12 +147,14 @@ public class Robot extends TimedRobot {
             lastAutoPath = autoPath.getString(null);
             deserializerExecutor.execute(() -> { //Start deserializing on another thread
                 System.out.println("start parsing autonomous");
+                SmartDashboard.putBoolean("done parsing auto?", false);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(1);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
                 networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
                 // ready to be run
                 System.out.println("done parsing autonomous");
+                SmartDashboard.putBoolean("done parsing auto?", true);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
@@ -165,32 +167,9 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         enabled.setBoolean(true);
 
-        networkAutoLock.lock();
-        try {
-            if (networkAuto == null) {
-                System.out.println("Using normal autos");
-                String auto = autoChooser.getSelected();
-                switch (auto) {
-                    case DEFAULT_AUTO:
-                        selectedAuto = new TwoBall();
-                        break;
-                    case THREE_AUTO:
-                        selectedAuto = new ThreeBall();
-                        break;
-                }
-            } else {
-                System.out.println("Using autos from network tables");
-                selectedAuto = networkAuto;
-            }
-        } finally {
-            networkAutoLock.unlock();
-        }
-
         assert selectedAuto != null;
-        //Since autonomous objects can be reused they need to be reset them before we can reuse them again 
           selectedAuto.reset();
 
-        //We then create a new thread to run the auto and run it
         autoThread = new Thread(selectedAuto);
         autoThread.start();
     }
@@ -260,12 +239,10 @@ public class Robot extends TimedRobot {
         }
         else
             climbRoutine.resume();  
-        //climbRoutine.start();
     }
      else if(operator.getRawButtonReleased(1)){
          if(climbRoutine!=null)
             climbRoutine.suspend();
-        //
     }
 
 }
@@ -317,8 +294,7 @@ public class Robot extends TimedRobot {
 
     public synchronized void killAuto() {
         System.out.println("Killing Auto");
-        if (selectedAuto != null) {
-            assert autoThread != null;
+        if (selectedAuto != null&&autoThread!=null) {
             autoThread.interrupt();
             double nextStackTracePrint = Timer.getFPGATimestamp() + 1;
             while (!(selectedAuto.isFinished() || autoThread.getState() == Thread.State.TERMINATED)) {
