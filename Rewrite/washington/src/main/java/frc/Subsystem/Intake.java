@@ -59,6 +59,7 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350/1.08;
     double ratio = 1.08;
 
+    private boolean useDefault = false;
 
 
     Color PassiveColor;
@@ -169,15 +170,20 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void autoShot(){
-        double indexSpeed=.9;
-        if(VisionManager.getInstance().getDistanceToTarget()<3)
-            indexSpeed = .85;
-        ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-        shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
-        if(Robot.driver.getRawAxis(3)>.2)
-        indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
-        SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
-        SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+        if(useDefault){
+            shoot();
+        }
+        else{
+            double indexSpeed=.9;
+            if(VisionManager.getInstance().getDistanceToTarget()<3)
+                indexSpeed = .85;
+            ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+            shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
+            if(Robot.driver.getRawAxis(3)>.2)
+            indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
+            SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
+            SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+        }
     }
 
     public synchronized void mapShot(){
@@ -259,6 +265,10 @@ public class Intake extends AbstractSubsystem {
         intakeState= IntakeState.SHOOTING;
     }
 
+    public synchronized void toggleDefault(){
+        useDefault = !useDefault;
+    }
+
     @Override
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 
@@ -275,6 +285,8 @@ public class Intake extends AbstractSubsystem {
        SmartDashboard.putNumber("shooter bot speed", botSpeed);
 
        SmartDashboard.putNumber("lidar distance", lidar.getDistance());
+
+       SmartDashboard.putBoolean("using default shot?", useDefault);
 
     }
 
