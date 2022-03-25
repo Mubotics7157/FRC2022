@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = twoBallAuto;
+    TemplateAuto selectedAuto = threeBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -115,6 +115,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
+        SmartDashboard.putNumber("shot adjustment", 1);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -213,7 +214,7 @@ public class Robot extends TimedRobot {
     else if(operator.getRawButton(4))
       intake.setIntakeState(IntakeState.SHOOTING);
     else if(driver.getAButton())
-        drive.setDriveState(DriveState.BAGLE);
+        Intake.getInstance().setIntakeState(IntakeState.OCR_SHOT);
     else
       intake.setOff();
     
@@ -247,7 +248,7 @@ public class Robot extends TimedRobot {
             climbRoutine.suspend();
     }
 
-    if(driver.getRawButtonPressed(6))
+    if(operator.getRawButtonPressed(2))
         Intake.getInstance().manualPowerAdjust();
 
     

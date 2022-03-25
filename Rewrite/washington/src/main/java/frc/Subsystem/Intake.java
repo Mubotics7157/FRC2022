@@ -297,6 +297,8 @@ public class Intake extends AbstractSubsystem {
 
        SmartDashboard.putBoolean("using default shot?", useDefault);
 
+       SmartDashboard.putNumber("proportional adjustment", shotAdj);
+
     }
 
     @Override
