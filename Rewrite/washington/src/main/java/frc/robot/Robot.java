@@ -131,7 +131,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1395842),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
+        routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1410000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
     }
     
     @Override
@@ -194,7 +194,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
-
+        Climb.getInstance().setClimbState(ClimbState.OFF);
 
     }
 
@@ -246,6 +246,11 @@ public class Robot extends TimedRobot {
          if(climbRoutine!=null)
             climbRoutine.suspend();
     }
+
+    if(driver.getRawButtonPressed(6))
+        Intake.getInstance().manualPowerAdjust();
+
+    
 
 }
 
