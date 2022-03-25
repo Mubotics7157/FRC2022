@@ -37,7 +37,8 @@ public class Intake extends AbstractSubsystem {
         RUN_ALL,
         SHOOTING,
         INDEX_REVERSE,
-        AUTO_SHOT
+        AUTO_SHOT,
+        OCR_SHOT
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -58,6 +59,8 @@ public class Intake extends AbstractSubsystem {
     double topSpeed = 1350;
     double botSpeed = 1350/1.08;
     double ratio = 1.08;
+
+    double shotAdj = 1;
 
     private boolean useDefault = false;
 
@@ -116,7 +119,9 @@ public class Intake extends AbstractSubsystem {
                 break;
             case AUTO_SHOT:
                 autoShot();
-                //mapShot();
+                break;
+            case OCR_SHOT:
+                ocrShot();
                 break;
         }
     }
@@ -159,7 +164,7 @@ public class Intake extends AbstractSubsystem {
             index();
         SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
         if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED/2);
+            indexer.set(IntakeConstants.INDEX_SPEED*.8);
 
     }
 
@@ -178,6 +183,12 @@ public class Intake extends AbstractSubsystem {
             SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
             SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
         }
+    }
+
+    private void ocrShot(){
+        shooter.atSpeed(1350*shotAdj, (1350*1.08)*shotAdj);
+        if(Robot.driver.getRawAxis(3)>.2)
+            indexer.set(IntakeConstants.INDEX_SPEED*.85);
     }
 
     public synchronized void mapShot(){
@@ -261,6 +272,10 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void toggleDefault(){
         useDefault = !useDefault;
+    }
+
+    public synchronized void manualPowerAdjust(){
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
     }
 
     @Override
