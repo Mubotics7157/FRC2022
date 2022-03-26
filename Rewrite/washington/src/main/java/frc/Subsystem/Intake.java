@@ -60,7 +60,7 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350/1.08;
     double ratio = 1.08;
 
-    double shotAdj = 1;
+    double shotAdj = 1.525;
 
     private boolean useDefault = false;
 
@@ -74,7 +74,7 @@ public class Intake extends AbstractSubsystem {
 
     private Intake(){
         super(40);
-        intake.setInverted(false);
+        intake.setInverted(true);
         indexer.setInverted(false);
 
 
@@ -159,30 +159,25 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void shoot(){
-       shooter.atSpeed(topSpeed, botSpeed);
-        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
+       shooter.atSpeed(topSpeed*1.525, botSpeed*1.525);
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed*1.525, botSpeed*1.525))
             index();
-        SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed, botSpeed));
+        SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed*1.525, botSpeed*1.525));
         if(Robot.driver.getRawAxis(3)>.2)
             indexer.set(IntakeConstants.INDEX_SPEED*.8);
 
     }
 
     public synchronized void autoShot(){
-        if(useDefault){
-            shoot();
-        }
-        else{
             double indexSpeed=.9;
             if(VisionManager.getInstance().getDistanceToTarget()<3)
                 indexSpeed = .85;
             ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-            shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
+            shooter.atSpeed(shooterSpeeds.topSpeed*1.525, shooterSpeeds.bottomSpeed*1.525);
             if(Robot.driver.getRawAxis(3)>.2)
             indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
             SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
             SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
-        }
     }
 
     private void ocrShot(){
@@ -275,7 +270,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void manualPowerAdjust(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.525);
     }
 
     @Override

@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", 1);
+        SmartDashboard.putNumber("shot adjustment", 1.525);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
