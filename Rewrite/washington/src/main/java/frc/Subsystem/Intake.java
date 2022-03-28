@@ -38,7 +38,7 @@ public class Intake extends AbstractSubsystem {
         SHOOTING,
         INDEX_REVERSE,
         AUTO_SHOT,
-        OCR_SHOT
+        SPIT_BALL
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -67,7 +67,6 @@ public class Intake extends AbstractSubsystem {
 
     Color PassiveColor;
 
-    LidarLite lidar = new LidarLite(new DigitalInput(0));
 
     ShotGenerator shotGen = new ShotGenerator();
 
@@ -78,11 +77,6 @@ public class Intake extends AbstractSubsystem {
         indexer.setInverted(false);
 
 
-        colorMatcher.addColorMatch(IntakeConstants.BLUE);
-        colorMatcher.addColorMatch(IntakeConstants.OTHER_BLUE);
-        colorMatcher.addColorMatch(IntakeConstants.OTHER_RED);
-        colorMatcher.addColorMatch(IntakeConstants.RED);
-        colorMatcher.addColorMatch(IntakeConstants.PASSIVE);
     }
 
     public static Intake getInstance(){
@@ -120,8 +114,8 @@ public class Intake extends AbstractSubsystem {
             case AUTO_SHOT:
                 autoShot();
                 break;
-            case OCR_SHOT:
-                ocrShot();
+            case SPIT_BALL:
+                spitBall();
                 break;
         }
     }
@@ -158,13 +152,18 @@ public class Intake extends AbstractSubsystem {
         indexer.set(0);
     }
 
+    public synchronized void spitBall(){
+        intake();
+        index();
+        shooter.atSpeed(700,700);
+    }
+
     public synchronized void shoot(){
-       shooter.atSpeed(topSpeed*1.525, botSpeed*1.525);
-        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed*1.525, botSpeed*1.525))
+       //shooter.atSpeed(topSpeed*1.525, botSpeed*1.525);
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
             index();
-        SmartDashboard.putBoolean("at speed?", shooter.atSpeed(topSpeed*1.525, botSpeed*1.525));
-        if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED*.8);
+        else
+            shooter.atSpeed(topSpeed, botSpeed);
 
     }
 
@@ -180,11 +179,6 @@ public class Intake extends AbstractSubsystem {
             SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
     }
 
-    private void ocrShot(){
-        shooter.atSpeed(1350*shotAdj, (1350*1.08)*shotAdj);
-        if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED*.85);
-    }
 
     public synchronized void mapShot(){
         double wheelSpeed = IntakeConstants.FLYWHEEL_RPM_MAP.getInterpolated(new InterpolatingDouble(VisionManager.getInstance().getDistanceToTarget())).value;
@@ -273,6 +267,10 @@ public class Intake extends AbstractSubsystem {
         shotAdj = SmartDashboard.getNumber("shot adjustment", 1.525);
     }
 
+    public synchronized void adjustShooterkP(){
+        shooter.editPorportionalGains(.3, .3);
+    }
+
     @Override
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 
@@ -288,7 +286,6 @@ public class Intake extends AbstractSubsystem {
        SmartDashboard.putNumber("shooter top speed", topSpeed);
        SmartDashboard.putNumber("shooter bot speed", botSpeed);
 
-       SmartDashboard.putNumber("lidar distance", lidar.getDistance());
 
        SmartDashboard.putBoolean("using default shot?", useDefault);
 

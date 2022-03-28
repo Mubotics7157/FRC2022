@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = threeBallAuto;
+    TemplateAuto selectedAuto = twoBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -214,7 +214,7 @@ public class Robot extends TimedRobot {
     else if(operator.getRawButton(4))
       intake.setIntakeState(IntakeState.SHOOTING);
     else if(driver.getAButton())
-        Intake.getInstance().setIntakeState(IntakeState.OCR_SHOT);
+        Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
     else
       intake.setOff();
     
@@ -250,6 +250,9 @@ public class Robot extends TimedRobot {
 
     if(operator.getRawButtonPressed(2))
         Intake.getInstance().manualPowerAdjust();
+    
+    if(operator.getRawButtonPressed(5))
+        Intake.getInstance().adjustShooterkP(); 
 
     
 

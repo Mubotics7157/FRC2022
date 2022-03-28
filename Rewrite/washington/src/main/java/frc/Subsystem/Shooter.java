@@ -15,26 +15,32 @@ public class Shooter {
     TalonFX flywheelBot;
     TalonFX flywheelTop;
     public Shooter(){
-        flywheelBot = new TalonFX(20);
-        flywheelTop = new TalonFX(19);
+        flywheelBot = new TalonFX(ShooterConstants.DEVICE_ID_BOT_WHEEL);
+        flywheelTop = new TalonFX(ShooterConstants.DEVICE_ID_TOP_WHEEL);
+
         TalonFXConfiguration topConfig = new TalonFXConfiguration();
-        topConfig.voltageCompSaturation = 10;
-        topConfig.slot0.kP = .3;
-        topConfig.slot0.kF = .0575;
+        topConfig.slot0.kP = .65 ;
+        topConfig.slot0.kD = .045;
+        topConfig.slot0.kF = .05;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
-        botConfig.voltageCompSaturation = 10;
-        botConfig.slot0.kP =.3; //.2
-        botConfig.slot0.kF =.0575;
+
+        botConfig.slot0.kP =.65; 
+        topConfig.slot0.kD = .045;
+        botConfig.slot0.kF =.05;
         flywheelBot.configAllSettings(botConfig);
+
         flywheelBot.setNeutralMode(NeutralMode.Coast);
         flywheelTop.setNeutralMode(NeutralMode.Coast);
+
         flywheelBot.overrideLimitSwitchesEnable(false);
         flywheelTop.overrideLimitSwitchesEnable(false);
+
         flywheelBot.enableVoltageCompensation(true);
         flywheelTop.enableVoltageCompensation(true);
-        flywheelBot.configVoltageCompSaturation(10);
+
         flywheelTop.configVoltageCompSaturation(10);
+        flywheelBot.configVoltageCompSaturation(10);
 
         flywheelTop.configVelocityMeasurementWindow(1, 1);
         flywheelBot.configVelocityMeasurementWindow(1, 1);
@@ -65,6 +71,11 @@ public class Shooter {
             flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint));
         }
 
+    }
+
+    public void editPorportionalGains(double top, double bot){
+        flywheelTop.config_kP(0, top);
+        flywheelBot.config_kP(0, bot);
     }
 
     private double getBotRPM(){
