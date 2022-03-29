@@ -57,7 +57,7 @@ public class Intake extends AbstractSubsystem {
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,IntakeConstants.INTAKE_SOLENOID_FORWARD,IntakeConstants.INTAKE_SOLENOID_REVERSE);
 
     double topSpeed = 1350;
-    double botSpeed = 1350/1.08;
+    double botSpeed = 1350*1.08;
     double ratio = 1.08;
 
     double shotAdj = 1.525;
@@ -127,7 +127,7 @@ public class Intake extends AbstractSubsystem {
         intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
-        indexer.set(.9);
+        indexer.set(.85);
     }
     public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
@@ -141,7 +141,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void runBoth(){
-        shooter.atSpeed(-250, -250);
+        shooter.atSpeed(-150, -150);
         intake();
         index();
     }
@@ -163,7 +163,7 @@ public class Intake extends AbstractSubsystem {
         if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
             index();
         else
-            shooter.atSpeed(topSpeed, botSpeed);
+            shooter.atSpeed(topSpeed, topSpeed*ratio);
 
     }
 
@@ -189,8 +189,6 @@ public class Intake extends AbstractSubsystem {
         SmartDashboard.putNumber("interpolated top", wheelSpeed);
         SmartDashboard.putNumber("interpolated bot", wheelRatio);
 
-         if(Robot.driver.getRawAxis(3)>.2)
-        indexer.set(IntakeConstants.INDEX_SPEED*.8);
     }
 
      public synchronized void toggleIntake(boolean down){
@@ -275,19 +273,10 @@ public class Intake extends AbstractSubsystem {
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 
 
-       // shooter speed and ratio turning
-
-       SmartDashboard.putNumber("red component", colorSensor.getColor().red);
-       SmartDashboard.putNumber("green component", colorSensor.getColor().green);
-       SmartDashboard.putNumber("blue component", colorSensor.getColor().blue);
-
-       SmartDashboard.putBoolean("beam broken?", breakBeam.get());
-
        SmartDashboard.putNumber("shooter top speed", topSpeed);
        SmartDashboard.putNumber("shooter bot speed", botSpeed);
 
 
-       SmartDashboard.putBoolean("using default shot?", useDefault);
 
        SmartDashboard.putNumber("proportional adjustment", shotAdj);
 
