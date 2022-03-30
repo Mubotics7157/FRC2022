@@ -1,5 +1,7 @@
 package frc.Subsystem;
 
+import javax.lang.model.util.ElementScanner6;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -9,6 +11,7 @@ import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -51,6 +54,7 @@ public class Intake extends AbstractSubsystem {
     ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     ColorMatch colorMatcher = new ColorMatch();
 
+    boolean interpolated = false;
     
     Shooter shooter = new Shooter();
     
@@ -60,7 +64,7 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350*1.08;
     double ratio = 1.08;
 
-    double shotAdj = 1.525;
+    double shotAdj = 1;
 
     private boolean useDefault = false;
 
@@ -109,7 +113,8 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                shoot();
+                //shoot();
+                autoShot();
                 break;
             case AUTO_SHOT:
                 autoShot();
@@ -146,12 +151,21 @@ public class Intake extends AbstractSubsystem {
         index();
     }
 
+    public synchronized void intakeAndIndex(){
+        intake();
+        index();
+    }
+
     public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
         intake.set(0);
         indexer.set(0);
     }
 
+    public synchronized void holdIntaking(){
+        intake.set(0);
+        indexer.set(0);
+    }
     public synchronized void spitBall(){
         intake();
         index();
@@ -168,15 +182,24 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void autoShot(){
+        ShooterSpeed shooterSpeeds;
             double indexSpeed=.9;
             if(VisionManager.getInstance().getDistanceToTarget()<3)
                 indexSpeed = .85;
-            ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-            shooter.atSpeed(shooterSpeeds.topSpeed*1.525, shooterSpeeds.bottomSpeed*1.525);
-            if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
-            SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
-            SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+        if(interpolated){
+            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+        }
+        else
+            shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
+            
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj))
+            index();
+        else
+            shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
+
+        SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
+        SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+
     }
 
 
@@ -237,6 +260,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
+        //holdIntaking();
         intakeState = state;
     }
 
@@ -262,11 +286,16 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void manualPowerAdjust(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.525);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
     }
 
     public synchronized void adjustShooterkP(){
         shooter.editPorportionalGains(.3, .3);
+    }
+
+    public synchronized void toggleInterpolated(){
+        interpolated = !interpolated;
+        OrangeUtility.sleep(500);
     }
 
     @Override
@@ -279,6 +308,8 @@ public class Intake extends AbstractSubsystem {
 
 
        SmartDashboard.putNumber("proportional adjustment", shotAdj);
+
+       SmartDashboard.putBoolean("interpolated shot", interpolated);
 
     }
 

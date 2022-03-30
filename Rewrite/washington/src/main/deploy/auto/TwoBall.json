@@ -1375,12 +1375,12 @@
     }
   }, {
     "type" : "script",
-    "script" : "@% 95\nIntake.setIndexBackwards",
+    "script" : "@% 9\nIntake.setIndexBackwards",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.95,
+      "delay" : 0.9,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setIndexBackwards",
         "args" : [ ],
