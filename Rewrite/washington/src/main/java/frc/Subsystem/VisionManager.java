@@ -106,12 +106,23 @@ public class VisionManager extends AbstractSubsystem{
         VisionState snapVisionState;
         synchronized(this){
             snapVisionState = visionState;
+
+        
         }
 
         switch(snapVisionState){
             case OFF:
             case ON:
         }
+
+        if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
+            LED.getInstance().setGREEN();
+            //^^ if bot is within bagel led will turn green
+            //^^ if not then stay orang
+
+        else
+            LED.getInstance().setORANGE();
+        
         
     }
     @Override
