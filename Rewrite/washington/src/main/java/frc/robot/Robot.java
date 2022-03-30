@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
+        SmartDashboard.putNumber("shot adjustment", 1);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -130,8 +131,8 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-810000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1410000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-1008700));
-        selectedAuto = threeBallAuto;
+        routine.addCommands(new ClimbCommand(-815000,-1016766),new ClimbCommand(-850,-1016766),new ClimbCommand(-850,-1410000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
+        Intake.getInstance().toggleInterpolated();
     }
     
     @Override
@@ -212,9 +213,12 @@ public class Robot extends TimedRobot {
     else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
     else if(driver.getAButton())
-        drive.setDriveState(DriveState.BAGLE);
+        Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
     else
       intake.setOff();
+
+    if(driver.getRawAxis(3)>.2)
+        Intake.getInstance().index();
     
     if(driver.getRawButtonReleased(1))
         LED.getInstance().setORANGE();
@@ -246,6 +250,15 @@ public class Robot extends TimedRobot {
          if(climbRoutine!=null)
             climbRoutine.suspend();
     }
+
+    if(operator.getRawButtonPressed(2))
+        Intake.getInstance().manualPowerAdjust();
+    
+    if(operator.getRawButtonPressed(5))
+        Intake.getInstance().adjustShooterkP(); 
+
+    if(operator.getRawButtonPressed((9)))
+        Intake.getInstance().toggleInterpolated();
 
 }
 

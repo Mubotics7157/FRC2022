@@ -74,6 +74,15 @@ public class VisionManager extends AbstractSubsystem{
             double distance = Units.metersToInches(Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
             if(distance<5)
                 lastKnownDistance = distance;
+
+        if(distance > 1.96 && distance < 2.82)
+            LED.getInstance().setGREEN();
+            //^^ if bot is within bagel led will turn green
+            //^^ if not then stay orang
+
+        else
+            LED.getInstance().setORANGE();
+        
             return Units.inchesToMeters(distance);
         }
         else 
@@ -94,15 +103,18 @@ public class VisionManager extends AbstractSubsystem{
 
     @Override
     public void update() {
-        VisionState snapVisionState;
-        synchronized(this){
-            snapVisionState = visionState;
-        }
 
-        switch(snapVisionState){
-            case OFF:
-            case ON:
-        }
+
+        /*
+        if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
+            LED.getInstance().setGREEN();
+            //^^ if bot is within bagel led will turn green
+            //^^ if not then stay orang
+
+        else
+            LED.getInstance().setORANGE();
+        
+            */
         
     }
     @Override
