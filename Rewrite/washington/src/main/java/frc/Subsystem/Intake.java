@@ -64,7 +64,7 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350*1.08;
     double ratio = 1.08;
 
-    double shotAdj = 1;
+    double shotAdj = 1.05;
 
     private boolean useDefault = false;
 
@@ -286,7 +286,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void manualPowerAdjust(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.05);
     }
 
     public synchronized void adjustShooterkP(){

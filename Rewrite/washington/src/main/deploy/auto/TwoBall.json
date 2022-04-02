@@ -1360,12 +1360,12 @@
     "constraints" : [ ]
   }, {
     "type" : "script",
-    "script" : "@% 20\nIntake.setOff",
+    "script" : "@% 60\nIntake.setOff",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.2,
+      "delay" : 0.6,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setOff",
         "args" : [ ],
