@@ -1,6 +1,7 @@
 package frc.Subsystem;
 
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
@@ -99,6 +100,16 @@ public class VisionManager extends AbstractSubsystem{
             instance = new VisionManager();
             
         return instance;
+    }
+
+    public synchronized Pose2d getOdometryFromVision(){
+        Pose2d visionOdom;
+        if(hasVisionTarget()){
+        visionOdom = new Pose2d(Math.sin(getTargetYawRotation2d().getRadians() * getDistanceToTarget()), Math.cos(getTargetYawRotation2d().getRadians() * getDistanceToTarget()), getTargetYawRotation2d());
+        return visionOdom;
+        }
+        else
+        return new Pose2d();
     }
 
     @Override
