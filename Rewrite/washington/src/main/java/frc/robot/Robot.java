@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = twoBallAuto;
+    TemplateAuto selectedAuto = threeBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", 1.05);
+        SmartDashboard.putNumber("shot adjustment", 1);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -132,7 +132,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-850,-1410000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
+        routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
         Intake.getInstance().toggleInterpolated();
     }
     
@@ -199,6 +199,7 @@ public class Robot extends TimedRobot {
         Climb.getInstance().setClimbState(ClimbState.OFF);
         intake.toggleIntake(true);
 
+
     }
 
     /**
@@ -233,8 +234,7 @@ public class Robot extends TimedRobot {
   
 
     if(operator.getRawButtonPressed(3)){
-      Intake.getInstance().setShooterSpeeds();
-      Intake.getInstance().setShooterRatio();
+        Climb.getInstance().setClimbState(ClimbState.DONE);
     }
 
     if(driver.getXButtonPressed())

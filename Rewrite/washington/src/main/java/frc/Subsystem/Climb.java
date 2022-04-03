@@ -33,8 +33,8 @@ public class Climb extends AbstractSubsystem {
         midClimb.config_kD(0, .3);
 
         highClimb.configForwardSoftLimitEnable(true);
-        highClimb.configReverseSoftLimitEnable(true);
-        highClimb.configReverseSoftLimitThreshold(-1468417);//-1302192
+       // highClimb.configReverseSoftLimitEnable(true);
+        //highClimb.configReverseSoftLimitThreshold(-1468417);//-1302192
         highClimb.configForwardSoftLimitThreshold(5000);
         highClimb.config_kP(0, .5);
         highClimb.config_kD(0, .05);

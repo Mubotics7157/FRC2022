@@ -147,7 +147,7 @@ public class Drive extends AbstractSubsystem{
         if(fieldOriented)
             driveFromChassis(ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
             str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
-            rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY,
+            rot*(2*Math.PI),
             Odometry.getInstance().getOdometry().getRotation()));
     }
 

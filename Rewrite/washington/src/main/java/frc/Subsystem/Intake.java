@@ -64,7 +64,9 @@ public class Intake extends AbstractSubsystem {
     double botSpeed = 1350*1.08;
     double ratio = 1.08;
 
-    double shotAdj = 1.05;
+
+    private boolean atSpeed = false;
+    double shotAdj = 1;
 
     private boolean useDefault = false;
 
@@ -177,7 +179,7 @@ public class Intake extends AbstractSubsystem {
         if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
             index();
         else
-            shooter.atSpeed(topSpeed, topSpeed*ratio);
+            atSpeed = shooter.atSpeed(topSpeed, topSpeed*ratio);
 
     }
 
@@ -286,7 +288,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void manualPowerAdjust(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.05);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
     }
 
     public synchronized void adjustShooterkP(){
@@ -310,6 +312,7 @@ public class Intake extends AbstractSubsystem {
        SmartDashboard.putNumber("proportional adjustment", shotAdj);
 
        SmartDashboard.putBoolean("interpolated shot", interpolated);
+       SmartDashboard.putBoolean("at speed", atSpeed);
 
     }
 
