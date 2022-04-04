@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = threeBallAuto;
+    TemplateAuto selectedAuto = twoBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", 1);
+        SmartDashboard.putNumber("shot adjustment", 1.35);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -233,25 +233,25 @@ public class Robot extends TimedRobot {
       intake.toggleIntake(false);
   
 
-    if(operator.getRawButtonPressed(3)){
+    if(operator.getRawButtonPressed(1)){
         Climb.getInstance().setClimbState(ClimbState.DONE);
     }
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
-    if(operator.getRawButtonPressed(1)){
-        if(climbRoutine==null){
-            climbRoutine = new Thread(routine);
-            climbRoutine.start();
-        }
-        else
-            climbRoutine.resume();  
-    }
-     else if(operator.getRawButtonReleased(1)){
-         if(climbRoutine!=null)
-            climbRoutine.suspend();
-    }
+    // if(operator.getRawButtonPressed(1)){
+        // if(climbRoutine==null){
+            // climbRoutine = new Thread(routine);
+            // climbRoutine.start();
+        // }
+        // else
+            // climbRoutine.resume();  
+    // }
+    //  else if(operator.getRawButtonReleased(1)){
+        //  if(climbRoutine!=null)
+            // climbRoutine.suspend();
+    // }
 
     if(operator.getRawButtonPressed(2))
         Intake.getInstance().manualPowerAdjust();

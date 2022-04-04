@@ -41,5 +41,8 @@ public class ClimbRoutine implements Runnable {
 			killFlag = true;
  
 		}
+
+		else
+			Climb.getInstance().setClimbState(ClimbState.DONE);
 	}
 }

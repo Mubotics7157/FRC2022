@@ -66,7 +66,7 @@ public class Intake extends AbstractSubsystem {
 
 
     private boolean atSpeed = false;
-    double shotAdj = 1;
+    double shotAdj = 1.35;
 
     private boolean useDefault = false;
 
@@ -288,7 +288,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void manualPowerAdjust(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.35);
     }
 
     public synchronized void adjustShooterkP(){
