@@ -50,6 +50,14 @@ public class VisionManager extends AbstractSubsystem{
         else
             return new Rotation2d(0);
     }
+
+    public synchronized void enableLimelight(){
+        tableLife.getEntry("ledMode").setNumber(0);
+    }
+
+    public synchronized void disableLimelight(){
+        tableLife.getEntry("ledMode").setNumber(1);
+    }
     
     public synchronized Rotation2d getCargoYawRotation2d(){
         if(tableLife.getEntry("tv").getDouble(0) == 1){
