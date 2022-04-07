@@ -115,6 +115,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
         SmartDashboard.putNumber("shot adjustment", 1.35);
+        SmartDashboard.putNumber("indexer gain", 0.1);
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -224,8 +225,6 @@ public class Robot extends TimedRobot {
     if(driver.getRawButtonReleased(1))
         LED.getInstance().setORANGE();
 
-    if(operator.getRawButtonPressed(5))
-        Intake.getInstance().toggleDefault();
     if(driver.getYButton())
         intake.toggleIntake();
     else if (driver.getBButton())
@@ -253,7 +252,8 @@ public class Robot extends TimedRobot {
     // }
 
     if(operator.getRawButtonPressed(2))
-        Intake.getInstance().manualPowerAdjust();
+    Intake.getInstance().saveIndexerPID();
+        //Intake.getInstance().manualPowerAdjust();
     
 
     if(operator.getRawButtonPressed((9)))

@@ -8,6 +8,8 @@ import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -46,6 +48,7 @@ public class Intake extends AbstractSubsystem {
     WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
+    private SparkMaxPIDController indexerController = indexer.getPIDController();
 
     DigitalInput thirdSensor = new DigitalInput(1);
     ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kOnboard);
@@ -73,7 +76,7 @@ public class Intake extends AbstractSubsystem {
 
     double shotAdj = 1.525;
 
-    private boolean useDefault = false;
+    private boolean interpolated = true;
 
     private boolean blockedIndexer;
 
@@ -148,7 +151,9 @@ public class Intake extends AbstractSubsystem {
         intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
-        indexer.set(.85);
+        //indexer.set(.85);
+        indexerController.setReference(500, ControlType.kVelocity);
+        SmartDashboard.putNumber("indexer error", 500-indexer.getEncoder().getVelocity());
     }
 
     public synchronized void autoIndex(){
@@ -302,9 +307,6 @@ public class Intake extends AbstractSubsystem {
         intakeState= IntakeState.SHOOTING;
     }
 
-    public synchronized void toggleDefault(){
-        useDefault = !useDefault;
-    }
 
     public synchronized void manualPowerAdjust(){
         shotAdj = SmartDashboard.getNumber("shot adjustment", 1.525);
@@ -312,6 +314,15 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void adjustShooterkP(){
         shooter.editPorportionalGains(.3, .3);
+    }
+
+    public synchronized void toggleInterpolated(){
+        interpolated = !interpolated;
+        OrangeUtility.sleep(500);
+    }
+
+    public synchronized void saveIndexerPID(){
+        indexerController.setP(SmartDashboard.getNumber("indexer gain", 0));
     }
 
     @Override
