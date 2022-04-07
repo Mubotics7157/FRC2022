@@ -52,7 +52,9 @@ public class Intake extends AbstractSubsystem {
     ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
 
 
-    ColorMatch colorMatcher = new ColorMatch();
+    ColorMatch intakeMatcher = new ColorMatch();
+
+    ColorMatch indexerMatcher = new ColorMatch();
 
     
     Shooter shooter = new Shooter();
@@ -87,11 +89,13 @@ public class Intake extends AbstractSubsystem {
         indexer.setInverted(false);
         indexer.setIdleMode(IdleMode.kBrake);
         
-        colorMatcher.addColorMatch(redCargo);
-        colorMatcher.addColorMatch(blueCargo);
-        colorMatcher.addColorMatch(noCargo);
+        intakeMatcher.addColorMatch(redCargo);
+        intakeMatcher.addColorMatch(blueCargo);
+        intakeMatcher.addColorMatch(noCargo);
 
-        colorMatcher.addColorMatch(indexerRed);
+        indexerMatcher.addColorMatch(indexerRed);
+        indexerMatcher.addColorMatch(blueCargo);
+        indexerMatcher.addColorMatch(noCargo);
 
     }
 
@@ -264,12 +268,12 @@ public class Intake extends AbstractSubsystem {
     }
 
     private boolean indexerHasCargo(){
-        ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
+        ColorMatchResult match = indexerMatcher.matchClosestColor(colorSensor.getColor());
         return !match.color.equals(noCargo);
     }
 
     private boolean intakeHasCargo(){
-        ColorMatchResult match = colorMatcher.matchClosestColor(intakeSensor.getColor());
+        ColorMatchResult match = intakeMatcher.matchClosestColor(intakeSensor.getColor());
         return !match.color.equals(noCargo);
     }
 
