@@ -1,7 +1,5 @@
 package frc.Subsystem;
 
-import javax.lang.model.util.ElementScanner6;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -9,9 +7,9 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -51,25 +49,32 @@ public class Intake extends AbstractSubsystem {
 
     DigitalInput breakBeam = new DigitalInput(1);
 
-    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kOnboard);
+
+    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
+
     ColorMatch colorMatcher = new ColorMatch();
 
-    boolean interpolated = false;
     
     Shooter shooter = new Shooter();
     
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,IntakeConstants.INTAKE_SOLENOID_FORWARD,IntakeConstants.INTAKE_SOLENOID_REVERSE);
 
+    Color redCargo = new Color(0.297607421875,0.46435546875,0.236572265625);
+    Color blueCargo = new Color(0.2431640625,0.478759765625,0.279052734375);
+    Color noCargo = new Color(0.320556640625,0.478271484375,0.201171875);
+
+    Color indexerRed = new Color(0.40234375,0.43701171875,0.1611328125);
+
     double topSpeed = 1350;
     double botSpeed = 1350*1.08;
     double ratio = 1.08;
 
-
-    private boolean atSpeed = false;
-    double shotAdj = 1.35;
+    double shotAdj = 1.525;
 
     private boolean useDefault = false;
 
+    private boolean blockedIndexer;
 
     Color PassiveColor;
 
@@ -81,7 +86,13 @@ public class Intake extends AbstractSubsystem {
         super(40);
         intake.setInverted(true);
         indexer.setInverted(false);
+        indexer.setIdleMode(IdleMode.kBrake);
+        
+        colorMatcher.addColorMatch(redCargo);
+        colorMatcher.addColorMatch(blueCargo);
+        colorMatcher.addColorMatch(noCargo);
 
+        colorMatcher.addColorMatch(indexerRed);
 
     }
 
@@ -106,17 +117,17 @@ public class Intake extends AbstractSubsystem {
                 reverseIndexer();
                 break;
             case INTAKE:
-                intake();
+                autoIndex();
                 break;
             case INDEX:
                 index();
                 break;
             case RUN_ALL:
-                runBoth();
+                //runBoth();
+                autoIndex();
                 break;
             case SHOOTING:
-                //shoot();
-                autoShot();
+                shoot();
                 break;
             case AUTO_SHOT:
                 autoShot();
@@ -136,12 +147,29 @@ public class Intake extends AbstractSubsystem {
     public synchronized void index(){
         indexer.set(.85);
     }
+
+    public synchronized void autoIndex(){
+        if(indexerHasCargo()&&intakeHasCargo()){
+            indexer.set(0.01);
+            intake.set(0);
+        }
+        else if(indexerHasCargo()){
+            intake();
+            indexer.set(0);
+        }
+         else{
+             index();
+             intake();
+        }
+        
+    }
+
     public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
     private void autoIntake(){
-        if(getSweetSpotStatus())
+        if(indexerHasCargo())
             indexer.set(-.3);
         else
             stopMotors();
@@ -153,21 +181,12 @@ public class Intake extends AbstractSubsystem {
         index();
     }
 
-    public synchronized void intakeAndIndex(){
-        intake();
-        index();
-    }
-
     public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
         intake.set(0);
         indexer.set(0);
     }
 
-    public synchronized void holdIntaking(){
-        intake.set(0);
-        indexer.set(0);
-    }
     public synchronized void spitBall(){
         intake();
         index();
@@ -179,29 +198,20 @@ public class Intake extends AbstractSubsystem {
         if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
             index();
         else
-            atSpeed = shooter.atSpeed(topSpeed, topSpeed*ratio);
+            shooter.atSpeed(topSpeed, topSpeed*ratio);
 
     }
 
     public synchronized void autoShot(){
-        ShooterSpeed shooterSpeeds;
             double indexSpeed=.9;
             if(VisionManager.getInstance().getDistanceToTarget()<3)
                 indexSpeed = .85;
-        if(interpolated){
-            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-        }
-        else
-            shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
-            
-        if(DriverStation.isAutonomous()&&shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj))
-            index();
-        else
-            shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
-
-        SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
-        SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
-
+            ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+            shooter.atSpeed(shooterSpeeds.topSpeed*1.525, shooterSpeeds.bottomSpeed*1.525);
+            if(Robot.driver.getRawAxis(3)>.2)
+            indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
+            SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
+            SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
     }
 
 
@@ -222,12 +232,6 @@ public class Intake extends AbstractSubsystem {
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
-    private void ocrShot(){
-        shooter.atSpeed(1350, 1350*1.08);
-        if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED*.85);
-    }
-
     public synchronized void toggleIntake(){
         if(intakeSolenoid.get()==Value.kForward)
             intakeSolenoid.set(Value.kReverse);
@@ -244,7 +248,7 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void setShooterSpeeds(){
         topSpeed = SmartDashboard.getNumber("top wheel setpoint", 1350);
-        botSpeed = topSpeed*SmartDashboard.getNumber("shooter ratio", 1.08);
+        botSpeed = topSpeed*SmartDashboard.getNumber("shooter ratio", 1);
     }
 
     public synchronized void setShooterRatio(){
@@ -257,10 +261,14 @@ public class Intake extends AbstractSubsystem {
         PassiveColor = new Color(sensedColor.red,sensedColor.green,sensedColor.blue);
     }
 
-    private boolean getSweetSpotStatus(){
+    private boolean indexerHasCargo(){
         ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
-        SmartDashboard.putBoolean("color?", match.color.equals(IntakeConstants.PASSIVE));
-        return match.color.equals(IntakeConstants.PASSIVE);
+        return !match.color.equals(noCargo);
+    }
+
+    private boolean intakeHasCargo(){
+        ColorMatchResult match = colorMatcher.matchClosestColor(intakeSensor.getColor());
+        return !match.color.equals(noCargo);
     }
 
     public synchronized IntakeState getIntakeState(){
@@ -268,7 +276,6 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        //holdIntaking();
         intakeState = state;
     }
 
@@ -294,16 +301,11 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void manualPowerAdjust(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.35);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1.525);
     }
 
     public synchronized void adjustShooterkP(){
         shooter.editPorportionalGains(.3, .3);
-    }
-
-    public synchronized void toggleInterpolated(){
-        interpolated = !interpolated;
-        OrangeUtility.sleep(500);
     }
 
     @Override
@@ -316,9 +318,13 @@ public class Intake extends AbstractSubsystem {
 
 
        SmartDashboard.putNumber("proportional adjustment", shotAdj);
+       SmartDashboard.putNumber("green", colorSensor.getColor().green);
+       SmartDashboard.putNumber("red", colorSensor.getColor().red);
+       SmartDashboard.putNumber("blue", colorSensor.getColor().blue);
 
-       SmartDashboard.putBoolean("interpolated shot", interpolated);
-       SmartDashboard.putBoolean("at speed", atSpeed);
+       SmartDashboard.putBoolean("ball in intake?",intakeHasCargo());
+       SmartDashboard.putBoolean("ball in indexer?",indexerHasCargo());
+
 
     }
 
