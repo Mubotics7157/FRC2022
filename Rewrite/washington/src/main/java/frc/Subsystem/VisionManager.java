@@ -3,12 +3,15 @@ package frc.Subsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.util.AbstractSubsystem;
 
 public class VisionManager extends AbstractSubsystem{
@@ -33,6 +36,10 @@ public class VisionManager extends AbstractSubsystem{
     public enum VisionState{
         OFF,
         ON
+    }
+
+    private double getLatency(){
+        return tableLime.getEntry("tl").getDouble(0);
     }
 
     public synchronized double getTargetYaw(){
@@ -112,6 +119,17 @@ public class VisionManager extends AbstractSubsystem{
         return new Pose2d();
     }
 
+    public synchronized Pose2d getVisionOdometry(){
+        double estHeading = Drive.getInstance().getDriveHeading().plus(getTargetYawRotation2d()).getRadians();
+
+        double poseX = getDistanceToTarget() * Math.cos(estHeading);
+        double poseY = getDistanceToTarget()*Math.sin(estHeading);
+
+        Translation2d estimatedPose = new Translation2d(poseX, poseY).rotateBy(VisionConstants.TARGET_POSE_METERS.getRotation()).plus(VisionConstants.TARGET_POSE_METERS.getTranslation());
+
+        return new Pose2d(estimatedPose,Drive.getInstance().getDriveHeading());
+    }
+
     @Override
     public void update() {
         VisionState snapVisionState;
@@ -125,6 +143,9 @@ public class VisionManager extends AbstractSubsystem{
             case OFF:
             case ON:
         }
+
+        if(hasVisionTarget())
+            Odometry.getInstance().poseEstimator.addVisionMeasurement(getVisionOdometry(), Timer.getFPGATimestamp()-getLatency());
 
         if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
             LED.getInstance().setGREEN();

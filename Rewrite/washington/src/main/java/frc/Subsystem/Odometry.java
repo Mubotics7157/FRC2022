@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Drive.DriveState;
@@ -30,9 +31,9 @@ public class Odometry extends AbstractSubsystem{
 
     private Odometry(){
         super(20,20);
-        stateDev = VecBuilder.fill(0.015, 0.015, 0.015);
-        localDev = VecBuilder.fill(0.015);
-        visionDev = VecBuilder.fill(0.015, 0.015, 0.015);
+        stateDev = VecBuilder.fill(.02, .02, .01);
+        localDev = VecBuilder.fill(.02);
+        visionDev = VecBuilder.fill(.008,.008,.001);
         
         m_field = new Field2d();
         SmartDashboard.putData("field", m_field);
@@ -44,7 +45,6 @@ public class Odometry extends AbstractSubsystem{
             stateDev, //state
             localDev, //local
             visionDev, //vision
-            0.02
             );
     }
 
@@ -54,7 +54,7 @@ public class Odometry extends AbstractSubsystem{
 
     @Override
     public void update() {
-        odometry.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
+        odometry.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
         m_field.setRobotPose(poseEstimator.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates()));
     }
 

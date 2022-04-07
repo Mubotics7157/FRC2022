@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -87,6 +89,8 @@ public interface Constants {
         public static final double CAM_MOUNTING_PITCH_RADIANS = Units.degreesToRadians(22.28);
 
         public static final double TARGET_HEIGHT_METERS = 2.64;
+
+        public static final Pose2d TARGET_POSE_METERS = new Pose2d(new Translation2d(Units.feetToMeters(27), Units.feetToMeters(13.5)), new Rotation2d());
     }
 
     public static final class IntakeConstants{
