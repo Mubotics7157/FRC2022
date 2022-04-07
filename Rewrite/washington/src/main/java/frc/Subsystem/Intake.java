@@ -47,11 +47,10 @@ public class Intake extends AbstractSubsystem {
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
 
-    DigitalInput breakBeam = new DigitalInput(1);
-
+    DigitalInput thirdSensor = new DigitalInput(1);
     ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kOnboard);
-
     ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
+
 
     ColorMatch colorMatcher = new ColorMatch();
 
@@ -150,7 +149,10 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void autoIndex(){
         if(indexerHasCargo()&&intakeHasCargo()){
-            indexer.set(0.01);
+            if(thirdSensor.get())
+                index();
+            else
+                 indexer.set(0);
             intake.set(0);
         }
         else if(indexerHasCargo()){
