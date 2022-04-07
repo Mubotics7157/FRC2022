@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
         routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
-        Intake.getInstance().toggleInterpolated();
+        //Intake.getInstance().toggleInterpolated();
     }
     
     @Override
@@ -256,8 +256,8 @@ public class Robot extends TimedRobot {
         //Intake.getInstance().manualPowerAdjust();
     
 
-    if(operator.getRawButtonPressed((9)))
-        Intake.getInstance().toggleInterpolated();
+    // if(operator.getRawButtonPressed((9)))
+        // Intake.getInstance().toggleInterpolated();
 
     if(operator.getRawAxis(2)>.2)
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);

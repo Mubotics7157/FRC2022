@@ -90,6 +90,7 @@ public class Drive extends AbstractSubsystem{
         }
         switch(snapDriveState){
             case FIELD_ORIENTED:
+                VisionManager.getInstance().toggleLimelight(false);
                 updateManual(true);
                 break;
             case ROBOT_ORIENTED:
@@ -97,6 +98,7 @@ public class Drive extends AbstractSubsystem{
                 break;
             case VISION:
                 updateAlign();
+                VisionManager.getInstance().toggleLimelight(true);
                 break;
             case BAGLE:
                 updateBagle();

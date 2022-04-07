@@ -109,6 +109,10 @@ public class VisionManager extends AbstractSubsystem{
         return instance;
     }
 
+    public synchronized void toggleLimelight(boolean led){
+        tableLime.getEntry("ledMode").setNumber(led?3:1);
+    }
+
     @Override
     public void update() {
 
