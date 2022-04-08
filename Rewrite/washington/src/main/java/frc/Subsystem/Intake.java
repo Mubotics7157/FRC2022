@@ -1,5 +1,7 @@
 package frc.Subsystem;
 
+import javax.lang.model.util.ElementScanner6;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -50,7 +52,7 @@ public class Intake extends AbstractSubsystem {
     private static Intake instance = new Intake();
     private SparkMaxPIDController indexerController = indexer.getPIDController();
 
-    DigitalInput thirdSensor = new DigitalInput(1);
+    DigitalInput thirdSensor = new DigitalInput(9);
     ColorSensorV3 intakeSensor = new ColorSensorV3(I2C.Port.kOnboard);
     ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
 
@@ -64,8 +66,8 @@ public class Intake extends AbstractSubsystem {
     
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,IntakeConstants.INTAKE_SOLENOID_FORWARD,IntakeConstants.INTAKE_SOLENOID_REVERSE);
 
-    Color redCargo = new Color(0.297607421875,0.46435546875,0.236572265625);
-    Color blueCargo = new Color(0.2431640625,0.478759765625,0.279052734375);
+    Color redCargo = new Color(0.33349609375,0.4873046875,0.184326171875);
+    Color blueCargo = new Color(0.3056640625,0.500244140625,0.194580078125);
     Color noCargo = new Color(0.320556640625,0.478271484375,0.201171875);
 
     Color indexerRed = new Color(0.40234375,0.43701171875,0.1611328125);
@@ -78,9 +80,6 @@ public class Intake extends AbstractSubsystem {
 
     private boolean interpolated = true;
 
-    private boolean blockedIndexer;
-
-    Color PassiveColor;
 
 
     ShotGenerator shotGen = new ShotGenerator();
@@ -115,6 +114,7 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
+                updateOff();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -123,14 +123,13 @@ public class Intake extends AbstractSubsystem {
                 reverseIndexer();
                 break;
             case INTAKE:
-                autoIndex();
+            intake();
                 break;
             case INDEX:
                 index();
                 break;
             case RUN_ALL:
-                //runBoth();
-                autoIndex();
+                runBoth();
                 break;
             case SHOOTING:
                 shoot();
@@ -151,28 +150,16 @@ public class Intake extends AbstractSubsystem {
         intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
-        //indexer.set(.85);
-        indexerController.setReference(500, ControlType.kVelocity);
-        SmartDashboard.putNumber("indexer error", 500-indexer.getEncoder().getVelocity());
+        indexer.set(.85);
+        // indexerController.setReference(500, ControlType.kVelocity);
+        // SmartDashboard.putNumber("indexer error", 500-indexer.getEncoder().getVelocity());
     }
 
-    public synchronized void autoIndex(){
-        if(indexerHasCargo()&&intakeHasCargo()){
-            if(thirdSensor.get())
-                index();
-            else
-                 indexer.set(0);
-            intake.set(0);
-        }
-        else if(indexerHasCargo()){
-            intake();
+    private void updateOff(){
+        if(!thirdSensor.get())
+            indexer.set(-.85);
+        else
             indexer.set(0);
-        }
-         else{
-             index();
-             intake();
-        }
-        
     }
 
     public synchronized void reverseIndexer(){
@@ -267,11 +254,6 @@ public class Intake extends AbstractSubsystem {
     }
 
 
-    public synchronized void calibratePassiveColor(){
-        Color sensedColor = colorSensor.getColor();
-        PassiveColor = new Color(sensedColor.red,sensedColor.green,sensedColor.blue);
-    }
-
     private boolean indexerHasCargo(){
         ColorMatchResult match = indexerMatcher.matchClosestColor(colorSensor.getColor());
         return !match.color.equals(noCargo);
@@ -341,6 +323,7 @@ public class Intake extends AbstractSubsystem {
 
        SmartDashboard.putBoolean("ball in intake?",intakeHasCargo());
        SmartDashboard.putBoolean("ball in indexer?",indexerHasCargo());
+       SmartDashboard.putBoolean("ball stopped?`",thirdSensor.get());
 
 
     }
