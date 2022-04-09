@@ -30,6 +30,7 @@ import frc.Subsystem.VisionManager;
 import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
+import frc.auton.FiveBall;
 import frc.auton.TemplateAuto;
 import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
@@ -63,7 +64,8 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = threeBallAuto;
+    FiveBall fiveBallAuto = new FiveBall();
+    TemplateAuto selectedAuto = fiveBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -173,10 +175,6 @@ public class Robot extends TimedRobot {
        try {
             if (networkAuto == null) {
                 System.out.println("Using normal autos");
-                String auto = autoChooser.getSelected();
-                switch (auto) {
-                    //Put all your autos here
-                }
             } else {
                 System.out.println("Using autos from network tables");
                 selectedAuto = networkAuto;

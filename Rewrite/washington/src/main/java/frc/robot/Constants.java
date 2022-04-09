@@ -53,7 +53,7 @@ public interface Constants {
 
         public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(FRONT_LEFT_MODULE_POSITION,REAR_LEFT_MODULE_POSITION,FRONT_RIGHT_MODULE_POSITION,REAR_RIGHT_MODULE_POSITION);
 
-        public static final double TURN_kP = 2;
+        public static final double TURN_kP = 3/2;
         public static final double TURN_kD = .015;
 
         public static final double AUTO_CONTROLLER_kP = 2;
