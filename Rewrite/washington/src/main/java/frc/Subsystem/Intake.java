@@ -41,7 +41,8 @@ public class Intake extends AbstractSubsystem {
         SHOOTING,
         INDEX_REVERSE,
         AUTO_SHOT,
-        SPIT_BALL
+        SPIT_BALL,
+        PRE_REV
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -66,9 +67,11 @@ public class Intake extends AbstractSubsystem {
 
 
     private boolean atSpeed = false;
-    double shotAdj = 1.35;
+    double shotAdj = 1;
 
     private boolean useDefault = false;
+
+    private boolean readyToShoot = false;
 
 
     Color PassiveColor;
@@ -123,6 +126,9 @@ public class Intake extends AbstractSubsystem {
                 break;
             case SPIT_BALL:
                 spitBall();
+                break;
+            case PRE_REV:
+                preRev();
                 break;
         }
     }
@@ -194,7 +200,7 @@ public class Intake extends AbstractSubsystem {
         else
             shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
             
-        if(DriverStation.isAutonomous()&&shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj))
+        if(DriverStation.isAutonomous()&&readyToShoot)
             index();
         else
             shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
@@ -202,6 +208,11 @@ public class Intake extends AbstractSubsystem {
         SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
 
+    }
+
+    private void preRev(){
+        ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+        shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
     }
 
 
@@ -283,6 +294,10 @@ public class Intake extends AbstractSubsystem {
         intakeState= IntakeState.SHOOTING;
     }
 
+    public synchronized void setPreRevving(){
+        intakeState = IntakeState.PRE_REV;
+    }
+
     public synchronized void toggleDefault(){
         useDefault = !useDefault;
     }
@@ -298,6 +313,10 @@ public class Intake extends AbstractSubsystem {
     public synchronized void toggleInterpolated(){
         interpolated = !interpolated;
         OrangeUtility.sleep(500);
+    }
+
+    public synchronized void setReadyToShoot(boolean ready){
+        readyToShoot = ready;
     }
 
     @Override

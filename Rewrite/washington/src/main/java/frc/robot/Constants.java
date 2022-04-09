@@ -53,7 +53,7 @@ public interface Constants {
 
         public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(FRONT_LEFT_MODULE_POSITION,REAR_LEFT_MODULE_POSITION,FRONT_RIGHT_MODULE_POSITION,REAR_RIGHT_MODULE_POSITION);
 
-        public static final double TURN_kP = 3/2;
+        public static final double TURN_kP = 2;
         public static final double TURN_kD = .015;
 
         public static final double AUTO_CONTROLLER_kP = 2;
@@ -100,8 +100,8 @@ public interface Constants {
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;
 
-        public static final int INTAKE_SOLENOID_FORWARD = 6;
-        public static final int INTAKE_SOLENOID_REVERSE = 7;
+        public static final int INTAKE_SOLENOID_FORWARD = 2;
+        public static final int INTAKE_SOLENOID_REVERSE = 3;
 
         public static final Color RED = new Color(0.261962890625, 0.457275390625, 0.28125);
         public static final Color PASSIVE = new Color(0.259033203125,0.4716796875,0.27001953125);
@@ -146,6 +146,6 @@ public interface Constants {
         public static final int DEVICE_ID_TOP_WHEEL = 19;
         public static final int DEVICE_ID_BOT_WHEEL = 20;
 
-        public static final double TOLERANCE_RPM = 30;
+        public static final double TOLERANCE_RPM = 40;
     }
 }

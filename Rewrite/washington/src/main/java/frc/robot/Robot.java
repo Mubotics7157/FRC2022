@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
     //Auto
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
-    TemplateAuto selectedAuto = twoBallAuto;
+    TemplateAuto selectedAuto = threeBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -169,11 +169,35 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         enabled.setBoolean(true);
 
+    networkAutoLock.lock();
+       try {
+            if (networkAuto == null) {
+                System.out.println("Using normal autos");
+                String auto = autoChooser.getSelected();
+                switch (auto) {
+                    //Put all your autos here
+                }
+            } else {
+                System.out.println("Using autos from network tables");
+                selectedAuto = networkAuto;
+            }
+        } finally {
+            networkAutoLock.unlock();
+        }
+        
         assert selectedAuto != null;
-          selectedAuto.reset();
+        //Since autonomous objects can be reused they need to be reset them before we can reuse them again 
+        selectedAuto.reset();
 
+        //We then create a new thread to run the auto and run it
         autoThread = new Thread(selectedAuto);
         autoThread.start();
+    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+
+    if(autoPath.getString(null)!=null)
+      autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(),1,1,"",null,12));
+    
+    autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 
     /**
@@ -311,7 +335,6 @@ public class Robot extends TimedRobot {
     }
 
     public synchronized void killAuto() {
-        System.out.println("Killing Auto");
         if (selectedAuto != null&&autoThread!=null) {
             autoThread.interrupt();
             double nextStackTracePrint = Timer.getFPGATimestamp() + 1;
