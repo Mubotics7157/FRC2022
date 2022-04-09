@@ -1391,7 +1391,7 @@
     "constraints" : [ ]
   }, {
     "type" : "script",
-    "script" : "Intake.setShooting\nsleep 650\nIntake.setReadyToShoot true\nsleep 600",
+    "script" : "Intake.setShooting\nsleep 800\nIntake.setReadyToShoot true\nsleep 600",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
@@ -1404,7 +1404,7 @@
         "reflection" : true
       }, {
         "methodName" : "sleep",
-        "args" : [ "650" ],
+        "args" : [ "800" ],
         "argTypes" : [ "long" ],
         "reflection" : false
       }, {
@@ -4029,12 +4029,12 @@
     "constraints" : [ ]
   }, {
     "type" : "script",
-    "script" : "@% 40\nIntake.setIndexBackwards",
+    "script" : "@% 50\nIntake.setIndexBackwards",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.4,
+      "delay" : 0.5,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setIndexBackwards",
         "args" : [ ],
@@ -4044,12 +4044,12 @@
     }
   }, {
     "type" : "script",
-    "script" : "@% 50\nIntake.setOff",
+    "script" : "@% 60\nIntake.setOff",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.5,
+      "delay" : 0.6,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setOff",
         "args" : [ ],
@@ -4059,12 +4059,12 @@
     }
   }, {
     "type" : "script",
-    "script" : "@% 55\nIntake.setPreRevving",
+    "script" : "@% 65\nIntake.setPreRevving",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.55,
+      "delay" : 0.65,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setPreRevving",
         "args" : [ ],

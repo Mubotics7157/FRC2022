@@ -200,7 +200,7 @@ public class Intake extends AbstractSubsystem {
         else
             shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
             
-        if(DriverStation.isAutonomous()&&readyToShoot)
+        if(DriverStation.isAutonomous()&&shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj))
             index();
         else
             shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
