@@ -94,7 +94,7 @@ public interface Constants {
         public static final int DEVICE_ID_INDEXER = 21;
         public static final double OPEN_LOOP_RAMP = .2;
         public static final double INTAKE_SPEED = 1;
-        public static final double INDEX_SPEED = 1;
+        public static final double INDEX_SPEED = 0.85;
         public static final boolean STOWED = false;
 
         public static final Value INTAKE_DOWN = Value.kReverse;

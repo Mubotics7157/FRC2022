@@ -1,5 +1,7 @@
 package frc.Subsystem;
 
+import java.lang.invoke.ConstantBootstraps;
+
 import javax.lang.model.util.ElementScanner6;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -23,6 +25,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
 import frc.util.LidarLite;
@@ -144,20 +147,20 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void intake(){
-        intake.set(IntakeConstants.INDEX_SPEED);
+        intake.set(IntakeConstants.INTAKE_SPEED);
     }
     private void reverseIntake(){
-        intake.set(-IntakeConstants.INDEX_SPEED);
+        intake.set(-IntakeConstants.INTAKE_SPEED);
     }
     public synchronized void index(){
-        indexer.set(.85);
+        indexer.set(IntakeConstants.INDEX_SPEED);
         // indexerController.setReference(500, ControlType.kVelocity);
         // SmartDashboard.putNumber("indexer error", 500-indexer.getEncoder().getVelocity());
     }
 
     private void updateOff(){
         if(!thirdSensor.get())
-            indexer.set(-.85);
+            indexer.set(-IntakeConstants.INDEX_SPEED);
         else
             indexer.set(0);
     }
@@ -171,8 +174,7 @@ public class Intake extends AbstractSubsystem {
             indexer.set(-.3);
         else
             stopMotors();
-    }
-
+ }
     public synchronized void runBoth(){
         shooter.atSpeed(-150, -150);
         intake();
@@ -201,13 +203,13 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void autoShot(){
-            double indexSpeed=.9;
+            double indexSpeed= 0.5;
             if(VisionManager.getInstance().getDistanceToTarget()<3)
-                indexSpeed = .85;
+                indexSpeed = 0;
             ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
             shooter.atSpeed(shooterSpeeds.topSpeed*1.525, shooterSpeeds.bottomSpeed*1.525);
             if(Robot.driver.getRawAxis(3)>.2)
-            indexer.set(IntakeConstants.INDEX_SPEED*indexSpeed);
+            indexer.set(IntakeConstants.INDEX_SPEED + indexSpeed);
             SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
             SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
     }
@@ -277,8 +279,8 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setOff(){
-        stopMotors();
         intakeState = IntakeState.OFF;
+        stopMotors();
     }
 
     public synchronized void setIndexBackwards(){
