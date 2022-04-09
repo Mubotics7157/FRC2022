@@ -186,9 +186,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void spitBall(){
-        intake();
-        index();
-        shooter.atSpeed(700,700);
+        shooter.atSpeed(1000,300);
     }
 
     public synchronized void shoot(){
