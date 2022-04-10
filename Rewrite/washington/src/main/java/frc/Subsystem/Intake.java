@@ -52,8 +52,8 @@ public class Intake extends AbstractSubsystem {
 
     DigitalInput breakBeam = new DigitalInput(9);
 
-    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
-    ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
+    // ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
+    // ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
     ColorMatch colorMatcher = new ColorMatch();
 
     Color redCargo = new Color(0,0,0);
@@ -110,6 +110,7 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
+                //VisionManager.getInstance().toggleLimelightLEDMode(false);
                 updateOff();
                 break;
             case INTAKE_REVERSE:
@@ -130,6 +131,7 @@ public class Intake extends AbstractSubsystem {
             case SHOOTING:
                 //shoot();
                 autoShot();
+                //VisionManager.getInstance().toggleLimelightLEDMode(true);
                 break;
             case AUTO_SHOT:
                 autoShot();
@@ -279,14 +281,14 @@ public class Intake extends AbstractSubsystem {
 
 
     private boolean oppositeCargoDetected(){
-        if(useRed){
-            if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(blueCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(blueCargo))
-                return true;
-        }
-        else{
-            if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(redCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(redCargo))
-                return true;
-        }
+        // if(useRed){
+            // if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(blueCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(blueCargo))
+                // return true;
+        // }
+        // else{
+            // if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(redCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(redCargo))
+                // return true;
+        // }
         return false;
     }
 
@@ -297,7 +299,6 @@ public class Intake extends AbstractSubsystem {
     public synchronized void setIntakeState(IntakeState state){
         if(getIntakeState()!=state)
             stopMotors();
-        //holdIntaking();
         intakeState = state;
     }   
 

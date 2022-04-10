@@ -102,6 +102,10 @@ public class VisionManager extends AbstractSubsystem{
         return tableLime.getEntry("ty").getDouble(0);
     }
 
+    public synchronized void toggleLimelightLEDMode(boolean on){
+        tableLime.getEntry("ledMode").setDouble(on?3:1);
+    }
+
     public static VisionManager getInstance(){
         if(instance == null)
             instance = new VisionManager();
