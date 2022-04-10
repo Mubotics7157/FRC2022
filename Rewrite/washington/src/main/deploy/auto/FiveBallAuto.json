@@ -4044,12 +4044,12 @@
     }
   }, {
     "type" : "script",
-    "script" : "@% 60\nIntake.setOff",
+    "script" : "@% 55\nIntake.setOff",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.6,
+      "delay" : 0.55,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setOff",
         "args" : [ ],

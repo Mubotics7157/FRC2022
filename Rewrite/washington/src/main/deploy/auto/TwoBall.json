@@ -1380,7 +1380,7 @@
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
-      "delay" : 0.9,
+      "delay" : 0.09,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.setIndexBackwards",
         "args" : [ ],

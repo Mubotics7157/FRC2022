@@ -83,14 +83,6 @@ public class VisionManager extends AbstractSubsystem{
             if(distance<5)
                 lastKnownDistance = distance;
 
-        if(distance > 1.96 && distance < 2.82)
-            LED.getInstance().setGREEN();
-            //^^ if bot is within bagel led will turn green
-            //^^ if not then stay orang
-
-        else
-            LED.getInstance().setORANGE();
-        
             return Units.inchesToMeters(distance);
         }
         else 
@@ -111,7 +103,7 @@ public class VisionManager extends AbstractSubsystem{
 
     @Override
     public void update() {
-
+        LED.getInstance().setRainbow();
 
         /*
         if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)

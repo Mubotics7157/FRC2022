@@ -1,65 +1,56 @@
 package frc.Subsystem;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
 
 public class LED {
-    AddressableLED led;
-    AddressableLEDBuffer ledBuffer;
-
-    int red;
-    int green;
-    int blue;
-
-    private static LED instance = new LED();
-    
+    CANdle candle;
+    public static LED instance = new LED();
+    CANdleConfiguration config;
+    RainbowAnimation rainbow;
     public LED(){
-      led = new AddressableLED(1);
-      //^^makes the led with the PWM port of 0 
-      ledBuffer = new AddressableLEDBuffer(130);
-      
-        led.setLength(ledBuffer.getLength());
-        led.setData(ledBuffer);
-        led.start();
-  }
+        candle = new CANdle(31);
+        config = new CANdleConfiguration();
+        config.stripType = LEDStripType.RGB;
+        config.brightnessScalar = .5;
+        candle.setLEDs(255, 255, 255);
+        rainbow = new RainbowAnimation(1, 1, 200);
+        candle.configAllSettings(config);
+        
+    }
 
-  public static LED getInstance(){
-    return instance;
-  }
+    public static LED getInstance(){
+      return instance;
+    }
 
-  public void setLED(int red, int green, int blue){
-      
-    for(var bob = 0; bob < ledBuffer.getLength(); bob++){
-        ledBuffer.setRGB(bob, Math.abs(red), Math.abs(green), Math.abs(blue));
-        //^^ orange is 255, 25, 0
-        }
-    
-        led.setData(ledBuffer);
+    public void setRainbow(){
+        candle.animate(rainbow);
+    }
 
-        //SmartDashboard.putNumber("red value", red);
-        //SmartDashboard.putNumber("green value", green);
-        //SmartDashboard.putNumber("blue value", blue);
-  }
+    public void setRED(){
+        candle.setLEDs(255, 0, 0);
+    }
 
-  public void setRED(){
-    for(var b0b = 0; b0b < ledBuffer.getLength(); b0b++)
-      ledBuffer.setRGB(b0b, 255, 0, 0);
+    public void setGREEN(){
+        candle.setLEDs(0, 255, 0);
+    }
 
-      led.setData(ledBuffer);
-  }
-  public void setGREEN(){
-    for(var b0b = 0; b0b< ledBuffer.getLength(); b0b++)
-      ledBuffer.setRGB(b0b, 0, 255, 0);
+    public void setBLUE(){
+        candle.setLEDs(0, 0, 255);
+    }
 
-      led.setData(ledBuffer);
-  }
-  public void setORANGE(){
-    for(var b0b = 0; b0b< ledBuffer.getLength(); b0b++)
-    ledBuffer.setRGB(b0b, 255, 40, 0);
+    public void setWHITE(){
+        candle.setLEDs(255, 255, 255);
+    }
 
-    led.setData(ledBuffer);
-}
-  
+    public void setOFF(){
+        candle.setLEDs(0, 0, 0);
+    }
+
+    public void setORANGE(){
+        candle.setLEDs(255, 45, 0);
+    }
 }
