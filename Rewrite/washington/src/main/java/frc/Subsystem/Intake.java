@@ -185,7 +185,7 @@ public class Intake extends AbstractSubsystem {
     public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
         intake.set(0);
-        indexer.set(0);
+        //indexer.set(0);
     }
 
     public synchronized void holdIntaking(){
@@ -193,7 +193,7 @@ public class Intake extends AbstractSubsystem {
         indexer.set(0);
     }
     private void spitBall(){
-        if(shooter.atSpeed(700,200))
+        if(shooter.atSpeed(1500,300))
             index();
     }
 
@@ -297,8 +297,8 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(getIntakeState()!=state)
-            stopMotors();
+        // if(getIntakeState()!=state)
+            // stopMotors();
         intakeState = state;
     }   
 
@@ -307,7 +307,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setOff(){
-        if(getIntakeState()!=IntakeState.OFF)
+        // if(getIntakeState()!=IntakeState.OFF)
             stopMotors();
         intakeState = IntakeState.OFF;
     }

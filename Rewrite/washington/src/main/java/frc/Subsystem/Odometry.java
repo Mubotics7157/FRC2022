@@ -31,9 +31,9 @@ public class Odometry extends AbstractSubsystem{
 
     private Odometry(){
         super(20,20);
-        stateDev = VecBuilder.fill(.02, .02, .01);
+        stateDev = VecBuilder.fill(.02, .02, .05);
         localDev = VecBuilder.fill(.02);
-        visionDev = VecBuilder.fill(.008,.008,.001);
+        visionDev = VecBuilder.fill(.05,.05,.05);
         
         m_field = new Field2d();
         SmartDashboard.putData("field", m_field);
@@ -44,7 +44,7 @@ public class Odometry extends AbstractSubsystem{
             DriveConstants.DRIVE_KINEMATICS,
             stateDev, //state
             localDev, //local
-            visionDev, //vision
+            visionDev //vision
             );
     }
 
@@ -60,6 +60,7 @@ public class Odometry extends AbstractSubsystem{
 
     public synchronized void setOdometry(Pose2d pose){
         odometry.resetPosition(pose, Drive.getInstance().getDriveHeading());  
+        poseEstimator.resetPosition(pose, Drive.getInstance().getDriveHeading());
     }
 
     public synchronized Pose2d getOdometry(){
@@ -76,6 +77,10 @@ public class Odometry extends AbstractSubsystem{
         SmartDashboard.putNumber("Pose X", odometry.getPoseMeters().getX());
         SmartDashboard.putNumber("Pose Y", odometry.getPoseMeters().getY());
         SmartDashboard.putNumber("Pose R", odometry.getPoseMeters().getRotation().getDegrees());
+
+        SmartDashboard.putNumber("Est Pose X", poseEstimator.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("Est Pose Y", poseEstimator.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Est Pose R", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
     }
 
     @Override

@@ -149,15 +149,6 @@ public class VisionManager extends AbstractSubsystem{
         if(hasVisionTarget())
             Odometry.getInstance().poseEstimator.addVisionMeasurement(getVisionOdometry(), Timer.getFPGATimestamp()-getLatency());
 
-        if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
-            LED.getInstance().setGREEN();
-            //^^ if bot is within bagel led will turn green
-            //^^ if not then stay orang
-
-        else
-            LED.getInstance().setORANGE();
-        
-            */
         
     }
     @Override
