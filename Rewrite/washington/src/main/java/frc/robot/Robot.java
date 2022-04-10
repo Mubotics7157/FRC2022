@@ -35,7 +35,6 @@ import frc.auton.TemplateAuto;
 import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
 import frc.auton.guiauto.NetworkAuto;
-import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
 import frc.util.ClimbRoutine.ClimbCommand;
@@ -150,15 +149,15 @@ public class Robot extends TimedRobot {
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
             lastAutoPath = autoPath.getString(null);
             deserializerExecutor.execute(() -> { //Start deserializing on another thread
+                System.out.println("**************************");
                 System.out.println("start parsing autonomous");
-                SmartDashboard.putBoolean("done parsing auto?", false);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(1);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
                 networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
                 // ready to be run
+                System.out.println("**************************");
                 System.out.println("done parsing autonomous");
-                SmartDashboard.putBoolean("done parsing auto?", true);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
@@ -218,8 +217,8 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
-        Climb.getInstance().setClimbState(ClimbState.OFF);
-        intake.toggleIntake(true);
+        climb.setClimbState(ClimbState.OFF);
+
 
 
     }
@@ -236,8 +235,6 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.RUN_ALL);
     else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
-    else if(operator.getRawButton(4))
-      intake.setIntakeState(IntakeState.SHOOTING);
     else if(driver.getAButton())
         Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
     else
@@ -249,6 +246,8 @@ public class Robot extends TimedRobot {
     if(driver.getRawButtonReleased(1))
         LED.getInstance().setORANGE();
 
+    if(operator.getRawButtonPressed(5))
+        Intake.getInstance().toggleDefault();
     if(driver.getYButton())
         intake.toggleIntake();
     else if (driver.getBButton())

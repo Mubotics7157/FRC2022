@@ -131,6 +131,7 @@ public class VisionManager extends AbstractSubsystem{
     @Override
     public void logData() {
         SmartDashboard.putNumber("distance to target", getDistanceToTarget());
+        SmartDashboard.putBoolean("target found?", hasVisionTarget());
     }
 
 }

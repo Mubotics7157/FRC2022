@@ -4,7 +4,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -17,7 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Intake.IntakeState;
@@ -215,7 +213,7 @@ public class Drive extends AbstractSubsystem{
             driveFromChassis(desiredSpeeds);
 
 
-            if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+            if(autoController.atReference()||getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);
             }
 
@@ -319,6 +317,7 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
 
         SmartDashboard.putNumber("drive pitch", gyro.getPitch());
+        SmartDashboard.putNumber("drive roll", gyro.getRoll());
 
     }
 
