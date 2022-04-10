@@ -50,10 +50,17 @@ public class Intake extends AbstractSubsystem {
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
 
-    DigitalInput breakBeam = new DigitalInput(1);
+    DigitalInput breakBeam = new DigitalInput(9);
 
-    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
+    ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
     ColorMatch colorMatcher = new ColorMatch();
+
+    Color redCargo = new Color(0,0,0);
+    Color blueCargo = new Color(0,0,0);
+    Color noCargo = new Color(0,0,0);
+
+    private boolean useRed = false;
 
     boolean interpolated = false;
     
@@ -85,7 +92,9 @@ public class Intake extends AbstractSubsystem {
         intake.setInverted(true);
         indexer.setInverted(false);
 
-
+        colorMatcher.addColorMatch(blueCargo);
+        colorMatcher.addColorMatch(redCargo);
+        colorMatcher.addColorMatch(noCargo);
     }
 
     public static Intake getInstance(){
@@ -101,6 +110,7 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
+                updateOff();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -133,6 +143,14 @@ public class Intake extends AbstractSubsystem {
         }
     }
 
+    public synchronized void updateOff(){
+        if(DriverStation.isTeleop()){
+            if(!breakBeam.get())
+                indexer.set(-.85);
+            else
+                indexer.set(0);
+        }
+    }
     public synchronized void intake(){
         intake.set(IntakeConstants.INDEX_SPEED);
     }
@@ -146,17 +164,15 @@ public class Intake extends AbstractSubsystem {
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
-    private void autoIntake(){
-        if(getSweetSpotStatus())
-            indexer.set(-.3);
-        else
-            stopMotors();
-    }
-
     public synchronized void runBoth(){
         shooter.atSpeed(-150, -150);
         intake();
         index();
+
+        // if(!oppositeCargoDetected())
+            // index();
+        // else
+            // indexer.set(0);
     }
 
     public synchronized void intakeAndIndex(){
@@ -174,10 +190,9 @@ public class Intake extends AbstractSubsystem {
         intake.set(0);
         indexer.set(0);
     }
-    public synchronized void spitBall(){
-        intake();
-        index();
-        shooter.atSpeed(700,700);
+    private void spitBall(){
+        if(shooter.atSpeed(700,200))
+            index();
     }
 
     public synchronized void shoot(){
@@ -186,6 +201,9 @@ public class Intake extends AbstractSubsystem {
             index();
         else
             atSpeed = shooter.atSpeed(topSpeed, topSpeed*ratio);
+        
+    if(Robot.driver.getRawAxis(3)>.2) // Possible point of failure must test
+        Intake.getInstance().index();
 
     }
 
@@ -207,6 +225,9 @@ public class Intake extends AbstractSubsystem {
 
         SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
+
+        if(Robot.driver.getRawAxis(3)>.2)
+            index();
 
     }
 
@@ -257,15 +278,16 @@ public class Intake extends AbstractSubsystem {
     }
 
 
-    public synchronized void calibratePassiveColor(){
-        Color sensedColor = colorSensor.getColor();
-        PassiveColor = new Color(sensedColor.red,sensedColor.green,sensedColor.blue);
-    }
-
-    private boolean getSweetSpotStatus(){
-        ColorMatchResult match = colorMatcher.matchClosestColor(colorSensor.getColor());
-        SmartDashboard.putBoolean("color?", match.color.equals(IntakeConstants.PASSIVE));
-        return match.color.equals(IntakeConstants.PASSIVE);
+    private boolean oppositeCargoDetected(){
+        if(useRed){
+            if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(blueCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(blueCargo))
+                return true;
+        }
+        else{
+            if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(redCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(redCargo))
+                return true;
+        }
+        return false;
     }
 
     public synchronized IntakeState getIntakeState(){
@@ -273,16 +295,19 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
+        if(getIntakeState()!=state)
+            stopMotors();
         //holdIntaking();
         intakeState = state;
-    }
+    }   
 
     public synchronized void setIntakeAndIndexing(){
         intakeState = IntakeState.RUN_ALL;
     }
 
     public synchronized void setOff(){
-        stopMotors();
+        if(getIntakeState()!=IntakeState.OFF)
+            stopMotors();
         intakeState = IntakeState.OFF;
     }
 
@@ -319,6 +344,10 @@ public class Intake extends AbstractSubsystem {
         readyToShoot = ready;
     }
 
+    public synchronized void setCargoColor(boolean red){
+        useRed = red;
+    }
+
     @Override
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 
@@ -332,6 +361,7 @@ public class Intake extends AbstractSubsystem {
 
        SmartDashboard.putBoolean("interpolated shot", interpolated);
        SmartDashboard.putBoolean("at speed", atSpeed);
+       SmartDashboard.putBoolean("ball?", breakBeam.get());
 
     }
 

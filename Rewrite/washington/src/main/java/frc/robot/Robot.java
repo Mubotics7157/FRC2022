@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -220,7 +221,7 @@ public class Robot extends TimedRobot {
         compressor.enableDigital();
         Climb.getInstance().setClimbState(ClimbState.OFF);
         intake.toggleIntake(true);
-
+        intake.setCargoColor(true);
 
     }
 
@@ -240,19 +241,20 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.SHOOTING);
     else if(driver.getAButton())
         Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
+    else if(driver.getBButton())
+        Intake.getInstance().setIntakeState(IntakeState.SPIT_BALL);
     else
       intake.setOff();
 
-    if(driver.getRawAxis(3)>.2)
-        Intake.getInstance().index();
+
     
     if(driver.getRawButtonReleased(1))
         LED.getInstance().setORANGE();
 
     if(driver.getYButton())
         intake.toggleIntake();
-    else if (driver.getBButton())
-      intake.toggleIntake(false);
+    // else if (driver.getBButton())
+    //   intake.toggleIntake(false);
   
 
     if(operator.getRawButtonPressed(1)){
