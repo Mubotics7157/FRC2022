@@ -256,6 +256,12 @@ public class Intake extends AbstractSubsystem {
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
+    private void ocrShot(){
+        shooter.atSpeed(1350, 1350*1.08);
+        if(Robot.driver.getRawAxis(3)>.2)
+            indexer.set(IntakeConstants.INDEX_SPEED*.85);
+    }
+
     public synchronized void toggleIntake(){
         if(intakeSolenoid.get()==Value.kForward)
             intakeSolenoid.set(Value.kReverse);
@@ -272,7 +278,7 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void setShooterSpeeds(){
         topSpeed = SmartDashboard.getNumber("top wheel setpoint", 1350);
-        botSpeed = topSpeed*SmartDashboard.getNumber("shooter ratio", 1);
+        botSpeed = topSpeed*SmartDashboard.getNumber("shooter ratio", 1.08);
     }
 
     public synchronized void setShooterRatio(){
