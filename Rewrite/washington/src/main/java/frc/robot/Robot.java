@@ -35,6 +35,7 @@ import frc.auton.FiveBall;
 import frc.auton.TemplateAuto;
 import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
+import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
@@ -66,6 +67,7 @@ public class Robot extends TimedRobot {
     TwoBall twoBallAuto = new TwoBall();
     ThreeBall threeBallAuto = new ThreeBall();
     FiveBall fiveBallAuto = new FiveBall();
+    WeakSide weakSideAuto = new WeakSide();
     TemplateAuto selectedAuto = fiveBallAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
@@ -135,8 +137,9 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
+        //routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
         Intake.getInstance().toggleInterpolated();
+        VisionManager.getInstance().toggleLimelight(false);
     }
     
     @Override
@@ -170,6 +173,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
 
     networkAutoLock.lock();
@@ -222,6 +226,9 @@ public class Robot extends TimedRobot {
         Climb.getInstance().setClimbState(ClimbState.OFF);
         intake.toggleIntake(true);
         intake.setCargoColor(true);
+        Climb.getInstance().toggleMidQuickRelease(false);
+        Climb.getInstance().toggleHighQuickRelease(false);
+        VisionManager.getInstance().toggleLimelight(true);
 
     }
 
@@ -243,6 +250,8 @@ public class Robot extends TimedRobot {
         Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
     else if(driver.getBButton())
         Intake.getInstance().setIntakeState(IntakeState.SPIT_BALL);
+    else if(operator.getRawAxis(2)>.2)
+        Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     else
       intake.setOff();
 
@@ -255,25 +264,10 @@ public class Robot extends TimedRobot {
     //   intake.toggleIntake(false);
   
 
-    if(operator.getRawButtonPressed(1)){
-        Climb.getInstance().setClimbState(ClimbState.DONE);
-    }
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
-    // if(operator.getRawButtonPressed(1)){
-        // if(climbRoutine==null){
-            // climbRoutine = new Thread(routine);
-            // climbRoutine.start();
-        // }
-        // else
-            // climbRoutine.resume();  
-    // }
-    //  else if(operator.getRawButtonReleased(1)){
-        //  if(climbRoutine!=null)
-            // climbRoutine.suspend();
-    // }
 
     if(operator.getRawButtonPressed(2))
         Intake.getInstance().manualPowerAdjust();
@@ -282,9 +276,14 @@ public class Robot extends TimedRobot {
     if(operator.getRawButtonPressed((9)))
         Intake.getInstance().toggleInterpolated();
 
-    if(operator.getRawAxis(2)>.2)
-        Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
+    
 
+        if(operator.getRawButtonPressed(1)) {
+            climb.setJog();
+            climb.toggleMidQuickRelease(true);
+        }
+        // else if(operator.getRawButtonPressed(6))
+            // climb.toggleHighQuickRelease(true);
 }
 
 
@@ -298,6 +297,7 @@ public class Robot extends TimedRobot {
         if(climbRoutine!=null)
             climbRoutine.interrupt();
         climbRoutine = null;  
+        VisionManager.getInstance().toggleLimelight(false);
      }
 
     /**
@@ -321,6 +321,14 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+        if(operator.getRawButtonPressed(5)) 
+            climb.toggleMidQuickRelease(true);
+        else if(operator.getRawButtonPressed(1))
+             climb.toggleMidQuickRelease(false);
+        else if(operator.getRawButtonPressed(6))
+            climb.toggleHighQuickRelease(true);
+        else if(operator.getRawButtonPressed(2))
+            climb.toggleHighQuickRelease(false);
     }
 
     private void startSubsystems() {

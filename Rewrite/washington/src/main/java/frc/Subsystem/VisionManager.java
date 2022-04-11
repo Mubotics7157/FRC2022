@@ -101,10 +101,17 @@ public class VisionManager extends AbstractSubsystem{
         return instance;
     }
 
+    public synchronized void toggleLimelight(boolean on){
+        tableLime.getEntry("ledMode").setNumber(on?3:1);
+    }
+
     @Override
     public void update() {
-        LED.getInstance().setRainbow();
 
+        if(hasVisionTarget()&&Intake.getInstance().indexerCleared())
+            LED.getInstance().setGREEN();
+        else
+            LED.getInstance().setORANGE();
         /*
         if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
             LED.getInstance().setGREEN();

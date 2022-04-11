@@ -160,12 +160,10 @@ public class Drive extends AbstractSubsystem{
         if(Math.abs(error)<Units.degreesToRadians(3))
             error = 0;
         double deltaSpeed = visionRotController.calculate(error);
-        updateManual(true,deltaSpeed);
-        //}
-       //else{
            if(visionRotController.atGoal())
             setDriveState(DriveState.FIELD_ORIENTED);
             
+        updateManual(true,deltaSpeed);
         }
         else{
            setDriveState(DriveState.FIELD_ORIENTED);

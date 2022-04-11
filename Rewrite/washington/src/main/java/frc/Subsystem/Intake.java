@@ -191,7 +191,7 @@ public class Intake extends AbstractSubsystem {
         indexer.set(0);
     }
     private void spitBall(){
-        if(shooter.atSpeed(700,200))
+        if(shooter.atSpeed(1400,400))
             index();
     }
 
@@ -323,6 +323,10 @@ public class Intake extends AbstractSubsystem {
         intakeState = IntakeState.PRE_REV;
     }
 
+    public synchronized void setSpitting(){
+        intakeState = IntakeState.SPIT_BALL;
+    }
+
     public synchronized void toggleDefault(){
         useDefault = !useDefault;
     }
@@ -344,6 +348,9 @@ public class Intake extends AbstractSubsystem {
         readyToShoot = ready;
     }
 
+    public boolean indexerCleared(){
+        return breakBeam.get();
+    }
     public synchronized void setCargoColor(boolean red){
         useRed = red;
     }

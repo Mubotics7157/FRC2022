@@ -6,6 +6,8 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 
+import frc.util.OrangeUtility;
+
 public class LED {
     CANdle candle;
     public static LED instance = new LED();
@@ -17,7 +19,7 @@ public class LED {
         config.stripType = LEDStripType.RGB;
         config.brightnessScalar = .5;
         candle.setLEDs(255, 255, 255);
-        rainbow = new RainbowAnimation(1, 1, 200);
+        rainbow = new RainbowAnimation(1, 1, 211);
         candle.configAllSettings(config);
         
     }
@@ -26,7 +28,7 @@ public class LED {
       return instance;
     }
 
-    public void setRainbow(){
+    public synchronized void setRainbow(){
         candle.animate(rainbow);
     }
 
@@ -50,7 +52,13 @@ public class LED {
         candle.setLEDs(0, 0, 0);
     }
 
-    public void setORANGE(){
+    public synchronized void setORANGE(){
         candle.setLEDs(255, 45, 0);
+    }
+
+    public synchronized void setSeizure(){
+        candle.setLEDs(255, 45, 0);
+        OrangeUtility.sleep(500);
+        candle.animate(rainbow);
     }
 }

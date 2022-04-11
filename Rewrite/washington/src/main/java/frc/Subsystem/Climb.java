@@ -3,12 +3,18 @@ package frc.Subsystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.util.AbstractSubsystem;
 
 public class Climb extends AbstractSubsystem {
     
+    DoubleSolenoid midQuickRelease = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+    DoubleSolenoid highQuickRelease = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,6,7);
+
     WPI_TalonFX midClimb = new WPI_TalonFX(29);
     WPI_TalonFX highClimb = new WPI_TalonFX(40);
     private static Climb instance = new Climb();
@@ -23,6 +29,8 @@ public class Climb extends AbstractSubsystem {
         midClimb.configFactoryDefault();
         highClimb.configFactoryDefault();
 
+        midClimb.setInverted(true);
+        highClimb.setInverted(true);
 
         midClimb.configForwardSoftLimitEnable(true);
         midClimb.configReverseSoftLimitEnable(true);
@@ -79,6 +87,13 @@ public class Climb extends AbstractSubsystem {
         }
     }
 
+    public synchronized void toggleMidQuickRelease(boolean on){
+        midQuickRelease.set(on?Value.kForward:Value.kReverse);
+    }
+
+    public synchronized void toggleHighQuickRelease(boolean on){
+        highQuickRelease.set(on?Value.kForward:Value.kReverse);
+    }
 
     private void setMotors(double mid, double high){
         midClimb.set(mid);
