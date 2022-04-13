@@ -108,10 +108,6 @@ public class VisionManager extends AbstractSubsystem{
     @Override
     public void update() {
 
-        if(hasVisionTarget()&&Intake.getInstance().indexerCleared())
-            LED.getInstance().setGREEN();
-        else
-            LED.getInstance().setORANGE();
         /*
         if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
             LED.getInstance().setGREEN();

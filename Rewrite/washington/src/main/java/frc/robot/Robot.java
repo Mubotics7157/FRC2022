@@ -14,7 +14,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -37,9 +36,10 @@ import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
 import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
-import frc.auton.guiauto.serialization.OsUtil;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
+import frc.util.ClimbRoutine.ActuateHigh;
+import frc.util.ClimbRoutine.ActuateMid;
 import frc.util.ClimbRoutine.ClimbCommand;
 import frc.util.ClimbRoutine.ClimbRoutine;
 
@@ -118,6 +118,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        LED.getInstance().setORANGE();
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
         SmartDashboard.putNumber("shot adjustment", 1.35);
@@ -138,6 +139,8 @@ public class Robot extends TimedRobot {
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
         //routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
+        //routine.addCommands(new ActuateMid(),new ClimbCommand(-10000,0));
+        routine.addCommands(new ActuateHigh(), new ClimbCommand(0,10000));
         Intake.getInstance().toggleInterpolated();
         VisionManager.getInstance().toggleLimelight(false);
     }
@@ -223,12 +226,12 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
-        Climb.getInstance().setClimbState(ClimbState.OFF);
         intake.toggleIntake(true);
         intake.setCargoColor(true);
-        Climb.getInstance().toggleMidQuickRelease(false);
-        Climb.getInstance().toggleHighQuickRelease(false);
+        // Climb.getInstance().toggleMidQuickRelease(false);
+        // Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
+        climb.setClimbState(ClimbState.JOG);
 
     }
 
@@ -237,6 +240,18 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+    if(operator.getRawButtonPressed(1)){
+        if(climbRoutine==null){
+             climbRoutine = new Thread(routine);
+             climbRoutine.start();
+        }
+         else
+             climbRoutine.resume();  
+     }
+      else if(operator.getRawButtonReleased(1)){
+          if(climbRoutine!=null)
+             climbRoutine.suspend();
+    }
     if(driver.getLeftBumper())
       drive.resetHeading();
 
@@ -278,12 +293,12 @@ public class Robot extends TimedRobot {
 
     
 
-        if(operator.getRawButtonPressed(1)) {
+        if(operator.getRawButtonPressed(5)) {
             climb.setJog();
             climb.toggleMidQuickRelease(true);
         }
-        // else if(operator.getRawButtonPressed(6))
-            // climb.toggleHighQuickRelease(true);
+         else if(operator.getRawButtonPressed(6))
+             climb.toggleHighQuickRelease(true);
 }
 
 
@@ -294,8 +309,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-        if(climbRoutine!=null)
-            climbRoutine.interrupt();
+        climbRoutine.interrupt();
         climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);
      }

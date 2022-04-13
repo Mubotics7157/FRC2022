@@ -32,18 +32,10 @@ public class Climb extends AbstractSubsystem {
         midClimb.setInverted(true);
         highClimb.setInverted(true);
 
-        midClimb.configForwardSoftLimitEnable(true);
-        midClimb.configReverseSoftLimitEnable(true);
-        midClimb.configReverseSoftLimitThreshold(-865466);
-        midClimb.configForwardSoftLimitThreshold(5000);
 
         midClimb.config_kP(0, .5);
         midClimb.config_kD(0, .3);
 
-        highClimb.configForwardSoftLimitEnable(true);
-       // highClimb.configReverseSoftLimitEnable(true);
-        //highClimb.configReverseSoftLimitThreshold(-1468417);//-1302192
-        highClimb.configForwardSoftLimitThreshold(5000);
         highClimb.config_kP(0, .5);
         highClimb.config_kD(0, .05);
     }
@@ -85,6 +77,9 @@ public class Climb extends AbstractSubsystem {
                 setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
                 break;
         }
+
+        //if(midQuickRelease.get()==Value.kForward)
+
     }
 
     public synchronized void toggleMidQuickRelease(boolean on){
@@ -146,6 +141,13 @@ public class Climb extends AbstractSubsystem {
         return climbState;
     }
 
+    public synchronized boolean isMidForward(){
+        return midQuickRelease.get()==Value.kForward;
+    }
+
+    public synchronized boolean isHighForward(){
+        return highQuickRelease.get()==Value.kForward;
+    }
     @Override
     public void logData() {
         SmartDashboard.putNumber("mid height", midClimb.getSelectedSensorPosition());

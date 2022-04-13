@@ -1,17 +1,12 @@
 package frc.Subsystem;
 
-import javax.lang.model.util.ElementScanner6;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,11 +18,9 @@ import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
-import frc.util.LidarLite;
 import frc.util.OrangeUtility;
 import frc.util.ShotGenerator;
 import frc.util.Shooting.InterpolatingDouble;
-import frc.util.Shooting.InterpolatingTreeMap;
 import frc.util.ShotGenerator.ShooterSpeed;
 
 public class Intake extends AbstractSubsystem {
@@ -89,7 +82,7 @@ public class Intake extends AbstractSubsystem {
 
     private Intake(){
         super(40);
-        intake.setInverted(true);
+        intake.setInverted(false);
         indexer.setInverted(false);
 
         colorMatcher.addColorMatch(blueCargo);

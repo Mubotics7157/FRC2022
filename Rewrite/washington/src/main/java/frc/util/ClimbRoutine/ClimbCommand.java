@@ -11,16 +11,26 @@ public class ClimbCommand {
         this.mid = mid;
         this.high = high;
     }
+
+    public ClimbCommand(){
+
+    }
     public void start(){
         Climb.getInstance().setRoutineStep(mid, high);
         Climb.getInstance().setClimbState(ClimbState.ROUTINE);
 
     }
 
+    public boolean isFinished(){
+        return Climb.getInstance().isFinished();
+    }
+
+
     public void run(){
         start();
 
-        while(!Climb.getInstance().isFinished()&&!Thread.interrupted()){
+        while(!isFinished()&&!Thread.interrupted()){
         }
     }
+
 }
