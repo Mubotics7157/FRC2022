@@ -54,7 +54,9 @@ public class Odometry extends AbstractSubsystem{
 
     @Override
     public void update() {
-        odometry.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
+        odometry.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
+        //odometry.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
+        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
         m_field.setRobotPose(poseEstimator.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates()));
     }
 

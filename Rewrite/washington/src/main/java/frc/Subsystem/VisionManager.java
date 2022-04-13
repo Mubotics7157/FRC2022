@@ -91,13 +91,6 @@ public class VisionManager extends AbstractSubsystem{
             if(distance<5)
                 lastKnownDistance = distance;
 
-        if(distance > 1.96 && distance < 2.82)
-            LED.getInstance().setGREEN();
-            //^^ if bot is within bagel led will turn green
-            //^^ if not then stay orang
-
-        else
-            LED.getInstance().setORANGE();
         
             return Units.inchesToMeters(distance);
         }
@@ -146,11 +139,23 @@ public class VisionManager extends AbstractSubsystem{
     public void update() {
 
 
-        if(hasVisionTarget())
+        if(hasVisionTarget()){
             Odometry.getInstance().poseEstimator.addVisionMeasurement(getVisionOdometry(), Timer.getFPGATimestamp()-getLatency());
+        }
+
+             if(Intake.getInstance().ballsClear()&& hasVisionTarget()){
+                 LED.getInstance().setGREEN();
+                 SmartDashboard.putBoolean("ready", true);
+                 }
+        else{
+             LED.getInstance().setORANGE();
+             SmartDashboard.putBoolean("ready", false);
+        }
+            
+            //LED.getInstance().setRainbow();
+    }
 
         
-    }
     @Override
     public void selfTest() {}
 

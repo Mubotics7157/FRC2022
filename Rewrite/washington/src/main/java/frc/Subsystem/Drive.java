@@ -47,7 +47,6 @@ public class Drive extends AbstractSubsystem{
     //AHRS gyro = new AHRS(SPI.Port.kMXP);
     WPI_Pigeon2 gyro =new WPI_Pigeon2(30, ModuleConstants.SWERVE_CANIVORE_ID);
 
-    LED led = LED.getInstance();
 
 
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
@@ -72,7 +71,6 @@ public class Drive extends AbstractSubsystem{
         rotController.enableContinuousInput(-Math.PI, Math.PI);
         //rotController.enableContinuousInput(-180, 180);
         autoController = new HolonomicDriveController(xController, yController, rotController); 
-        led.setORANGE();
         autoController.setTolerance(new Pose2d(.5,.5,Rotation2d.fromDegrees(10)));
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
         visionRotController.setTolerance(Units.degreesToRadians(3));
@@ -181,11 +179,8 @@ public class Drive extends AbstractSubsystem{
            if(visionRotController.atGoal()){
                 Intake.getInstance().setIntakeState(IntakeState.AUTO_SHOT);
                 setDriveState(DriveState.FIELD_ORIENTED);
-                led.setGREEN();
 
            }
-           else
-            led.setRED();
         }
         else{
             setDriveState(DriveState.FIELD_ORIENTED);
