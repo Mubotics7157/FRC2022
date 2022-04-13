@@ -157,15 +157,15 @@ public class Robot extends TimedRobot {
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
             lastAutoPath = autoPath.getString(null);
             deserializerExecutor.execute(() -> { //Start deserializing on another thread
+                System.out.println("**************************");
                 System.out.println("start parsing autonomous");
-                SmartDashboard.putBoolean("done parsing auto?", false);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(1);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
                 networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
                 // ready to be run
+                System.out.println("**************************");
                 System.out.println("done parsing autonomous");
-                SmartDashboard.putBoolean("done parsing auto?", true);
                 //Set networktable entries for the gui notifications
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
@@ -259,8 +259,6 @@ public class Robot extends TimedRobot {
       intake.setIntakeState(IntakeState.RUN_ALL);
     else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
-    else if(operator.getRawButton(4))
-      intake.setIntakeState(IntakeState.SHOOTING);
     else if(driver.getAButton())
         Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
     else if(driver.getBButton())
@@ -273,6 +271,8 @@ public class Robot extends TimedRobot {
 
     
 
+    if(operator.getRawButtonPressed(5))
+        Intake.getInstance().toggleDefault();
     if(driver.getYButton())
         intake.toggleIntake();
     // else if (driver.getBButton())

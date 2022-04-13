@@ -1,13 +1,17 @@
 package frc.Subsystem;
 
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.util.AbstractSubsystem;
 
 public class VisionManager extends AbstractSubsystem{
@@ -32,6 +36,10 @@ public class VisionManager extends AbstractSubsystem{
     public enum VisionState{
         OFF,
         ON
+    }
+
+    private double getLatency(){
+        return tableLime.getEntry("tl").getDouble(0);
     }
 
     public synchronized double getTargetYaw(){
@@ -83,6 +91,7 @@ public class VisionManager extends AbstractSubsystem{
             if(distance<5)
                 lastKnownDistance = distance;
 
+        
             return Units.inchesToMeters(distance);
         }
         else 
@@ -92,6 +101,10 @@ public class VisionManager extends AbstractSubsystem{
 
     public synchronized double getCargoDistance(){
         return tableLime.getEntry("ty").getDouble(0);
+    }
+
+    public synchronized void toggleLimelightLEDMode(boolean on){
+        tableLime.getEntry("ledMode").setDouble(on?3:1);
     }
 
     public static VisionManager getInstance(){
@@ -104,28 +117,45 @@ public class VisionManager extends AbstractSubsystem{
     public synchronized void toggleLimelight(boolean on){
         tableLime.getEntry("ledMode").setNumber(on?3:1);
     }
+    
+    public synchronized Pose2d getOdometryFromVision(){
+        Pose2d visionOdom;
+        if(hasVisionTarget()){
+        visionOdom = new Pose2d(Math.sin(getTargetYawRotation2d().getRadians() * getDistanceToTarget()), Math.cos(getTargetYawRotation2d().getRadians() * getDistanceToTarget()), getTargetYawRotation2d());
+        return visionOdom;
+        }
+        else
+        return new Pose2d();
+    }
+
+    public synchronized Pose2d getVisionOdometry(){
+        double estHeading = Drive.getInstance().getDriveHeading().plus(getTargetYawRotation2d()).getRadians();
+
+        double poseX = getDistanceToTarget() * Math.cos(estHeading);
+        double poseY = getDistanceToTarget()*Math.sin(estHeading);
+
+        Translation2d estimatedPose = new Translation2d(poseX, poseY).rotateBy(VisionConstants.TARGET_POSE_METERS.getRotation()).plus(VisionConstants.TARGET_POSE_METERS.getTranslation());
+
+        return new Pose2d(estimatedPose,Drive.getInstance().getDriveHeading());
+    }
 
     @Override
     public void update() {
 
-        /*
-        if(getDistanceToTarget() > 1.96 && getDistanceToTarget() < 2.82)
-            LED.getInstance().setGREEN();
-            //^^ if bot is within bagel led will turn green
-            //^^ if not then stay orang
 
-        else
-            LED.getInstance().setORANGE();
-        
-            */
-        
+        if(hasVisionTarget()){
+            Odometry.getInstance().poseEstimator.addVisionMeasurement(getVisionOdometry(), Timer.getFPGATimestamp()-getLatency());
+        }
     }
+
+        
     @Override
     public void selfTest() {}
 
     @Override
     public void logData() {
         SmartDashboard.putNumber("distance to target", getDistanceToTarget());
+        SmartDashboard.putBoolean("target found?", hasVisionTarget());
     }
 
 }

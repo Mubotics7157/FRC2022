@@ -45,8 +45,8 @@ public class Intake extends AbstractSubsystem {
 
     DigitalInput breakBeam = new DigitalInput(9);
 
-    ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
-    ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
+    // ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
+    // ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
     ColorMatch colorMatcher = new ColorMatch();
 
     Color redCargo = new Color(0,0,0);
@@ -103,6 +103,7 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
+                //VisionManager.getInstance().toggleLimelightLEDMode(false);
                 updateOff();
                 break;
             case INTAKE_REVERSE:
@@ -123,6 +124,7 @@ public class Intake extends AbstractSubsystem {
             case SHOOTING:
                 //shoot();
                 autoShot();
+                //VisionManager.getInstance().toggleLimelightLEDMode(true);
                 break;
             case AUTO_SHOT:
                 autoShot();
@@ -176,7 +178,7 @@ public class Intake extends AbstractSubsystem {
     public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
         intake.set(0);
-        indexer.set(0);
+        //indexer.set(0);
     }
 
     public synchronized void holdIntaking(){
@@ -184,7 +186,7 @@ public class Intake extends AbstractSubsystem {
         indexer.set(0);
     }
     private void spitBall(){
-        if(shooter.atSpeed(1400,400))
+        if(shooter.atSpeed(1500,300))
             index();
     }
 
@@ -247,6 +249,12 @@ public class Intake extends AbstractSubsystem {
         intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
+    private void ocrShot(){
+        shooter.atSpeed(1350, 1350*1.08);
+        if(Robot.driver.getRawAxis(3)>.2)
+            indexer.set(IntakeConstants.INDEX_SPEED*.85);
+    }
+
     public synchronized void toggleIntake(){
         if(intakeSolenoid.get()==Value.kForward)
             intakeSolenoid.set(Value.kReverse);
@@ -263,7 +271,7 @@ public class Intake extends AbstractSubsystem {
 
     public synchronized void setShooterSpeeds(){
         topSpeed = SmartDashboard.getNumber("top wheel setpoint", 1350);
-        botSpeed = topSpeed*SmartDashboard.getNumber("shooter ratio", 1);
+        botSpeed = topSpeed*SmartDashboard.getNumber("shooter ratio", 1.08);
     }
 
     public synchronized void setShooterRatio(){
@@ -272,14 +280,14 @@ public class Intake extends AbstractSubsystem {
 
 
     private boolean oppositeCargoDetected(){
-        if(useRed){
-            if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(blueCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(blueCargo))
-                return true;
-        }
-        else{
-            if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(redCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(redCargo))
-                return true;
-        }
+        // if(useRed){
+            // if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(blueCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(blueCargo))
+                // return true;
+        // }
+        // else{
+            // if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(redCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(redCargo))
+                // return true;
+        // }
         return false;
     }
 
@@ -288,9 +296,8 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(getIntakeState()!=state)
-            stopMotors();
-        //holdIntaking();
+        // if(getIntakeState()!=state)
+            // stopMotors();
         intakeState = state;
     }   
 
@@ -299,7 +306,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setOff(){
-        if(getIntakeState()!=IntakeState.OFF)
+        // if(getIntakeState()!=IntakeState.OFF)
             stopMotors();
         intakeState = IntakeState.OFF;
     }
