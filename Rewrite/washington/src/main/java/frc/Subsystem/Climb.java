@@ -3,6 +3,7 @@ package frc.Subsystem;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -20,6 +21,10 @@ public class Climb extends AbstractSubsystem {
     private static Climb instance = new Climb();
 
     private double midSetpoint;
+
+    DigitalInput limitSwitch = new DigitalInput(1);
+    boolean useLimitSwitch = false;
+
     private double highSetpoint;
 
     private Climb(){
@@ -62,6 +67,7 @@ public class Climb extends AbstractSubsystem {
 
         switch(snapClimbState){
             case OFF:
+                holdQuickReleases();
                 setMotors(0, 0);
                 break;
             case MANUAL:
@@ -96,19 +102,41 @@ public class Climb extends AbstractSubsystem {
     }
 
     private void updateSubRoutine(){
-        if(withinTolerance()){
-            synchronized(this){
-                climbState = ClimbState.DONE;
+        if(useLimitSwitch){
+            if(limitSwitch.get()&&withinHighTolerance()){
+                synchronized(this){
+                    climbState = ClimbState.DONE;
             }
+
         }
-        midClimb.set(ControlMode.Position,midSetpoint);
-        highClimb.set(ControlMode.Position,highSetpoint);
+            midClimb.set(.7);
+    }
+        else{
+            if(withinTolerance()){
+                synchronized(this){
+                    climbState = ClimbState.DONE;
+                }
+            }
+            midClimb.set(ControlMode.Position,midSetpoint);
+            highClimb.set(ControlMode.Position,highSetpoint);
+        }
     }
 
     private boolean withinTolerance(){
         double midTolerance =  Math.abs(midClimb.getSelectedSensorPosition()-midSetpoint);
         double highTolerance = Math.abs( highClimb.getSelectedSensorPosition()-highSetpoint);
         return (midTolerance<100&&highTolerance<100);
+    }
+
+    private boolean withinHighTolerance(){
+
+        double highTolerance = Math.abs( highClimb.getSelectedSensorPosition()-highSetpoint);
+        return (highTolerance<100);
+    }
+
+    private void holdQuickReleases(){
+        midQuickRelease.set(Value.kOff);
+        highQuickRelease.set(Value.kOff);
     }
 
     public synchronized boolean isFinished(){
@@ -119,6 +147,13 @@ public class Climb extends AbstractSubsystem {
     public synchronized void setRoutineStep(double mid, double high){
         midSetpoint = mid;
         highSetpoint = high;
+        this.useLimitSwitch = false;
+    }
+
+    public synchronized void setRoutineStep(double mid, double high, boolean useLimitSwitch){
+        midSetpoint = mid;
+        highSetpoint = high;
+        this.useLimitSwitch = useLimitSwitch;
     }
 
     public synchronized void setClimbState(ClimbState state){
@@ -159,6 +194,9 @@ public class Climb extends AbstractSubsystem {
         SmartDashboard.putNumber("high setpoint", highSetpoint);
 
         SmartDashboard.putBoolean("is finished?", isFinished());
+
+        SmartDashboard.putBoolean("limit switch", limitSwitch.get());
+        SmartDashboard.putBoolean("use limit switch", useLimitSwitch);
         
     }
 

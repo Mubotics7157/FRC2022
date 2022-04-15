@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Drive.DriveState;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.util.AbstractSubsystem;
 
 public class Odometry extends AbstractSubsystem{
@@ -69,8 +70,16 @@ public class Odometry extends AbstractSubsystem{
         return odometry.getPoseMeters();
     }
 
+    public synchronized Pose2d getEstimatedOdometry(){
+        return poseEstimator.getEstimatedPosition();
+    }
+
     public synchronized void resetHeading(){
         odometry.resetPosition(new Pose2d(odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0));
+    }
+
+    public synchronized Pose2d getHubRelativeOdometry(){
+        return getEstimatedOdometry().relativeTo(VisionConstants.TARGET_POSE_METERS);
     }
 
     

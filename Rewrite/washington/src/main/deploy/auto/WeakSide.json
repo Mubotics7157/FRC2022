@@ -2407,7 +2407,7 @@
       "delayType" : "NONE",
       "delay" : 0.0,
       "commands" : [ {
-        "methodName" : "frc.Subsystem.Intake.setShooting",
+        "methodName" : "frc.Subsystem.Intake.setSpitting",
         "args" : [ ],
         "argTypes" : [ ],
         "reflection" : true

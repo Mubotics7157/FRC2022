@@ -42,6 +42,7 @@ import frc.util.ClimbRoutine.ActuateHigh;
 import frc.util.ClimbRoutine.ActuateMid;
 import frc.util.ClimbRoutine.ClimbCommand;
 import frc.util.ClimbRoutine.ClimbRoutine;
+import frc.util.ClimbRoutine.Delay;
 
 public class Robot extends TimedRobot {
 
@@ -68,7 +69,7 @@ public class Robot extends TimedRobot {
     ThreeBall threeBallAuto = new ThreeBall();
     FiveBall fiveBallAuto = new FiveBall();
     WeakSide weakSideAuto = new WeakSide();
-    TemplateAuto selectedAuto = fiveBallAuto;
+    TemplateAuto selectedAuto = weakSideAuto;
     Thread autoThread;
     private static final String DEFAULT_AUTO = "two";
     private static final String THREE_AUTO = "three";
@@ -140,7 +141,9 @@ public class Robot extends TimedRobot {
         odometry.setOdometry(new Pose2d());
         //routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
         //routine.addCommands(new ActuateMid(),new ClimbCommand(-10000,0));
-        routine.addCommands(new ActuateHigh(), new ClimbCommand(0,10000));
+        //routine.addCommands(new ActuateHigh(), new ClimbCommand(0,4));
+        routine.addCommands(new ActuateMid(),new Delay(.4),new ClimbCommand(505978,0),new ActuateHigh(),new Delay(.7),new ClimbCommand(475978,-113427),new ClimbCommand(-642, 296616));
+        //routine.addCommands(new ActuateMid(), new Delay(.4), new ClimbCommand(0,0,true));
         Intake.getInstance().toggleInterpolated();
         VisionManager.getInstance().toggleLimelight(false);
     }
@@ -149,7 +152,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         if (isEnabled()) {
             //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
+            SmartDashboard.putNumber("X %meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
 
@@ -232,6 +235,7 @@ public class Robot extends TimedRobot {
         // Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
         climb.setClimbState(ClimbState.JOG);
+        climbRoutine =null;
 
     }
 
@@ -269,6 +273,10 @@ public class Robot extends TimedRobot {
       intake.setOff();
 
 
+      if(operator.getRawAxis(3)>.2)
+        LED.getInstance().setRainbow();
+    else
+        LED.getInstance().setORANGE();
     
 
     if(operator.getRawButtonPressed(5))
@@ -294,7 +302,6 @@ public class Robot extends TimedRobot {
     
 
         if(operator.getRawButtonPressed(5)) {
-            climb.setJog();
             climb.toggleMidQuickRelease(true);
         }
          else if(operator.getRawButtonPressed(6))
@@ -309,6 +316,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
+        if(climbRoutine!=null)
         climbRoutine.interrupt();
         climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);

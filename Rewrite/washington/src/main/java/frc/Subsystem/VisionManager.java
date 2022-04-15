@@ -87,12 +87,12 @@ public class VisionManager extends AbstractSubsystem{
     public synchronized double getDistanceToTarget(){
         double TargetPitch = tableLime.getEntry("ty").getDouble(0);
         if(hasVisionTarget()&&TargetPitch!=0){
-            double distance = Units.metersToInches(Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
+            double distance = (Constants.VisionConstants.TARGET_HEIGHT_METERS - Constants.VisionConstants.CAM_HEIGHT_METERS) / Math.tan(Constants.VisionConstants.CAM_MOUNTING_PITCH_RADIANS + Units.degreesToRadians(TargetPitch));
             if(distance<5)
                 lastKnownDistance = distance;
 
         
-            return Units.inchesToMeters(distance);
+                return distance;
         }
         else 
             return lastKnownDistance;
@@ -103,9 +103,6 @@ public class VisionManager extends AbstractSubsystem{
         return tableLime.getEntry("ty").getDouble(0);
     }
 
-    public synchronized void toggleLimelightLEDMode(boolean on){
-        tableLime.getEntry("ledMode").setDouble(on?3:1);
-    }
 
     public static VisionManager getInstance(){
         if(instance == null)
@@ -115,7 +112,7 @@ public class VisionManager extends AbstractSubsystem{
     }
 
     public synchronized void toggleLimelight(boolean on){
-        tableLime.getEntry("ledMode").setNumber(on?3:1);
+        tableLime.getEntry("ledMode").setDouble(on?3:1);
     }
     
     public synchronized Pose2d getOdometryFromVision(){

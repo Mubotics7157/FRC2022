@@ -178,7 +178,7 @@ public class Intake extends AbstractSubsystem {
     public synchronized void stopMotors(){
         shooter.atSpeed(0, 0);
         intake.set(0);
-        //indexer.set(0);
+        indexer.set(0);
     }
 
     public synchronized void holdIntaking(){
@@ -296,8 +296,8 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        // if(getIntakeState()!=state)
-            // stopMotors();
+         if(getIntakeState()!=state)
+            stopMotors();
         intakeState = state;
     }   
 
