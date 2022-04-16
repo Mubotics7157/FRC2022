@@ -102,25 +102,18 @@ public class Climb extends AbstractSubsystem {
     }
 
     private void updateSubRoutine(){
-        if(useLimitSwitch){
-            if(limitSwitch.get()&&withinHighTolerance()){
-                synchronized(this){
-                    climbState = ClimbState.DONE;
-            }
 
-        }
-            midClimb.set(.7);
-    }
-        else{
             if(withinTolerance()){
                 synchronized(this){
                     climbState = ClimbState.DONE;
                 }
             }
-            midClimb.set(ControlMode.Position,midSetpoint);
-            highClimb.set(ControlMode.Position,highSetpoint);
+            else{
+                midClimb.set(ControlMode.Position,midSetpoint);
+                highClimb.set(ControlMode.Position,highSetpoint);
+
+            }
         }
-    }
 
     private boolean withinTolerance(){
         double midTolerance =  Math.abs(midClimb.getSelectedSensorPosition()-midSetpoint);
@@ -170,6 +163,8 @@ public class Climb extends AbstractSubsystem {
     public synchronized void setJog(){
         midClimb.configFactoryDefault();
         highClimb.configFactoryDefault();
+        midClimb.setSelectedSensorPosition(0);
+        highClimb.setSelectedSensorPosition(0);
         climbState = ClimbState.JOG;
     }
     public ClimbState getClimbState(){
@@ -197,6 +192,8 @@ public class Climb extends AbstractSubsystem {
 
         SmartDashboard.putBoolean("limit switch", limitSwitch.get());
         SmartDashboard.putBoolean("use limit switch", useLimitSwitch);
+
+        SmartDashboard.putBoolean("within tolerance?", withinTolerance());
         
     }
 

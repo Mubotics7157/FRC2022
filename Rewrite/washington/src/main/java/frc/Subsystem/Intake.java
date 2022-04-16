@@ -197,8 +197,6 @@ public class Intake extends AbstractSubsystem {
         else
             atSpeed = shooter.atSpeed(topSpeed, topSpeed*ratio);
         
-    if(Robot.driver.getRawAxis(3)>.2) // Possible point of failure must test
-        Intake.getInstance().index();
 
     }
 
@@ -229,6 +227,10 @@ public class Intake extends AbstractSubsystem {
     private void preRev(){
         ShooterSpeed shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
+    }
+
+    public synchronized void adjustShooterSpeeds(double val){
+        shotAdj = 1+val;
     }
 
 

@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
 
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
+    public static Joystick stick= new Joystick(2);
     //GUI
     NetworkTableInstance instance = NetworkTableInstance.getDefault();
     NetworkTable autoDataTable = instance.getTable("autodata");
@@ -130,31 +131,29 @@ public class Robot extends TimedRobot {
 
         autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        autoChooser.setDefaultOption("Default Auto", DEFAULT_AUTO);
-        autoChooser.addOption("Three Ball", THREE_AUTO);
-        SmartDashboard.putData("Auto choices", autoChooser);
 
 
         startSubsystems();
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        //routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
-        //routine.addCommands(new ActuateMid(),new ClimbCommand(-10000,0));
-        //routine.addCommands(new ActuateHigh(), new ClimbCommand(0,4));
-        routine.addCommands(new ActuateMid(),new Delay(.4),new ClimbCommand(505978,0),new ActuateHigh(),new Delay(.7),new ClimbCommand(475978,-113427),new ClimbCommand(-642, 296616));
-        //routine.addCommands(new ActuateMid(), new Delay(.4), new ClimbCommand(0,0,true));
+        //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
         Intake.getInstance().toggleInterpolated();
         VisionManager.getInstance().toggleLimelight(false);
+        autoChooser.setDefaultOption("default","two");
+        autoChooser.addOption("five ball","five");
+        autoChooser.addOption("weak side","weak");
+        SmartDashboard.putData(autoChooser);
     }
     
     @Override
     public void robotPeriodic() {
         if (isEnabled()) {
             //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-            SmartDashboard.putNumber("X %meters", odometry.getOdometry().getX());
+            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
+        SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -173,6 +172,12 @@ public class Robot extends TimedRobot {
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
             });
+                if(autoChooser.getSelected().equals("five"))
+                    selectedAuto = fiveBallAuto;
+                else if(autoChooser.getSelected().equals("weak"))
+                    selectedAuto = weakSideAuto;
+                else if(autoChooser.getSelected().equals("default"))
+                    selectedAuto = twoBallAuto;
         }
 
     }
@@ -235,7 +240,8 @@ public class Robot extends TimedRobot {
         // Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
         climb.setClimbState(ClimbState.JOG);
-        climbRoutine =null;
+        climbRoutine = null;
+        routine = new ClimbRoutine();
 
     }
 
@@ -245,7 +251,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
     if(operator.getRawButtonPressed(1)){
-        if(climbRoutine==null){
+        if(climbRoutine==null||climbRoutine.isInterrupted()){
              climbRoutine = new Thread(routine);
              climbRoutine.start();
         }
@@ -273,12 +279,6 @@ public class Robot extends TimedRobot {
       intake.setOff();
 
 
-      if(operator.getRawAxis(3)>.2)
-        LED.getInstance().setRainbow();
-    else
-        LED.getInstance().setORANGE();
-    
-
     if(operator.getRawButtonPressed(5))
         Intake.getInstance().toggleDefault();
     if(driver.getYButton())
@@ -287,6 +287,9 @@ public class Robot extends TimedRobot {
     //   intake.toggleIntake(false);
   
 
+
+    if(driver.getRawAxis(3)>.2)
+        Intake.getInstance().index();
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
@@ -306,6 +309,8 @@ public class Robot extends TimedRobot {
         }
          else if(operator.getRawButtonPressed(6))
              climb.toggleHighQuickRelease(true);
+
+        Intake.getInstance().adjustShooterSpeeds(-stick.getRawAxis(3));
 }
 
 
@@ -318,7 +323,7 @@ public class Robot extends TimedRobot {
         enabled.setBoolean(false);
         if(climbRoutine!=null)
         climbRoutine.interrupt();
-        climbRoutine = null;  
+        //climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);
      }
 
