@@ -32,7 +32,6 @@ import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.FiveBall;
 import frc.auton.TemplateAuto;
-import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
 import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
@@ -67,13 +66,10 @@ public class Robot extends TimedRobot {
 
     //Auto
     TwoBall twoBallAuto = new TwoBall();
-    ThreeBall threeBallAuto = new ThreeBall();
     FiveBall fiveBallAuto = new FiveBall();
     WeakSide weakSideAuto = new WeakSide();
-    TemplateAuto selectedAuto = weakSideAuto;
+    TemplateAuto selectedAuto = twoBallAuto;
     Thread autoThread;
-    private static final String DEFAULT_AUTO = "two";
-    private static final String THREE_AUTO = "three";
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     //Subsystems
@@ -172,12 +168,6 @@ public class Robot extends TimedRobot {
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
             });
-                if(autoChooser.getSelected().equals("five"))
-                    selectedAuto = fiveBallAuto;
-                else if(autoChooser.getSelected().equals("weak"))
-                    selectedAuto = weakSideAuto;
-                else if(autoChooser.getSelected().equals("default"))
-                    selectedAuto = twoBallAuto;
         }
 
     }
