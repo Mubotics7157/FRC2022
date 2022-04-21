@@ -140,9 +140,6 @@ public class VisionManager extends AbstractSubsystem{
     public void update() {
 
 
-        if(hasVisionTarget()){
-            Odometry.getInstance().poseEstimator.addVisionMeasurement(getVisionOdometry(), Timer.getFPGATimestamp()-getLatency());
-        }
     }
 
         

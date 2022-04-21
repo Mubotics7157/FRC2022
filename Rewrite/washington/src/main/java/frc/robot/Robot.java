@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
     TwoBall twoBallAuto = new TwoBall();
     FiveBall fiveBallAuto = new FiveBall();
     WeakSide weakSideAuto = new WeakSide();
-    TemplateAuto selectedAuto = twoBallAuto;
+    TemplateAuto selectedAuto = fiveBallAuto;
     Thread autoThread;
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
@@ -135,7 +135,7 @@ public class Robot extends TimedRobot {
         odometry.setOdometry(new Pose2d());
         //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
         Intake.getInstance().toggleInterpolated();
-        VisionManager.getInstance().toggleLimelight(false);
+        VisionManager.getInstance().toggleLimelight(true);
         autoChooser.setDefaultOption("default","two");
         autoChooser.addOption("five ball","five");
         autoChooser.addOption("weak side","weak");
@@ -232,6 +232,7 @@ public class Robot extends TimedRobot {
         climb.setClimbState(ClimbState.JOG);
         climbRoutine = null;
         routine = new ClimbRoutine();
+        LED.getInstance().setORANGE();
 
     }
 

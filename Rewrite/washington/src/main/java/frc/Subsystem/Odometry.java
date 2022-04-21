@@ -22,7 +22,6 @@ import frc.util.AbstractSubsystem;
 public class Odometry extends AbstractSubsystem{
 
     SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.DRIVE_KINEMATICS, Drive.getInstance().getDriveHeading());
-    SwerveDrivePoseEstimator poseEstimator;
     Field2d m_field;
     private static Odometry instance = new Odometry();
 
@@ -36,17 +35,8 @@ public class Odometry extends AbstractSubsystem{
         localDev = VecBuilder.fill(.02);
         visionDev = VecBuilder.fill(.05,.05,.05);
         
-        m_field = new Field2d();
         SmartDashboard.putData("field", m_field);
 
-        poseEstimator = new SwerveDrivePoseEstimator(
-            Drive.getInstance().getDriveHeading(),
-            getOdometry(),
-            DriveConstants.DRIVE_KINEMATICS,
-            stateDev, //state
-            localDev, //local
-            visionDev //vision
-            );
     }
 
     public static Odometry getInstance(){
@@ -57,30 +47,21 @@ public class Odometry extends AbstractSubsystem{
     public void update() {
         odometry.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
         //odometry.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
-        poseEstimator.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
-        m_field.setRobotPose(poseEstimator.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates()));
     }
 
     public synchronized void setOdometry(Pose2d pose){
         odometry.resetPosition(pose, Drive.getInstance().getDriveHeading());  
-        poseEstimator.resetPosition(pose, Drive.getInstance().getDriveHeading());
     }
 
     public synchronized Pose2d getOdometry(){
         return odometry.getPoseMeters();
     }
 
-    public synchronized Pose2d getEstimatedOdometry(){
-        return poseEstimator.getEstimatedPosition();
-    }
 
     public synchronized void resetHeading(){
         odometry.resetPosition(new Pose2d(odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0));
     }
 
-    public synchronized Pose2d getHubRelativeOdometry(){
-        return getEstimatedOdometry().relativeTo(VisionConstants.TARGET_POSE_METERS);
-    }
 
     
     @Override
@@ -89,9 +70,6 @@ public class Odometry extends AbstractSubsystem{
         SmartDashboard.putNumber("Pose Y", odometry.getPoseMeters().getY());
         SmartDashboard.putNumber("Pose R", odometry.getPoseMeters().getRotation().getDegrees());
 
-        SmartDashboard.putNumber("Est Pose X", poseEstimator.getEstimatedPosition().getX());
-        SmartDashboard.putNumber("Est Pose Y", poseEstimator.getEstimatedPosition().getY());
-        SmartDashboard.putNumber("Est Pose R", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
     }
 
     @Override

@@ -206,7 +206,7 @@ public class Drive extends AbstractSubsystem{
             driveFromChassis(desiredSpeeds);
 
 
-            if(autoController.atReference()||getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+            if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);
             }
 
@@ -312,6 +312,7 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putNumber("drive pitch", gyro.getPitch());
         SmartDashboard.putNumber("drive roll", gyro.getRoll());
 
+        SmartDashboard.putBoolean("at reference",autoController.atReference());
     }
 
 
