@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
     TwoBall twoBallAuto = new TwoBall();
     FiveBall fiveBallAuto = new FiveBall();
     WeakSide weakSideAuto = new WeakSide();
-    TemplateAuto selectedAuto = fiveBallAuto;
+    TemplateAuto selectedAuto = twoBallAuto;
     Thread autoThread;
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
@@ -284,7 +284,6 @@ public class Robot extends TimedRobot {
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
-
 
     if(operator.getRawButtonPressed(2))
         Intake.getInstance().manualPowerAdjust();

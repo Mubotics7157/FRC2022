@@ -230,7 +230,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void adjustShooterSpeeds(double val){
-        shotAdj = 1+val;
+        shotAdj = 1 + val;
     }
 
 

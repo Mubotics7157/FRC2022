@@ -25,17 +25,9 @@ public class Odometry extends AbstractSubsystem{
     Field2d m_field;
     private static Odometry instance = new Odometry();
 
-    Matrix<N3,N1> stateDev;
-    Matrix<N1,N1> localDev;
-    Matrix<N3,N1> visionDev;
-
     private Odometry(){
         super(20,20);
-        stateDev = VecBuilder.fill(.02, .02, .05);
-        localDev = VecBuilder.fill(.02);
-        visionDev = VecBuilder.fill(.05,.05,.05);
         
-        SmartDashboard.putData("field", m_field);
 
     }
 
