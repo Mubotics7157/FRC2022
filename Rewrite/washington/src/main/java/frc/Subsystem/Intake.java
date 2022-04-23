@@ -213,13 +213,13 @@ public class Intake extends AbstractSubsystem {
             
         if(DriverStation.isAutonomous()&&shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj))
             index();
-        else
-            shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
+        //else
+            //shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj);
 
         SmartDashboard.putNumber("interpolated top", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("interpolated bot", shooterSpeeds.bottomSpeed);
 
-        if(Robot.driver.getRawAxis(3)>.2)
+        if(shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj) &&Robot.driver.getRawAxis(3)>.2)
             index();
 
     }

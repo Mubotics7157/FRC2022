@@ -18,13 +18,13 @@ public class Shooter {
         flywheelTop = new TalonFX(ShooterConstants.DEVICE_ID_TOP_WHEEL);
 
         TalonFXConfiguration topConfig = new TalonFXConfiguration();
-        topConfig.slot0.kP = .35;
+        topConfig.slot0.kP = .36;
         topConfig.slot0.kD = .045;
         topConfig.slot0.kF = .05;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
 
-        botConfig.slot0.kP =.35;    
+        botConfig.slot0.kP =.36;    
         botConfig.slot0.kD = .045;
         botConfig.slot0.kF =.05;
         flywheelBot.configAllSettings(botConfig);

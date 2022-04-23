@@ -73,7 +73,7 @@ public class Drive extends AbstractSubsystem{
         autoController = new HolonomicDriveController(xController, yController, rotController); 
         autoController.setTolerance(new Pose2d(.5,.5,Rotation2d.fromDegrees(10)));
         visionRotController.enableContinuousInput(-Math.PI, Math.PI);
-        visionRotController.setTolerance(Units.degreesToRadians(3));
+        visionRotController.setTolerance(Units.degreesToRadians(2));
     }
     
     public static Drive getInstance(){
@@ -149,7 +149,7 @@ public class Drive extends AbstractSubsystem{
 
     private void updateAlign(){
         if(VisionManager.getInstance().hasVisionTarget()){
-        Rotation2d onTarget = new Rotation2d(0);
+        Rotation2d onTarget = Rotation2d.fromDegrees(3);
         double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
 
 

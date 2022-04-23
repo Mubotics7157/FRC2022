@@ -43,6 +43,9 @@ public class Climb extends AbstractSubsystem {
 
         highClimb.config_kP(0, .5);
         highClimb.config_kD(0, .05);
+
+        midClimb.configNeutralDeadband(.2);
+        highClimb.configNeutralDeadband(.2);
     }
     public static Climb getInstance(){
         return instance;
@@ -71,7 +74,7 @@ public class Climb extends AbstractSubsystem {
                 setMotors(0, 0);
                 break;
             case MANUAL:
-                setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
+                setMotors(0, 0);
             break;
             case JOG:
                 setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));

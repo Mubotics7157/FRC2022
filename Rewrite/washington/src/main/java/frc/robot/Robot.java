@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
 
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
-    public static Joystick stick= new Joystick(2);
+
     //GUI
     NetworkTableInstance instance = NetworkTableInstance.getDefault();
     NetworkTable autoDataTable = instance.getTable("autodata");
@@ -65,10 +65,10 @@ public class Robot extends TimedRobot {
     ExecutorService deserializerExecutor = Executors.newSingleThreadExecutor();
 
     //Auto
-    TwoBall twoBallAuto = new TwoBall();
-    FiveBall fiveBallAuto = new FiveBall();
     WeakSide weakSideAuto = new WeakSide();
-    TemplateAuto selectedAuto = twoBallAuto;
+    TwoBall twoBallAuto;
+    FiveBall fiveBallAuto; 
+    TemplateAuto selectedAuto;
     Thread autoThread;
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
@@ -116,10 +116,18 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        OrangeUtility.sleep(1500);
+        try{
+            twoBallAuto = new TwoBall();
+            fiveBallAuto = new FiveBall();
+        }
+        finally{}
+
         LED.getInstance().setORANGE();
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
         SmartDashboard.putNumber("shot adjustment", 1.35);
+        selectedAuto = twoBallAuto;
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -189,14 +197,12 @@ public class Robot extends TimedRobot {
             networkAutoLock.unlock();
         }
         
-        assert selectedAuto != null;
-        //Since autonomous objects can be reused they need to be reset them before we can reuse them again 
-        selectedAuto.reset();
+        if( selectedAuto != null){
+            selectedAuto.reset();
 
-        //We then create a new thread to run the auto and run it
-        autoThread = new Thread(selectedAuto);
-        autoThread.start();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+            autoThread = new Thread(selectedAuto);
+            autoThread.start();
+        }
 
     if(autoPath.getString(null)!=null)
       autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(),1,1,"",null,12));
@@ -226,8 +232,8 @@ public class Robot extends TimedRobot {
         compressor.enableDigital();
         intake.toggleIntake(true);
         intake.setCargoColor(true);
-        // Climb.getInstance().toggleMidQuickRelease(false);
-        // Climb.getInstance().toggleHighQuickRelease(false);
+         Climb.getInstance().toggleMidQuickRelease(false);
+         Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
         climb.setClimbState(ClimbState.JOG);
         climbRoutine = null;
@@ -277,10 +283,9 @@ public class Robot extends TimedRobot {
     // else if (driver.getBButton())
     //   intake.toggleIntake(false);
   
+    
 
 
-    if(driver.getRawAxis(3)>.2)
-        Intake.getInstance().index();
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
@@ -294,13 +299,7 @@ public class Robot extends TimedRobot {
 
     
 
-        if(operator.getRawButtonPressed(5)) {
-            climb.toggleMidQuickRelease(true);
-        }
-         else if(operator.getRawButtonPressed(6))
-             climb.toggleHighQuickRelease(true);
 
-        Intake.getInstance().adjustShooterSpeeds(-stick.getRawAxis(3));
 }
 
 

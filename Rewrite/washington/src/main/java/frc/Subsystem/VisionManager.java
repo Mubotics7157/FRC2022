@@ -141,6 +141,10 @@ public class VisionManager extends AbstractSubsystem{
     @Override
     public void update() {
 
+        if(hasVisionTarget()&&Intake.getInstance().indexerCleared()){
+            Robot.driver.setRumble(RumbleType.kLeftRumble, .5);
+            Robot.driver.setRumble(RumbleType.kRightRumble, .5);
+        }
 
     }
 
