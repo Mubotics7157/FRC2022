@@ -123,10 +123,9 @@ public class Robot extends TimedRobot {
         }
         finally{}
 
-        LED.getInstance().setORANGE();
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", 1.35);
+        SmartDashboard.putNumber("shot adjustment", .97);
         selectedAuto = twoBallAuto;
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
@@ -143,11 +142,12 @@ public class Robot extends TimedRobot {
         odometry.setOdometry(new Pose2d());
         //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
         Intake.getInstance().toggleInterpolated();
-        VisionManager.getInstance().toggleLimelight(true);
+        VisionManager.getInstance().toggleLimelight(false);
         autoChooser.setDefaultOption("default","two");
         autoChooser.addOption("five ball","five");
         autoChooser.addOption("weak side","weak");
         SmartDashboard.putData(autoChooser);
+        LED.getInstance().setOFF();
     }
     
     @Override
@@ -182,6 +182,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        LED.getInstance().setORANGE();
         VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
 
@@ -280,10 +281,10 @@ public class Robot extends TimedRobot {
         Intake.getInstance().toggleDefault();
     if(driver.getYButton())
         intake.toggleIntake();
-    // else if (driver.getBButton())
-    //   intake.toggleIntake(false);
   
     
+    if(driver.getRawAxis(3)>.2)
+        intake.index();
 
 
 
@@ -294,10 +295,6 @@ public class Robot extends TimedRobot {
         Intake.getInstance().manualPowerAdjust();
     
 
-    if(operator.getRawButtonPressed((9)))
-        Intake.getInstance().toggleInterpolated();
-
-    
 
 
 }
