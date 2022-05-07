@@ -3,7 +3,6 @@ package frc.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.FilterConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
@@ -53,6 +52,7 @@ public class Shooter {
         boolean atSpeed =  (Math.abs(topSetpoint - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(botSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
         SmartDashboard.putNumber("actual top", getTopRPM());
         SmartDashboard.putNumber("actual bot", getBotRPM());
+        SmartDashboard.putBoolean("shooter at speed", atSpeed);
         return atSpeed;
     }
     

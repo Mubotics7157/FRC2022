@@ -30,19 +30,24 @@ import frc.Subsystem.VisionManager;
 import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
+import frc.auton.FiveBall;
 import frc.auton.TemplateAuto;
-import frc.auton.ThreeBall;
 import frc.auton.TwoBall;
+import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
+import frc.util.ClimbRoutine.ActuateHigh;
+import frc.util.ClimbRoutine.ActuateMid;
 import frc.util.ClimbRoutine.ClimbCommand;
 import frc.util.ClimbRoutine.ClimbRoutine;
+import frc.util.ClimbRoutine.Delay;
 
 public class Robot extends TimedRobot {
 
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
+
     //GUI
     NetworkTableInstance instance = NetworkTableInstance.getDefault();
     NetworkTable autoDataTable = instance.getTable("autodata");
@@ -60,12 +65,11 @@ public class Robot extends TimedRobot {
     ExecutorService deserializerExecutor = Executors.newSingleThreadExecutor();
 
     //Auto
-    TwoBall twoBallAuto = new TwoBall();
-    ThreeBall threeBallAuto = new ThreeBall();
+    WeakSide weakSideAuto = new WeakSide();
+    TwoBall twoBallAuto;
+    FiveBall fiveBallAuto; 
     TemplateAuto selectedAuto;
     Thread autoThread;
-    private static final String DEFAULT_AUTO = "two";
-    private static final String THREE_AUTO = "three";
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     //Subsystems
@@ -112,10 +116,17 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        OrangeUtility.sleep(1500);
+        try{
+            twoBallAuto = new TwoBall();
+            fiveBallAuto = new FiveBall();
+        }
+        finally{}
+
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", 1.35);
-        SmartDashboard.putNumber("indexer gain", 0.1);
+        SmartDashboard.putNumber("shot adjustment", .97);
+        selectedAuto = twoBallAuto;
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -123,17 +134,20 @@ public class Robot extends TimedRobot {
 
         autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        autoChooser.setDefaultOption("Default Auto", DEFAULT_AUTO);
-        autoChooser.addOption("Three Ball", THREE_AUTO);
-        SmartDashboard.putData("Auto choices", autoChooser);
 
 
         startSubsystems();
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        routine.addCommands(new ClimbCommand(-805000,-1016766),new ClimbCommand(-250,-1016766),new ClimbCommand(-550,-1425000),new ClimbCommand(-230059,-1395842),new ClimbCommand(-540005,-990000));
-        //Intake.getInstance().toggleInterpolated();
+        //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
+        Intake.getInstance().toggleInterpolated();
+        VisionManager.getInstance().toggleLimelight(false);
+        autoChooser.setDefaultOption("default","two");
+        autoChooser.addOption("five ball","five");
+        autoChooser.addOption("weak side","weak");
+        SmartDashboard.putData(autoChooser);
+        LED.getInstance().setOFF();
     }
     
     @Override
@@ -143,6 +157,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
+        SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -167,13 +182,33 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        LED.getInstance().setORANGE();
+        VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
 
-        if(selectedAuto!=null)
-          selectedAuto.reset();
+    networkAutoLock.lock();
+       try {
+            if (networkAuto == null) {
+                System.out.println("Using normal autos");
+            } else {
+                System.out.println("Using autos from network tables");
+                selectedAuto = networkAuto;
+            }
+        } finally {
+            networkAutoLock.unlock();
+        }
+        
+        if( selectedAuto != null){
+            selectedAuto.reset();
 
-        autoThread = new Thread(selectedAuto);
-        autoThread.start();
+            autoThread = new Thread(selectedAuto);
+            autoThread.start();
+        }
+
+    if(autoPath.getString(null)!=null)
+      autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(),1,1,"",null,12));
+    
+    autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 
     /**
@@ -196,9 +231,15 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
-        climb.setClimbState(ClimbState.OFF);
-
-
+        intake.toggleIntake(true);
+        intake.setCargoColor(true);
+         Climb.getInstance().toggleMidQuickRelease(false);
+         Climb.getInstance().toggleHighQuickRelease(false);
+        VisionManager.getInstance().toggleLimelight(true);
+        climb.setClimbState(ClimbState.JOG);
+        climbRoutine = null;
+        routine = new ClimbRoutine();
+        LED.getInstance().setORANGE();
 
     }
 
@@ -207,6 +248,18 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+    if(operator.getRawButtonPressed(1)){
+        if(climbRoutine==null||climbRoutine.isInterrupted()){
+             climbRoutine = new Thread(routine);
+             climbRoutine.start();
+        }
+         else
+             climbRoutine.resume();  
+     }
+      else if(operator.getRawButtonReleased(1)){
+          if(climbRoutine!=null)
+             climbRoutine.suspend();
+    }
     if(driver.getLeftBumper())
       drive.resetHeading();
 
@@ -215,52 +268,29 @@ public class Robot extends TimedRobot {
      else if(driver.getRightBumper())
       intake.setIntakeState(IntakeState.INDEX_REVERSE);
     else if(driver.getAButton())
-         Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
-     else if(intake.getIntakeState()!=IntakeState.OFF)
-       intake.setOff();
+        Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
+    else if(driver.getBButton())
+        Intake.getInstance().setIntakeState(IntakeState.SPIT_BALL);
+    else if(operator.getRawAxis(2)>.2)
+        Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
+    else
+      intake.setOff();
 
-    if(driver.getRawAxis(3)>.2)
-        Intake.getInstance().index();
-    
-    if(driver.getRawButtonReleased(1))
-        LED.getInstance().setORANGE();
 
     if(driver.getYButton())
         intake.toggleIntake();
-    else if (driver.getBButton())
-      intake.toggleIntake(false);
   
+    
+    if(driver.getRawAxis(3)>.2)
+        intake.index();
 
-    if(operator.getRawButtonPressed(1)){
-        Climb.getInstance().setClimbState(ClimbState.DONE);
-    }
 
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
-    // if(operator.getRawButtonPressed(1)){
-        // if(climbRoutine==null){
-            // climbRoutine = new Thread(routine);
-            // climbRoutine.start();
-        // }
-        // else
-            // climbRoutine.resume();  
-    // }
-    //  else if(operator.getRawButtonReleased(1)){
-        //  if(climbRoutine!=null)
-            // climbRoutine.suspend();
-    // }
+   
 
-    if(operator.getRawButtonPressed(2))
-    Intake.getInstance().saveIndexerPID();
-        //Intake.getInstance().manualPowerAdjust();
-    
 
-    // if(operator.getRawButtonPressed((9)))
-        // Intake.getInstance().toggleInterpolated();
-
-    if(operator.getRawAxis(2)>.2)
-        Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
 
 }
 
@@ -273,8 +303,9 @@ public class Robot extends TimedRobot {
         killAuto();
         enabled.setBoolean(false);
         if(climbRoutine!=null)
-            climbRoutine.interrupt();
-        climbRoutine = null;  
+        climbRoutine.interrupt();
+        //climbRoutine = null;  
+        VisionManager.getInstance().toggleLimelight(false);
      }
 
     /**
@@ -298,6 +329,14 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+        if(operator.getRawButtonPressed(5)) 
+            climb.toggleMidQuickRelease(true);
+        else if(operator.getRawButtonPressed(1))
+             climb.toggleMidQuickRelease(false);
+        else if(operator.getRawButtonPressed(6))
+            climb.toggleHighQuickRelease(true);
+        else if(operator.getRawButtonPressed(2))
+            climb.toggleHighQuickRelease(false);
     }
 
     private void startSubsystems() {
@@ -310,7 +349,6 @@ public class Robot extends TimedRobot {
     }
 
     public synchronized void killAuto() {
-        System.out.println("Killing Auto");
         if (selectedAuto != null&&autoThread!=null) {
             autoThread.interrupt();
             double nextStackTracePrint = Timer.getFPGATimestamp() + 1;

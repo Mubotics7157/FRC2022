@@ -12,7 +12,17 @@ public class ClimbRoutine implements Runnable {
 	boolean killFlag = false;
 	boolean stopFlag = false;
 
-	private ArrayList<ClimbCommand> routine = new ArrayList<ClimbCommand>();
+	private ArrayList<ClimbCommand> routine;
+
+	public ClimbRoutine(){
+	    routine = new ArrayList<ClimbCommand>();
+		routine.add(new ActuateMid());
+		routine.add(new Delay(.4));
+		routine.add(new ActuateHigh());
+		routine.add(new Delay(.4));
+		routine.add(new ClimbCommand(-642, 427685));
+		SmartDashboard.putNumber("command list size", routine.size());
+	}
 
 	synchronized public void addCommands(ClimbCommand... commands) {
 		routine.addAll(Arrays.asList(commands));
@@ -24,25 +34,31 @@ public class ClimbRoutine implements Runnable {
 			routine.addAll(r.routine);
 		}
 	}
+		
 
 	@Override
 	synchronized public void run() {
 		SmartDashboard.putBoolean("stop climb sequence?", killFlag);
-		if(!killFlag){
+		//if(!killFlag){
 			for (ClimbCommand command : routine) {
-				if (!Thread.interrupted())
+				if (!Thread.interrupted()){
 					command.run();
-				else
-					break;
-				if (!DriverStation.isTeleop()) {
+					System.out.println("*********");
+				}
+				else{
+					Climb.getInstance().setClimbState(ClimbState.DONE);
 					break;
 				}
-			}
-			killFlag = true;
+				if (!DriverStation.isTeleop()) {
+					Climb.getInstance().setClimbState(ClimbState.DONE);
+					break;
+				}
+			//}
+			//killFlag = true;
  
 		}
 
-		else
+		//else
 			Climb.getInstance().setClimbState(ClimbState.DONE);
 	}
 }
