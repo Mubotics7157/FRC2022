@@ -38,11 +38,23 @@ public class Intake extends AbstractSubsystem {
         PRE_REV
     }
 
+    public enum SensorState{
+        //these are saying what beams have been broken
+        none,
+        indexer,
+        intake_indexer,
+        indexer_flywheel
+
+    }
+
     IntakeState intakeState = IntakeState.OFF;
+    SensorState sensorState = SensorState.none;
     WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
-
+    DigitalInput intakeSensor = new DigitalInput(6);
+    DigitalInput indexerSensor = new DigitalInput(7);
+    DigitalInput flywheelSensor = new DigitalInput(8);
     DigitalInput breakBeam = new DigitalInput(9);
 
     // ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
@@ -164,6 +176,20 @@ public class Intake extends AbstractSubsystem {
         intake();
         index();
 
+        switch (sensorState){
+            case none:
+            break;
+            case indexer:
+            indexer.set(0);
+            break;
+            case intake_indexer:
+            indexer.set(.85);
+            break;
+            case indexer_flywheel:
+            holdIntaking();
+            break;
+
+        }
         // if(!oppositeCargoDetected())
             // index();
         // else

@@ -13,6 +13,7 @@ public class LED {
     public static LED instance = new LED();
     CANdleConfiguration config;
     RainbowAnimation rainbow;
+    boolean toggle;
     public LED(){
         candle = new CANdle(31);
         config = new CANdleConfiguration();
@@ -21,7 +22,7 @@ public class LED {
         candle.setLEDs(255, 255, 255);
         rainbow = new RainbowAnimation(1, 1, 211);
         candle.configAllSettings(config);
-        
+        toggle = true;  
     }
 
     public static LED getInstance(){
@@ -55,6 +56,15 @@ public class LED {
     public synchronized void setORANGE(){
         candle.setLEDs(255, 45, 0);
     }
+
+    public boolean getToggle(){
+        return toggle;
+    }
+
+    public void changeToggle(){
+        toggle = !toggle;
+    }
+
 
     public synchronized void setSeizure(){
         candle.setLEDs(255, 45, 0);
