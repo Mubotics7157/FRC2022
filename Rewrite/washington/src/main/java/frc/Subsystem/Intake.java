@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.Subsystem.autoIntake.SensorState;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
