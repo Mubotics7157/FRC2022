@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.Subsystem.autoIntake.SensorState;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
@@ -175,7 +176,7 @@ public class Intake extends AbstractSubsystem {
         shooter.atSpeed(-150, -150);
         intake();
         index();
-
+        setSensorState();
         switch (sensorState){
             case none:
             break;
@@ -379,6 +380,15 @@ public class Intake extends AbstractSubsystem {
     }
     public synchronized void setCargoColor(boolean red){
         useRed = red;
+    }
+
+    public synchronized void setSensorState(){
+        if(indexerSensor.get() && !intakeSensor.get() && !flywheelSensor.get())
+        sensorState = SensorState.indexer;
+        else if(indexerSensor.get() && intakeSensor.get() && !flywheelSensor.get())
+        sensorState = SensorState.intake_indexer;
+        else if(indexerSensor.get() && flywheelSensor.get() && !intakeSensor.get())
+        sensorState = SensorState.indexer_flywheel;
     }
 
     @Override
