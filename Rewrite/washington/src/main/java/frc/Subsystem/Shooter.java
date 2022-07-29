@@ -18,14 +18,14 @@ public class Shooter {
         flywheelTop = new TalonFX(ShooterConstants.DEVICE_ID_TOP_WHEEL);
 
         TalonFXConfiguration topConfig = new TalonFXConfiguration();
-        topConfig.slot0.kP = .35;
-        topConfig.slot0.kD = .045;
+       // topConfig.slot0.kP = .35;
+        //topConfig.slot0.kD = .045;
         topConfig.slot0.kF = .05;
         flywheelTop.configAllSettings(topConfig);
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
 
-        botConfig.slot0.kP =.35;    
-        botConfig.slot0.kD = .045;
+        //botConfig.slot0.kP =.35;    
+        //botConfig.slot0.kD = .045;
         botConfig.slot0.kF =.05;
         flywheelBot.configAllSettings(botConfig);
 
@@ -62,14 +62,14 @@ public class Shooter {
         return (Math.abs(topSetpoint/ratio - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(topSetpoint-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
     }
     public void rev(double topSetpoint, double botSetpoint){
-        if(topSetpoint == 0 && botSetpoint == 0){
-            flywheelBot.set(ControlMode.PercentOutput,0);
-            flywheelTop.set(ControlMode.PercentOutput,0);
-        }
-        else{
-            flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(botSetpoint));
-            flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint));
-        }
+         if(topSetpoint == 0 && botSetpoint == 0){
+             flywheelBot.set(ControlMode.PercentOutput,0);
+             flywheelTop.set(ControlMode.PercentOutput,0);
+         }
+         else{
+             flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(botSetpoint));
+             flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(topSetpoint));
+         }
 
     }
 

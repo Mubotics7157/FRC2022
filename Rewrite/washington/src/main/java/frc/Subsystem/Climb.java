@@ -22,7 +22,7 @@ public class Climb extends AbstractSubsystem {
 
     private double midSetpoint;
 
-    DigitalInput limitSwitch = new DigitalInput(1);
+    //DigitalInput limitSwitch = new DigitalInput(1);
     boolean useLimitSwitch = false;
 
     private double highSetpoint;
@@ -193,8 +193,8 @@ public class Climb extends AbstractSubsystem {
 
         SmartDashboard.putBoolean("is finished?", isFinished());
 
-        SmartDashboard.putBoolean("limit switch", limitSwitch.get());
-        SmartDashboard.putBoolean("use limit switch", useLimitSwitch);
+        //SmartDashboard.putBoolean("limit switch", limitSwitch.get());
+        //SmartDashboard.putBoolean("use limit switch", useLimitSwitch);
 
         SmartDashboard.putBoolean("within tolerance?", withinTolerance());
         

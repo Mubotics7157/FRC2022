@@ -22,6 +22,7 @@ import frc.util.OrangeUtility;
 import frc.util.ShotGenerator;
 import frc.util.Shooting.InterpolatingDouble;
 import frc.util.ShotGenerator.ShooterSpeed;
+import frc.util.sensors.PhotoElectric;
 
 public class Intake extends AbstractSubsystem {
     
@@ -48,14 +49,13 @@ public class Intake extends AbstractSubsystem {
     }
 
     IntakeState intakeState = IntakeState.OFF;
-    SensorState sensorState = SensorState.none;
     WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     private static Intake instance = new Intake();
-    DigitalInput intakeSensor = new DigitalInput(6);
-    DigitalInput indexerSensor = new DigitalInput(7);
-    DigitalInput flywheelSensor = new DigitalInput(8);
-    DigitalInput breakBeam = new DigitalInput(9);
+
+    private PhotoElectric photoElectric = new PhotoElectric(0);
+    private DigitalInput breakBeam = new DigitalInput(1);
+
 
     // ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
     // ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
@@ -115,8 +115,9 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
+                rampWheels();
                 //VisionManager.getInstance().toggleLimelightLEDMode(false);
-                updateOff();
+                //updateOff();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -135,7 +136,8 @@ public class Intake extends AbstractSubsystem {
                 break;
             case SHOOTING:
                 //shoot();
-                autoShot();
+                //autoShot();
+                index();
                 //VisionManager.getInstance().toggleLimelightLEDMode(true);
                 break;
             case AUTO_SHOT:
@@ -151,12 +153,12 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void updateOff(){
-        if(DriverStation.isTeleop()){
-            if(!breakBeam.get())
-                indexer.set(-.85);
-            else
-                indexer.set(0);
-        }
+        // if(DriverStation.isTeleop()){
+            // if(!breakBeam.get())
+                // indexer.set(-.85);
+            // else
+                // indexer.set(0);
+        // }
     }
     public synchronized void intake(){
         intake.set(IntakeConstants.INDEX_SPEED);
@@ -172,29 +174,22 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void runBoth(){
-        shooter.atSpeed(-150, -150);
         intake();
-        index();
-        setSensorState();
-        switch (sensorState){
-            case none:
-            break;
-            case indexer:
+        photoElectric.check();
+
+        if(!photoElectric.isBroken() || !breakBeam.get())
             indexer.set(0);
-            break;
-            case intake_indexer:
-            indexer.set(.85);
-            break;
-            case indexer_flywheel:
-            holdIntaking();
-            break;
+        else    
+            index();
+        
+
+        
 
         }
         // if(!oppositeCargoDetected())
             // index();
         // else
             // indexer.set(0);
-    }
 
     public synchronized void intakeAndIndex(){
         intake();
@@ -202,7 +197,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void stopMotors(){
-        shooter.atSpeed(0, 0);
+        //shooter.atSpeed(0, 0);
         intake.set(0);
         indexer.set(0);
     }
@@ -226,6 +221,17 @@ public class Intake extends AbstractSubsystem {
 
     }
 
+    private void rampWheels(){
+        //ShooterSpeed shooterSpeeds;
+        //if(interpolated){
+        //    shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+        //}
+        //else
+        //    shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
+        //    
+        //shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
+        shooter.atSpeed(2000, 2000);
+    }
     public synchronized void autoShot(){
         ShooterSpeed shooterSpeeds;
             double indexSpeed=.9;
@@ -381,14 +387,6 @@ public class Intake extends AbstractSubsystem {
         useRed = red;
     }
 
-    public synchronized void setSensorState(){
-        if(indexerSensor.get() && !intakeSensor.get() && !flywheelSensor.get())
-        sensorState = SensorState.indexer;
-        else if(indexerSensor.get() && intakeSensor.get() && !flywheelSensor.get())
-        sensorState = SensorState.intake_indexer;
-        else if(indexerSensor.get() && flywheelSensor.get() && !intakeSensor.get())
-        sensorState = SensorState.indexer_flywheel;
-    }
 
     @Override
     public void logData() {
@@ -404,6 +402,8 @@ public class Intake extends AbstractSubsystem {
        SmartDashboard.putBoolean("interpolated shot", interpolated);
        SmartDashboard.putBoolean("at speed", atSpeed);
        SmartDashboard.putBoolean("ball?", breakBeam.get());
+       SmartDashboard.putBoolean("photo electric", photoElectric.isBroken());
+       SmartDashboard.putBoolean("beam break", breakBeam.get());
 
     }
 

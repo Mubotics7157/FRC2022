@@ -38,7 +38,6 @@ public class Odometry extends AbstractSubsystem{
     @Override
     public void update() {
         odometry.update(Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
-        //odometry.updateWithTime(Timer.getFPGATimestamp(), Drive.getInstance().getDriveHeading(), Drive.getInstance().getModuleStates());
     }
 
     public synchronized void setOdometry(Pose2d pose){
