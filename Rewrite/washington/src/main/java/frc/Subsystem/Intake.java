@@ -57,15 +57,7 @@ public class Intake extends AbstractSubsystem {
     private DigitalInput breakBeam = new DigitalInput(1);
 
 
-    // ColorSensorV3 colorSensor = new ColorSensorV3(I2C.Port.kMXP);
-    // ColorSensorV3 secondSensor = new ColorSensorV3(I2C.Port.kMXP);
-    ColorMatch colorMatcher = new ColorMatch();
 
-    Color redCargo = new Color(0,0,0);
-    Color blueCargo = new Color(0,0,0);
-    Color noCargo = new Color(0,0,0);
-
-    private boolean useRed = false;
 
     boolean interpolated = false;
     
@@ -83,10 +75,7 @@ public class Intake extends AbstractSubsystem {
 
     private boolean useDefault = false;
 
-    private boolean readyToShoot = false;
 
-
-    Color PassiveColor;
 
 
     ShotGenerator shotGen = new ShotGenerator();
@@ -97,9 +86,6 @@ public class Intake extends AbstractSubsystem {
         intake.setInverted(false);
         indexer.setInverted(false);
 
-        colorMatcher.addColorMatch(blueCargo);
-        colorMatcher.addColorMatch(redCargo);
-        colorMatcher.addColorMatch(noCargo);
     }
 
     public static Intake getInstance(){
@@ -113,11 +99,11 @@ public class Intake extends AbstractSubsystem {
             snapIntakeState = intakeState;
         }
 
+        rampWheels();
         switch(snapIntakeState){
             case OFF:
-                rampWheels();
                 //VisionManager.getInstance().toggleLimelightLEDMode(false);
-                //updateOff();
+                updateOff();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -135,8 +121,8 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                //shoot();
-                //autoShot();
+                shoot();
+                autoShot();
                 index();
                 //VisionManager.getInstance().toggleLimelightLEDMode(true);
                 break;
@@ -181,15 +167,7 @@ public class Intake extends AbstractSubsystem {
             indexer.set(0);
         else    
             index();
-        
-
-        
-
         }
-        // if(!oppositeCargoDetected())
-            // index();
-        // else
-            // indexer.set(0);
 
     public synchronized void intakeAndIndex(){
         intake();
@@ -212,25 +190,23 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void shoot(){
-       //shooter.atSpeed(topSpeed*1.525, botSpeed*1.525);
-        if(DriverStation.isAutonomous()&&shooter.atSpeed(topSpeed, botSpeed))
+        if(shooter.atSpeed(topSpeed, botSpeed))
             index();
         else
-            atSpeed = shooter.atSpeed(topSpeed, topSpeed*ratio);
+            atSpeed = shooter.atSpeed(topSpeed, botSpeed);
         
 
     }
 
     private void rampWheels(){
-        //ShooterSpeed shooterSpeeds;
-        //if(interpolated){
-        //    shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-        //}
-        //else
-        //    shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
-        //    
-        //shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
-        shooter.atSpeed(2000, 2000);
+        ShooterSpeed shooterSpeeds;
+        if(interpolated){
+            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+        }
+        else
+            shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
+            
+        shooter.atSpeed(shooterSpeeds.topSpeed, shooterSpeeds.bottomSpeed);
     }
     public synchronized void autoShot(){
         ShooterSpeed shooterSpeeds;
@@ -311,18 +287,6 @@ public class Intake extends AbstractSubsystem {
     }
 
 
-    private boolean oppositeCargoDetected(){
-        // if(useRed){
-            // if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(blueCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(blueCargo))
-                // return true;
-        // }
-        // else{
-            // if(colorMatcher.matchClosestColor(colorSensor.getColor()).color.equals(redCargo) || colorMatcher.matchClosestColor(secondSensor.getColor()).color.equals(redCargo))
-                // return true;
-        // }
-        return false;
-    }
-
     public synchronized IntakeState getIntakeState(){
         return intakeState;
     }
@@ -376,15 +340,9 @@ public class Intake extends AbstractSubsystem {
         OrangeUtility.sleep(500);
     }
 
-    public synchronized void setReadyToShoot(boolean ready){
-        readyToShoot = ready;
-    }
 
     public boolean indexerCleared(){
         return breakBeam.get();
-    }
-    public synchronized void setCargoColor(boolean red){
-        useRed = red;
     }
 
 

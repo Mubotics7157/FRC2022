@@ -232,7 +232,6 @@ public class Robot extends TimedRobot {
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
         intake.toggleIntake(true);
-        intake.setCargoColor(true);
          Climb.getInstance().toggleMidQuickRelease(false);
          Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);

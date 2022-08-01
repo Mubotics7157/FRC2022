@@ -1,6 +1,5 @@
 package frc.util.sensors;
 
-import org.opencv.photo.Photo;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
