@@ -339,10 +339,10 @@ public class Robot extends TimedRobot {
     }
 
     private void startSubsystems() {
-        //odometry.start();
-        //drive.start();
+        odometry.start();
+        drive.start();
         intake.start();
-        //vision.start();
+        vision.start();
         //climb.start();
 
     }
