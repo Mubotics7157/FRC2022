@@ -227,9 +227,9 @@ public class Robot extends TimedRobot {
         enabled.setBoolean(true);
         startSubsystems();
         compressor.enableDigital();
-        drive.setDriveState(DriveState.FIELD_ORIENTED);
+        drive.setDriveState(DriveState.TELE);
         drive.resetHeading();
-        drive.setDriveState(DriveState.FIELD_ORIENTED);
+        drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
         intake.toggleIntake(true);
          Climb.getInstance().toggleMidQuickRelease(false);
