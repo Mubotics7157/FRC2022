@@ -231,11 +231,11 @@ public class Intake extends AbstractSubsystem {
             double indexSpeed=.9;
             if(VisionManager.getInstance().getDistanceToTarget()<3)
                 indexSpeed = .85;
-        if(interpolated){
+        if(false){
             shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         }
         else
-            shooterSpeeds = shotGen.generateArbitraryShot(topSpeed, botSpeed);
+            shooterSpeeds = shotGen.generateArbitraryShot(1250, 1250);
             
         if(DriverStation.isAutonomous()&&shooter.atSpeed(shooterSpeeds.topSpeed*shotAdj, shooterSpeeds.bottomSpeed*shotAdj))
             index();

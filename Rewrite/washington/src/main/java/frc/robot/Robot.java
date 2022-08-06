@@ -21,13 +21,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.Subsystem.Climb;
+//import frc.Subsystem.Climb;
 import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
 import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.VisionManager;
-import frc.Subsystem.Climb.ClimbState;
+//import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.FiveBall;
@@ -37,11 +37,13 @@ import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
+/*
 import frc.util.ClimbRoutine.ActuateHigh;
 import frc.util.ClimbRoutine.ActuateMid;
 import frc.util.ClimbRoutine.ClimbCommand;
 import frc.util.ClimbRoutine.ClimbRoutine;
 import frc.util.ClimbRoutine.Delay;
+*/
 
 public class Robot extends TimedRobot {
 
@@ -77,7 +79,7 @@ public class Robot extends TimedRobot {
     private final Drive drive = Drive.getInstance();
     private final Intake intake = Intake.getInstance();
     private final VisionManager vision = VisionManager.getInstance();
-    Climb climb = Climb.getInstance();
+    //Climb climb = Climb.getInstance();
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
@@ -107,9 +109,9 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-    ClimbRoutine routine = new ClimbRoutine();
+    //ClimbRoutine routine = new ClimbRoutine();
 
-    Thread climbRoutine;
+    //Thread climbRoutine;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -157,7 +159,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
-        SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
+        //SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -233,12 +235,12 @@ public class Robot extends TimedRobot {
         compressor.enableDigital();
         intake.toggleIntake(true);
         intake.setCargoColor(true);
-         Climb.getInstance().toggleMidQuickRelease(false);
-         Climb.getInstance().toggleHighQuickRelease(false);
+         //Climb.getInstance().toggleMidQuickRelease(false);
+         //Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
-        climb.setClimbState(ClimbState.JOG);
-        climbRoutine = null;
-        routine = new ClimbRoutine();
+        //climb.setClimbState(ClimbState.JOG);
+        //climbRoutine = null;
+        //routine = new ClimbRoutine();
         LED.getInstance().setORANGE();
 
     }
@@ -248,6 +250,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+/*
     if(operator.getRawButtonPressed(1)){
         if(climbRoutine==null||climbRoutine.isInterrupted()){
              climbRoutine = new Thread(routine);
@@ -260,6 +263,7 @@ public class Robot extends TimedRobot {
           if(climbRoutine!=null)
              climbRoutine.suspend();
     }
+    */
     if(driver.getLeftBumper())
       drive.resetHeading();
 
@@ -302,8 +306,8 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-        if(climbRoutine!=null)
-        climbRoutine.interrupt();
+        //if(climbRoutine!=null)
+        //climbRoutine.interrupt();
         //climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);
      }
@@ -321,7 +325,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         startSubsystems();
-        Climb.getInstance().setJog();
+        //Climb.getInstance().setJog();
     }
 
     /**
@@ -329,14 +333,16 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+        /*
         if(operator.getRawButtonPressed(5)) 
-            climb.toggleMidQuickRelease(true);
+            //climb.toggleMidQuickRelease(true);
         else if(operator.getRawButtonPressed(1))
-             climb.toggleMidQuickRelease(false);
+             //climb.toggleMidQuickRelease(false);
         else if(operator.getRawButtonPressed(6))
-            climb.toggleHighQuickRelease(true);
+            //climb.toggleHighQuickRelease(true);
         else if(operator.getRawButtonPressed(2))
-            climb.toggleHighQuickRelease(false);
+            //climb.toggleHighQuickRelease(false);
+            */
     }
 
     private void startSubsystems() {
@@ -344,7 +350,7 @@ public class Robot extends TimedRobot {
         drive.start();
         intake.start();
         vision.start();
-        climb.start();
+        //climb.start();
 
     }
 
