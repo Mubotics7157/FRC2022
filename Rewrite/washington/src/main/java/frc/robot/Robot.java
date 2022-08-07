@@ -125,9 +125,10 @@ public class Robot extends TimedRobot {
         }
         finally{}
 
-        SmartDashboard.putNumber("top wheel setpoint", 1000);
-        SmartDashboard.putNumber("shooter ratio", 1);
+        SmartDashboard.putNumber("top wheel setpoint", 1250);
+        SmartDashboard.putNumber("shooter ratio", 1.08);
         SmartDashboard.putNumber("shot adjustment", .97);
+        SmartDashboard.putNumber("bot wheel setpoint", 1250);
         selectedAuto = twoBallAuto;
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
@@ -349,7 +350,7 @@ public class Robot extends TimedRobot {
         odometry.start();
         drive.start();
         intake.start();
-        vision.start();
+        //vision.start();
         //climb.start();
 
     }
