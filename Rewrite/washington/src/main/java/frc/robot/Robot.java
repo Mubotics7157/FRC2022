@@ -26,10 +26,12 @@ import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
 import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
+import frc.Subsystem.Shooter;
 import frc.Subsystem.VisionManager;
 import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
+import frc.Subsystem.Shooter.ShooterMode;
 import frc.auton.FiveBall;
 import frc.auton.TemplateAuto;
 import frc.auton.TwoBall;
@@ -76,6 +78,7 @@ public class Robot extends TimedRobot {
     private final Odometry odometry = Odometry.getInstance();
     private final Drive drive = Drive.getInstance();
     private final Intake intake = Intake.getInstance();
+    private final Shooter shooter = Shooter.getInstance();
     private final VisionManager vision = VisionManager.getInstance();
     Climb climb = Climb.getInstance();
 
@@ -125,7 +128,8 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", .97);
+        SmartDashboard.putNumber("shot adjustment", 1);
+        SmartDashboard.putNumber("flywheel kP",.01);
         selectedAuto = twoBallAuto;
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
@@ -141,7 +145,6 @@ public class Robot extends TimedRobot {
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
         //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
-        Intake.getInstance().toggleInterpolated();
         VisionManager.getInstance().toggleLimelight(false);
         autoChooser.setDefaultOption("default","two");
         autoChooser.addOption("five ball","five");
@@ -247,29 +250,15 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
-    if(operator.getRawButtonPressed(1)){
-        if(climbRoutine==null||climbRoutine.isInterrupted()){
-             climbRoutine = new Thread(routine);
-             climbRoutine.start();
-        }
-         else
-             climbRoutine.resume();  
-     }
-      else if(operator.getRawButtonReleased(1)){
-          if(climbRoutine!=null)
-             climbRoutine.suspend();
-    }
     if(driver.getLeftBumper())
       drive.resetHeading();
 
      if(driver.getRawAxis(2)>.2)
        intake.setIntakeState(IntakeState.RUN_ALL);
-     else if(driver.getRightBumper())
-      intake.setIntakeState(IntakeState.INDEX_REVERSE);
     else if(driver.getAButton())
-        Intake.getInstance().setIntakeState(IntakeState.SHOOTING);
+        shooter.setShooterMode(ShooterMode.SHOOT);
     else if(driver.getBButton())
-        Intake.getInstance().setIntakeState(IntakeState.SPIT_BALL);
+        shooter.setShooterMode(ShooterMode.SPIT);
     else if(operator.getRawAxis(2)>.2)
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     else
