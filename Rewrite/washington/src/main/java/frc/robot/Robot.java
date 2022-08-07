@@ -269,7 +269,7 @@ public class Robot extends TimedRobot {
         intake.toggleIntake();
   
     
-    if(driver.getRawAxis(3)>.2)
+    if(driver.getRawAxis(3)>.2 && shooter.atSpeed())
         intake.index();
 
 
