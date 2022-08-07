@@ -31,10 +31,6 @@ public class Intake extends AbstractSubsystem {
     private PhotoElectric photoElectric = new PhotoElectric(0);
     private DigitalInput breakBeam = new DigitalInput(1);
 
-
-
-    boolean interpolated = false;
-    
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,IntakeConstants.INTAKE_SOLENOID_FORWARD,IntakeConstants.INTAKE_SOLENOID_REVERSE);
 
     private Intake(){

@@ -7,10 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.util.Color;
 import frc.Subsystem.Module;
-import frc.util.Shooting.InterpolatingDouble;
-import frc.util.Shooting.InterpolatingTreeMap;
 
 public interface Constants {
     
@@ -41,12 +38,12 @@ public interface Constants {
         private static final double FRONT_LEFT_ENCODER_OFFSET = 11.162109375;//2.724609375;
         private static final double FRONT_RIGHT_ENCODER_OFFSET = -110.830078125 ;// -111.263671875;
         private static final double REAR_LEFT_ENCODER_OFFSET = -6.328125;//6-2.263671875;
-        private static final double REAR_RIGHT_ENCODER_OFFSET = -79.716796875-79.8046875;//-80.439453125;
+        private static final double REAR_RIGHT_ENCODER_OFFSET = -79.716796875;//-80.439453125;
         
         public static Module FRONT_LEFT_MODULE = new Module(FRONT_LEFT_DRIVE_PORT,FRONT_LEFT_TURN_PORT,FRONT_LEFT_ENCODER_PORT,FRONT_LEFT_ENCODER_OFFSET);
         public static Module FRONT_RIGHT_MODULE = new Module(FRONT_RIGHT_DRIVE_PORT,FRONT_RIGHT_TURN_PORT,FRONT_RIGHT_ENCODER_PORT,FRONT_RIGHT_ENCODER_OFFSET);
         public static Module REAR_LEFT_MODULE = new Module(REAR_LEFT_DRIVE_PORT,REAR_LEFT_TURN_PORT,REAR_LEFT_ENCODER_PORT,REAR_LEFT_ENCODER_OFFSET);
-        public static Module REAR_RIGHT_MODULE = new Module(REAR_RIGHT_DRIVE_PORT,REAR_RIGHT_TURN_PORT,REAR_RIGHT_ENCODER_PORT,-79.8046875);
+        public static Module REAR_RIGHT_MODULE = new Module(REAR_RIGHT_DRIVE_PORT,REAR_RIGHT_TURN_PORT,REAR_RIGHT_ENCODER_PORT,REAR_RIGHT_ENCODER_OFFSET);
 
         public static final Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d(WHEELBASE_WIDTH/2,WHEELBASE_LENGTH/2);
         public static final Translation2d REAR_LEFT_MODULE_POSITION = new Translation2d(WHEELBASE_WIDTH/2,-WHEELBASE_LENGTH/2);
@@ -107,44 +104,6 @@ public interface Constants {
         public static final int INTAKE_SOLENOID_FORWARD = 2;
         public static final int INTAKE_SOLENOID_REVERSE = 3;
 
-        public static final Color RED = new Color(0.261962890625, 0.457275390625, 0.28125);
-        public static final Color PASSIVE = new Color(0.259033203125,0.4716796875,0.27001953125);
-        public static final Color BLUE = new Color(0.2294921875,0.46484375,0.30615234375);
-        public static final Color OTHER_BLUE = new Color(0.24072265625,0.474609375,0.284912109375);
-        public static final Color OTHER_RED = new Color(0.243408203125,0.4736328125,0.283447265625);
-
-
-        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> FLYWHEEL_RPM_MAP = new InterpolatingTreeMap<>();
-        public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> FLYWHEEL_RATIO_MAP = new InterpolatingTreeMap<>();
-
-           public static double[][] RPM_MAP = {
-               {2.05d,1250d},
-               {2.30d,1300d},
-               {2.76d,2000d},
-               {3.35d,2350d},
-               {3.587d,2650d},
-               {3.691d,2500d},
-               {3.8511d,4000d},
-    };
-
-           public static double[][] RATIO_MAP = {
-               {2.05d,1.2d},
-               {2.30d,1.08d},
-               {2.76d,.65d},
-               {3.35d,.5d},
-               {3.587d,.4d},
-               {3.691d,.35d},
-               {3.8511d,.175d},
-    };
-
-        static{
-            for(double[] pair :RPM_MAP){
-                FLYWHEEL_RPM_MAP.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
-            }
-            for(double[] pair :RATIO_MAP){
-                FLYWHEEL_RATIO_MAP.put(new InterpolatingDouble(pair[0]), new InterpolatingDouble(pair[1]));
-            }
-        }
     }
     public static final class ShooterConstants{
         public static final int DEVICE_ID_TOP_WHEEL = 19;
