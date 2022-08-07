@@ -128,9 +128,6 @@ public class Intake extends AbstractSubsystem {
             case SPIT_BALL:
                 spitBall();
                 break;
-            case PRE_REV:
-                preRev();
-                break;
         }
     }
 
