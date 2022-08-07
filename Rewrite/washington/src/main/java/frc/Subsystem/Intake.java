@@ -20,7 +20,7 @@ public class Intake extends AbstractSubsystem {
     public enum IntakeState{
         OFF,
         INTAKE_REVERSE,
-        RUN_ALL,
+        RUN_ALL
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -57,7 +57,6 @@ public class Intake extends AbstractSubsystem {
 
         switch(snapIntakeState){
             case OFF:
-                updateOff();
                 break;
             case INTAKE_REVERSE:
                 reverseIntake();
@@ -68,8 +67,6 @@ public class Intake extends AbstractSubsystem {
         }
     }
 
-    public synchronized void updateOff(){
-    }
     public synchronized void intake(){
         intake.set(IntakeConstants.INDEX_SPEED);
     }
@@ -141,14 +138,10 @@ public class Intake extends AbstractSubsystem {
         return breakBeam.get();
     }
 
-
     @Override
     public void logData() {
        SmartDashboard.putString("Intake State", getIntakeState().toString()); 
 
-
-       SmartDashboard.putBoolean("interpolated shot", interpolated);
-       SmartDashboard.putBoolean("ball?", breakBeam.get());
        SmartDashboard.putBoolean("photo electric", photoElectric.isBroken());
        SmartDashboard.putBoolean("beam break", breakBeam.get());
 
