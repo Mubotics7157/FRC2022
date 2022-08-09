@@ -277,7 +277,7 @@ public class Robot extends TimedRobot {
       intake.setOff();
 
 
-    if(driver.getYButton())
+    if(driver.getYButtonPressed())
         intake.toggleIntake();
   
     
