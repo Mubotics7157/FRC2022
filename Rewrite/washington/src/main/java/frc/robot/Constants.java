@@ -104,14 +104,11 @@ public interface Constants {
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;
 
+        public static final boolean beamBreakOpen = true;
+        public static final boolean beamBreakClosed = false;
+
         public static final int INTAKE_SOLENOID_FORWARD = 2;
         public static final int INTAKE_SOLENOID_REVERSE = 3;
-
-        public static final Color RED = new Color(0.261962890625, 0.457275390625, 0.28125);
-        public static final Color PASSIVE = new Color(0.259033203125,0.4716796875,0.27001953125);
-        public static final Color BLUE = new Color(0.2294921875,0.46484375,0.30615234375);
-        public static final Color OTHER_BLUE = new Color(0.24072265625,0.474609375,0.284912109375);
-        public static final Color OTHER_RED = new Color(0.243408203125,0.4736328125,0.283447265625);
 
 
         public static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> FLYWHEEL_RPM_MAP = new InterpolatingTreeMap<>();
