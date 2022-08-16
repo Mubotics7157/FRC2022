@@ -20,7 +20,8 @@ public class Intake extends AbstractSubsystem {
     public enum IntakeState{
         OFF,
         INTAKE_REVERSE,
-        RUN_ALL
+        RUN_ALL,
+        INDEX
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -124,6 +125,10 @@ public class Intake extends AbstractSubsystem {
         intakeState = IntakeState.RUN_ALL;
     }
 
+    public synchronized void setIndexing(){
+        intakeState = IntakeState.INDEX;
+    }
+
     public synchronized void setOff(){
         // if(getIntakeState()!=IntakeState.OFF)
             stopMotors();
@@ -147,4 +152,6 @@ public class Intake extends AbstractSubsystem {
     public void selfTest() {
         runBoth();
     }
+
+
 }
