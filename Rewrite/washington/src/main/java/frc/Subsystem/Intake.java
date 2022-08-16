@@ -61,6 +61,9 @@ public class Intake extends AbstractSubsystem {
             case RUN_ALL:
                 runBoth();
                 break;
+            case INDEX:
+                index();
+                break;
         }
     }
 
