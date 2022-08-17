@@ -113,6 +113,10 @@ public class Shooter extends AbstractSubsystem {
         return CommonConversions.stepsPerDecisecToRPM(flywheelTop.getSelectedSensorVelocity());
     }
 
+    public synchronized void setShooterSpeeds(double top, double bot){
+        shooterSpeeds = shotGen.generateArbitraryShot(top, bot);
+    }
+
     @Override
     public void logData() {
         SmartDashboard.putNumber("actual top", getTopRPM());
