@@ -11,7 +11,7 @@
     }
   }, {
     "type" : "script",
-    "script" : "Intake.runBoth",
+    "script" : "Intake.setIntakeAndIndexing",
     "closed" : false,
     "valid" : false,
     "sendableScript" : {
@@ -1361,7 +1361,7 @@
     }
   }, {
     "type" : "script",
-    "script" : "@% 1\nIntake.runBoth",
+    "script" : "@% 1\nIntake.setIntakeAndIndexing",
     "closed" : false,
     "valid" : false,
     "sendableScript" : {
