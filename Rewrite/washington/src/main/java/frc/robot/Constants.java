@@ -104,6 +104,9 @@ public interface Constants {
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;
 
+        public static final double INDEXER_P = 0.00006;
+        public static final double INDEXER_FF = 0.000172;
+
         public static final int INTAKE_SOLENOID_FORWARD = 2;
         public static final int INTAKE_SOLENOID_REVERSE = 3;
 

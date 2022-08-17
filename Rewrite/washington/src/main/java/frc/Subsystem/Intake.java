@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -51,6 +53,9 @@ public class Intake extends AbstractSubsystem {
     SensorState sensorState = SensorState.none;
     WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+    SparkMaxPIDController m_pidController = indexer.getPIDController();
+    RelativeEncoder m_encoder = indexer.getEncoder();
+
     private static Intake instance = new Intake();
     DigitalInput intakeSensor = new DigitalInput(6);
     DigitalInput indexerSensor = new DigitalInput(7);
@@ -97,6 +102,14 @@ public class Intake extends AbstractSubsystem {
         intake.setInverted(false);
         indexer.setInverted(false);
 
+        indexer.restoreFactoryDefaults();
+        m_pidController.setP(IntakeConstants.INDEXER_P);
+        m_pidController.setFF(IntakeConstants.INDEXER_FF);
+        m_pidController.setI(0);
+        m_pidController.setD(0);
+        m_pidController.setIZone(0);
+        m_pidController.setOutputRange(-1, 1);
+        
         colorMatcher.addColorMatch(blueCargo);
         colorMatcher.addColorMatch(redCargo);
         colorMatcher.addColorMatch(noCargo);
