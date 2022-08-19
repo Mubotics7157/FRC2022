@@ -8,7 +8,9 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 
 import frc.util.OrangeUtility;
 
+
 public class LED {
+
     CANdle candle;
     public static LED instance = new LED();
     CANdleConfiguration config;
@@ -63,6 +65,17 @@ public class LED {
 
     public void changeToggle(){
         toggle = !toggle;
+    }
+
+    public void toggleRainbow(){
+        if(toggle = false){
+            setORANGE();
+            toggle = true;
+        }
+        else if(toggle = true){
+            setRainbow();
+            toggle = false;
+        }
     }
 
 

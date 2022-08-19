@@ -134,8 +134,9 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                //shoot();
-                autoShot();
+                shoot();
+                setShooterSpeeds();
+                //autoShot();
                 //VisionManager.getInstance().toggleLimelightLEDMode(true);
                 break;
             case AUTO_SHOT:
