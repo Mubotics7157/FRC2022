@@ -104,10 +104,10 @@ public interface Constants {
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;
 
-        public static final boolean beamBreakOpen = true;
-        public static final boolean beamBreakClosed = false;
+        public static final boolean BEAMBREAK_OPEN = true;
+        public static final boolean BEAMBREAK_CLOSED = false;
 
-        public static final int INTAKE_SOLENOID_FORWARD = 2;
+        public static final int INTAKE_SOLENOID_FORWARD = 1;
         public static final int INTAKE_SOLENOID_REVERSE = 3;
 
 
