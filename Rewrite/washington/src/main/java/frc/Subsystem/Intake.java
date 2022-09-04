@@ -134,8 +134,9 @@ public class Intake extends AbstractSubsystem {
                 runBoth();
                 break;
             case SHOOTING:
-                shoot();
-                setShooterSpeeds();
+                //shoot();
+                //setShooterSpeeds();
+                shooter.atSpeed(2000, 4000);
                 //autoShot();
                 //VisionManager.getInstance().toggleLimelightLEDMode(true);
                 break;
@@ -283,11 +284,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void toggleIntake(){
-        if(intakeSolenoid.get()==Value.kForward)
-            intakeSolenoid.set(Value.kReverse);
-        else if(intakeSolenoid.get()==Value.kReverse)
-            intakeSolenoid.set(Value.kForward);
-        OrangeUtility.sleep(500);
+        intakeSolenoid.set((intakeSolenoid.get()==Value.kForward)?IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
     public synchronized void setShooterSpeeds(double top, double bot){
