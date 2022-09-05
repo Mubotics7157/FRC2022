@@ -145,9 +145,6 @@ AutonomousContainer.getInstance().initialize(
         }
         finally{}
 
-        SmartDashboard.putNumber("top wheel setpoint", 1000);
-        SmartDashboard.putNumber("shooter ratio", 1);
-        SmartDashboard.putNumber("shot adjustment", 1);
         SmartDashboard.putNumber("flywheel kP",.01);
         selectedAuto = twoBallAuto;
         if (autoPath.getString(null) != null) {
@@ -272,6 +269,7 @@ AutonomousContainer.getInstance().initialize(
         climbRoutine = null;
         routine = new ClimbRoutine();
         LED.getInstance().setORANGE();
+        shooter.setShooterMode(ShooterMode.SHOOT);
 
     }
 

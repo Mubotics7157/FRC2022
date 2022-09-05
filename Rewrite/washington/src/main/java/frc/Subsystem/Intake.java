@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
-import frc.util.OrangeUtility;
 import frc.util.sensors.PhotoElectric;
 
 public class Intake extends AbstractSubsystem {

@@ -150,7 +150,7 @@ public class Shooter extends AbstractSubsystem {
             case SPIT:
                 shooterSpeeds = shotGen.generateArbitraryShot(1500, 300);
             case STATIC_SHOT:
-                shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*1.08);
+                shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1350), SmartDashboard.getNumber("top wheel setpoint", 1350)*1.08);
             case DEBUG:
                 shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
                 editPorportionalGains(SmartDashboard.getNumber("flywheel kP",.01),SmartDashboard.getNumber("flywheel kP",.01));
