@@ -103,11 +103,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void toggleIntake(){
-        if(intakeSolenoid.get()==Value.kForward)
-            intakeSolenoid.set(Value.kReverse);
-        else if(intakeSolenoid.get()==Value.kReverse)
-            intakeSolenoid.set(Value.kForward);
-        OrangeUtility.sleep(500);
+        intakeSolenoid.set((intakeSolenoid.get()==Value.kForward)?IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
     }
 
     public synchronized IntakeState getIntakeState(){
