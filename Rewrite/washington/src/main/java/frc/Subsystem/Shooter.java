@@ -135,6 +135,7 @@ public class Shooter extends AbstractSubsystem {
 
     public synchronized void setShooterMode(ShooterMode mode){
         interpolate = false;
+        SmartDashboard.putString("shooter mode", mode.toString());
         switch(mode){
             case SHOOT:
                 rev();
@@ -149,5 +150,6 @@ public class Shooter extends AbstractSubsystem {
 
         }
     }
+
 
 }

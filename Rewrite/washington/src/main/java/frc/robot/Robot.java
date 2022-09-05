@@ -268,7 +268,7 @@ public class Robot extends TimedRobot {
       intake.setOff();
 
 
-    if(driver.getYButton())
+    if(driver.getYButtonPressed())
         intake.toggleIntake();
   
     
@@ -335,6 +335,7 @@ public class Robot extends TimedRobot {
         drive.start();
         intake.start();
         vision.start();
+        shooter.start();
         //climb.start();
 
     }
