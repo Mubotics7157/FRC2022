@@ -193,8 +193,6 @@ public class Climb extends AbstractSubsystem {
 
         SmartDashboard.putBoolean("is finished?", isFinished());
 
-        //SmartDashboard.putBoolean("limit switch", limitSwitch.get());
-        //SmartDashboard.putBoolean("use limit switch", useLimitSwitch);
 
         SmartDashboard.putBoolean("within tolerance?", withinTolerance());
         
