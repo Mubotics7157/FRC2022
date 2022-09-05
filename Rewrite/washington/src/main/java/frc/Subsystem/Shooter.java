@@ -122,6 +122,8 @@ public class Shooter extends AbstractSubsystem {
         
         SmartDashboard.putNumber("top setpoint", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("bot setpoint", shooterSpeeds.bottomSpeed);
+        
+        SmartDashboard.putString("Shooter State", shooterState.toString());
     }
 
     @Override
