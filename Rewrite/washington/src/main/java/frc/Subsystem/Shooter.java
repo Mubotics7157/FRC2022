@@ -96,9 +96,9 @@ public class Shooter extends AbstractSubsystem {
     }
     
     public void rev(){
-        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
-        flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed)*shotAdj);
-        flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed)*shotAdj);
+        //shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
+        flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed));//*shotAdj);
+        flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed));//*shotAdj);
     }
 
     public void editPorportionalGains(double top, double bot){
@@ -126,6 +126,8 @@ public class Shooter extends AbstractSubsystem {
         
         SmartDashboard.putNumber("top setpoint", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("bot setpoint", shooterSpeeds.bottomSpeed);
+        
+        SmartDashboard.putString("Shooter State", shooterState.toString());
     }
 
     @Override

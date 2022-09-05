@@ -101,8 +101,8 @@ public interface Constants {
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;
 
-        public static final int INTAKE_SOLENOID_FORWARD = 2;
-        public static final int INTAKE_SOLENOID_REVERSE = 3;
+        public static final int INTAKE_SOLENOID_FORWARD = 3;
+        public static final int INTAKE_SOLENOID_REVERSE = 1;
 
     }
     public static final class ShooterConstants{

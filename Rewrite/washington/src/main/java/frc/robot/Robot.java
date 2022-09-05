@@ -258,9 +258,9 @@ public class Robot extends TimedRobot {
     else if(driver.getAButton()){
         shooter.setShooterMode(ShooterMode.SHOOT);
     }
-    else if(driver.getBButton()){
-        shooter.setShooterMode(ShooterMode.SPIT);
-    }
+    //else if(driver.getBButton()){
+        //shooter.setShooterMode(ShooterMode.SPIT);
+    //}
     else if(operator.getRawAxis(2)>.2){
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
