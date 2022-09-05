@@ -31,5 +31,13 @@
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/field": "Field2d"
     }
+  },
+  "NetworkTables": {
+    "SmartDashboard": {
+      "open": true
+    },
+    "autodata": {
+      "open": true
+    }
   }
 }

@@ -7,6 +7,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import com.dacubeking.AutoBuilder.robot.robotinterface.AutonomousContainer;
+import com.dacubeking.AutoBuilder.robot.robotinterface.CommandTranslator;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
@@ -120,6 +123,22 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         OrangeUtility.sleep(1500);
+        Drive drive = Drive.getInstance();
+Odometry robotTracker = Odometry.getInstance();
+AutonomousContainer.getInstance().initialize(
+        true, //isHolonomic - Is the robot using a holonomic drivetrain? (ex: swerve or mecanum)
+        new CommandTranslator(
+                drive::setAutoPath, //The consumer to call to set the new trajectory
+                drive::stopMotors, //The runnable to call to stop the robot from moving
+                drive::setAutoRotation, //The consumer to call to set the autonomous rotation (can be null is the robot is not holonomic)
+                drive::isFinished, //The boolean supplier to call to check if the trajectory is done. This lambada should return false until the path has been fully (and is within error of the final position/rotation) driven.
+                drive::getAutoTime, //The double supplier to call to get the elapsed time of the trajectory. This lambada must return 0.0 immediately after a new trajectory is set and should return the elapsed time of the current trajectory that is being driven.
+                robotTracker::setOdometry, //The consumer to call to set the initial pose of the robot at the start of autonomous
+                false //Whether to run the commands on the main thread. If this is true, the commands will be run on the main thread. If this is false, the commands will be run on the autonomous thread. If you are unsure, it is safer to leave this as true. If you've designed your robot code to be thread safe, you can set this to false. It will allow the methods you call to be blocking which can simplify some code.
+        ), 
+        false, //crashOnError – Should the robot crash on error? If this is enabled, and an auto fails to load, the robot will crash. If this is disabled, the robot will skip the invalid auto and continue to the next one.
+        this //timedRobot – The timed robot (should be able to just use the 'this' keyword) to use to create the period function for the autos. This can be null if you're running autos asynchronously.
+);
         try{
             twoBallAuto = new TwoBall();
             fiveBallAuto = new FiveBall();
@@ -151,6 +170,16 @@ public class Robot extends TimedRobot {
         autoChooser.addOption("weak side","weak");
         SmartDashboard.putData(autoChooser);
         LED.getInstance().setOFF();
+
+        // Get the names of all the autos and then add them to a chooser
+        AutonomousContainer.getInstance().getAutonomousNames().forEach(name -> autoChooser.addOption(name, name));
+
+        //Ensure the second String is the name of the folder where your sided autos are located
+        // sideChooser.setDefaultOption("Blue", "blue"); 
+        // sideChooser.addOption("Red", "red");
+
+        // SmartDashboard.putData("Auto choices", autoChooser);
+        // SmartDashboard.putData("Red or Blue", sideChooser);  
     }
     
     @Override
@@ -186,6 +215,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         LED.getInstance().setORANGE();
+        shooter.setShooterMode(ShooterMode.STATIC_SHOT);
         VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
 
@@ -258,9 +288,9 @@ public class Robot extends TimedRobot {
     else if(driver.getAButton()){
         shooter.setShooterMode(ShooterMode.SHOOT);
     }
-    //else if(driver.getBButton()){
-        //shooter.setShooterMode(ShooterMode.SPIT);
-    //}
+    else if(driver.getBButton()){
+        shooter.setShooterMode(ShooterMode.STATIC_SHOT);
+    }
     else if(operator.getRawAxis(2)>.2){
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
@@ -268,7 +298,7 @@ public class Robot extends TimedRobot {
       intake.setOff();
 
 
-    if(driver.getYButtonPressed())
+    if(driver.getYButton())
         intake.toggleIntake();
   
     
@@ -333,9 +363,9 @@ public class Robot extends TimedRobot {
     private void startSubsystems() {
         odometry.start();
         drive.start();
+        shooter.start();
         intake.start();
         vision.start();
-        shooter.start();
         //climb.start();
 
     }

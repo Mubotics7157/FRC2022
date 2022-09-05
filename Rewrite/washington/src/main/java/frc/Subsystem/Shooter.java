@@ -19,12 +19,11 @@ public class Shooter extends AbstractSubsystem {
 
     private static Shooter instance = new Shooter();
 
-    public ShooterState shooterState = ShooterState.OFF;
+    public ShooterState shooterState = ShooterState.ON;
 
-    private boolean interpolate;
+    private boolean interpolate = true;
     private ShotGenerator shotGen = new ShotGenerator();
     private ShooterSpeed shooterSpeeds = shotGen.generateArbitraryShot(1350, 1350*1.08);
-    private double shotAdj = 1;
 
     public static Shooter getInstance(){
         return instance;
@@ -62,6 +61,7 @@ public class Shooter extends AbstractSubsystem {
 
         flywheelTop.configVelocityMeasurementWindow(1, 1);
         flywheelBot.configVelocityMeasurementWindow(1, 1);
+
     }
 
     public enum ShooterState{
@@ -78,7 +78,11 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public void update() {
-        switch(shooterState){
+        ShooterState snapShooterState;
+        synchronized(this){
+            snapShooterState = shooterState;
+        }
+        switch(snapShooterState){
             case OFF:
                 flywheelBot.set(ControlMode.PercentOutput,0);
                 flywheelTop.set(ControlMode.PercentOutput,0);
@@ -138,6 +142,7 @@ public class Shooter extends AbstractSubsystem {
     public synchronized void setShooterMode(ShooterMode mode){
         interpolate = false;
         SmartDashboard.putString("shooter mode", mode.toString());
+
         switch(mode){
             case SHOOT:
                 rev();
