@@ -173,8 +173,9 @@ public class Drive extends AbstractSubsystem{
 
             driveFromChassis(desiredSpeeds);
 
+            SmartDashboard.putNumber("total time", currTrajectory.getTotalTimeSeconds());
 
-            if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
+            if(/*autoController.atReference()||*/getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);
             }
 

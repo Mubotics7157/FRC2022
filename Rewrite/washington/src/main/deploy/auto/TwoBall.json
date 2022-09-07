@@ -1,5 +1,27 @@
 {
-  "autonomousSteps" : [ {
+  "autonomousSteps" : [ 
+{
+    "type" : "script",
+    "script" : "Intake.index\nsleep 1700",
+    "closed" : false,
+    "valid" : true,
+    "sendableScript" : {
+      "delayType" : "NONE",
+      "delay" : 0.0,
+      "commands" : [  {
+        "methodName" : "frc.Subsystem.Intake.index",
+        "args" : [ ],
+        "argTypes" : [ ],
+        "reflection" : true
+      }, {
+        "methodName" : "sleep",
+        "args" : [ "1700" ],
+        "argTypes" : [ "long" ],
+        "reflection" : false
+      } ]
+    }
+  } ,
+    {
     "type" : "script",
     "script" : "Intake.toggleIntake",
     "closed" : false,
@@ -14,7 +36,8 @@
         "reflection" : true
       } ]
     }
-  }, {
+  },
+ {
     "type" : "script",
     "script" : "Intake.setIntakeAndIndexing",
     "closed" : false,
@@ -1858,19 +1881,14 @@
     }
   }, {
     "type" : "script",
-    "script" : "Shooter.setShooterSpeeds 1350 1600\nIntake.setIndexing\nsleep 1700",
+    "script" : "Intake.index\nsleep 1700",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "NONE",
       "delay" : 0.0,
-      "commands" : [ {
-        "methodName" : "frc.Subsystem.Shooter.setShooterSpeeds",
-        "args" : [ "1350", "1600" ],
-        "argTypes" : [ "double", "double" ],
-        "reflection" : true
-      }, {
-        "methodName" : "frc.Subsystem.Intake.setIndexing",
+      "commands" : [  {
+        "methodName" : "frc.Subsystem.Intake.index",
         "args" : [ ],
         "argTypes" : [ ],
         "reflection" : true
