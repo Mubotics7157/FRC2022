@@ -1,0 +1,18 @@
+{
+  "autonomousSteps" : [ {
+    "type" : "script",
+    "script" : "Intake.index\nsleep 5000",
+    "closed" : false,
+    "valid" : false,
+    "sendableScript" : {
+      "delayType" : "NONE",
+      "delay" : 0.0,
+      "commands" : [ {
+        "methodName" : "sleep",
+        "args" : [ "5000" ],
+        "argTypes" : [ "long" ],
+        "reflection" : false
+      } ]
+    }
+  } ]
+}

@@ -123,22 +123,20 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         OrangeUtility.sleep(1500);
-        Drive drive = Drive.getInstance();
-Odometry robotTracker = Odometry.getInstance();
-AutonomousContainer.getInstance().initialize(
-        true, //isHolonomic - Is the robot using a holonomic drivetrain? (ex: swerve or mecanum)
-        new CommandTranslator(
-                drive::setAutoPath, //The consumer to call to set the new trajectory
-                drive::stopMotors, //The runnable to call to stop the robot from moving
-                drive::setAutoRotation, //The consumer to call to set the autonomous rotation (can be null is the robot is not holonomic)
-                drive::isFinished, //The boolean supplier to call to check if the trajectory is done. This lambada should return false until the path has been fully (and is within error of the final position/rotation) driven.
-                drive::getAutoTime, //The double supplier to call to get the elapsed time of the trajectory. This lambada must return 0.0 immediately after a new trajectory is set and should return the elapsed time of the current trajectory that is being driven.
-                robotTracker::setOdometry, //The consumer to call to set the initial pose of the robot at the start of autonomous
-                false //Whether to run the commands on the main thread. If this is true, the commands will be run on the main thread. If this is false, the commands will be run on the autonomous thread. If you are unsure, it is safer to leave this as true. If you've designed your robot code to be thread safe, you can set this to false. It will allow the methods you call to be blocking which can simplify some code.
-        ), 
-        false, //crashOnError – Should the robot crash on error? If this is enabled, and an auto fails to load, the robot will crash. If this is disabled, the robot will skip the invalid auto and continue to the next one.
-        this //timedRobot – The timed robot (should be able to just use the 'this' keyword) to use to create the period function for the autos. This can be null if you're running autos asynchronously.
-);
+// AutonomousContainer.getInstance().initialize(
+        // true, //isHolonomic - Is the robot using a holonomic drivetrain? (ex: swerve or mecanum)
+        // new CommandTranslator(
+                // drive::setAutoPath, //The consumer to call to set the new trajectory
+                // drive::stopMotors, //The runnable to call to stop the robot from moving
+                // drive::setAutoRotation, //The consumer to call to set the autonomous rotation (can be null is the robot is not holonomic)
+                // drive::isFinished, //The boolean supplier to call to check if the trajectory is done. This lambada should return false until the path has been fully (and is within error of the final position/rotation) driven.
+                // drive::getAutoTime, //The double supplier to call to get the elapsed time of the trajectory. This lambada must return 0.0 immediately after a new trajectory is set and should return the elapsed time of the current trajectory that is being driven.
+                // robotTracker::setOdometry, //The consumer to call to set the initial pose of the robot at the start of autonomous
+                // false //Whether to run the commands on the main thread. If this is true, the commands will be run on the main thread. If this is false, the commands will be run on the autonomous thread. If you are unsure, it is safer to leave this as true. If you've designed your robot code to be thread safe, you can set this to false. It will allow the methods you call to be blocking which can simplify some code.
+        // ), 
+        // false, //crashOnError – Should the robot crash on error? If this is enabled, and an auto fails to load, the robot will crash. If this is disabled, the robot will skip the invalid auto and continue to the next one.
+        // this //timedRobot – The timed robot (should be able to just use the 'this' keyword) to use to create the period function for the autos. This can be null if you're running autos asynchronously.
+// );
         try{
             twoBallAuto = new TwoBall();
             fiveBallAuto = new FiveBall();
@@ -169,7 +167,7 @@ AutonomousContainer.getInstance().initialize(
         LED.getInstance().setOFF();
 
         // Get the names of all the autos and then add them to a chooser
-        AutonomousContainer.getInstance().getAutonomousNames().forEach(name -> autoChooser.addOption(name, name));
+        //AutonomousContainer.getInstance().getAutonomousNames().forEach(name -> autoChooser.addOption(name, name));
 
         //Ensure the second String is the name of the folder where your sided autos are located
         // sideChooser.setDefaultOption("Blue", "blue"); 
@@ -296,7 +294,7 @@ AutonomousContainer.getInstance().initialize(
       intake.setOff();
 
 
-    if(driver.getYButton())
+    if(driver.getYButtonPressed())
         intake.toggleIntake();
   
     
@@ -392,7 +390,8 @@ AutonomousContainer.getInstance().initialize(
 
     @Override
     public void simulationInit() {
-        ClassInformationSender.updateReflectionInformation(
-                new File("C:/Users/60002/AppData/Roaming/AutoBuilder"+ "/robotCodeData.json"));
+        // ClassInformationSender.updateReflectionInformation(
+        //         new File("C:/Users/60002/AppData/Roaming/AutoBuilder"+ "/robotCodeData.json"));
+        ClassInformationSender.updateReflectionInformation(new File("C:/Users/60002/Documents/GitHub/FRC2022/Rewrite/washington/src/main/java/frc"));
     }
 }

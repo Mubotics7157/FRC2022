@@ -8,6 +8,7 @@ import frc.auton.guiauto.AbstractGuiAuto;
 public  class TwoBall extends AbstractGuiAuto {
     
     public TwoBall(){
-        super(new File(Filesystem.getDeployDirectory().getPath()+"/auto/TwoBall.json"));
+        //super(new File(Filesystem.getDeployDirectory().getPath()+"/auto/TwoBall.json"));
+        super(new File(Filesystem.getDeployDirectory().getPath()+"/auto/testdeploy.json"));
     }
 }

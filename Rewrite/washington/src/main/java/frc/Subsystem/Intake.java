@@ -34,7 +34,7 @@ public class Intake extends AbstractSubsystem {
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,IntakeConstants.INTAKE_SOLENOID_FORWARD,IntakeConstants.INTAKE_SOLENOID_REVERSE);
 
     private Intake(){
-        super(40);
+        super(20);
         intake.setInverted(false);
         indexer.setInverted(false);
 

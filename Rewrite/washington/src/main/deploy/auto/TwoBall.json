@@ -1,7 +1,7 @@
 {
   "autonomousSteps" : [ {
     "type" : "script",
-    "script" : "Shooter.setShooterSpeeds 1350 1600\nsleep 1500\nIntake.setIndexing\nsleep 1700",
+    "script" : "Shooter.setShooterSpeeds 1350 1600\n#Drive.setVisionAlign\nsleep 1500",
     "closed" : false,
     "valid" : false,
     "sendableScript" : {
@@ -12,7 +12,17 @@
         "args" : [ "1500" ],
         "argTypes" : [ "long" ],
         "reflection" : false
-      }, {
+      } ]
+    }
+  }, {
+    "type" : "script",
+    "script" : "Intake.setIndexing\nsleep 1700",
+    "closed" : false,
+    "valid" : false,
+    "sendableScript" : {
+      "delayType" : "NONE",
+      "delay" : 0.0,
+      "commands" : [ {
         "methodName" : "sleep",
         "args" : [ "1700" ],
         "argTypes" : [ "long" ],
