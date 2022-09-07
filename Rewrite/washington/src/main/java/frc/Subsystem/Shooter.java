@@ -21,7 +21,7 @@ public class Shooter extends AbstractSubsystem {
 
     public ShooterState shooterState = ShooterState.OFF;
 
-    private boolean interpolate;
+    private boolean interpolate = true;
     private ShotGenerator shotGen = new ShotGenerator();
     private ShooterSpeed shooterSpeeds = shotGen.generateArbitraryShot(1350, 1350*1.08);
     private double shotAdj = 1;
@@ -78,15 +78,21 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public void update() {
-        switch(shooterState){
+        ShooterState snapShooterState;
+        synchronized(this){
+            snapShooterState = shooterState;
+        }
+        switch(snapShooterState){
             case OFF:
                 flywheelBot.set(ControlMode.PercentOutput,0);
                 flywheelTop.set(ControlMode.PercentOutput,0);
+            break;
             case ON:
                 if(interpolate){
                     shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
                 }
                 rev();
+            break;
         }
     }
 
@@ -124,6 +130,7 @@ public class Shooter extends AbstractSubsystem {
         SmartDashboard.putNumber("bot setpoint", shooterSpeeds.bottomSpeed);
         
         SmartDashboard.putString("Shooter State", shooterState.toString());
+        SmartDashboard.putBoolean("interpolating", interpolate);
     }
 
     @Override
@@ -132,6 +139,7 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public synchronized void setShooterMode(ShooterMode mode){
+        shooterState = ShooterState.ON;
         interpolate = false;
         SmartDashboard.putString("shooter mode", mode.toString());
         switch(mode){

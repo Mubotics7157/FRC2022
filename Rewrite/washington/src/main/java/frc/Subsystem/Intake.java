@@ -101,9 +101,9 @@ public class Intake extends AbstractSubsystem {
     }
 
      public synchronized void toggleIntake(boolean down){
-        if(!down)
-            stopMotors();
-        intakeSolenoid.set(down? IntakeConstants.INTAKE_DOWN:IntakeConstants.INTAKE_UP);
+        //if(!down)
+            //stopMotors();
+        intakeSolenoid.set(down? IntakeConstants.INTAKE_UP:IntakeConstants.INTAKE_DOWN);
     }
 
     public synchronized void toggleIntake(){
@@ -115,6 +115,8 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
+        if(state == IntakeState.RUN_ALL || state == IntakeState.INTAKE_REVERSE)
+            toggleIntake(true);
          if(getIntakeState()!=state)
             stopMotors();
         intakeState = state;

@@ -188,6 +188,7 @@ public class Robot extends TimedRobot {
         LED.getInstance().setORANGE();
         VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
+        shooter.setShooterMode(ShooterMode.SHOOT);
 
     networkAutoLock.lock();
        try {
@@ -242,6 +243,7 @@ public class Robot extends TimedRobot {
         climbRoutine = null;
         routine = new ClimbRoutine();
         LED.getInstance().setORANGE();
+        shooter.setShooterMode(ShooterMode.SHOOT);
 
     }
 
@@ -255,19 +257,19 @@ public class Robot extends TimedRobot {
 
      if(driver.getRawAxis(2)>.2)
        intake.setIntakeState(IntakeState.RUN_ALL);
-    else if(driver.getAButton()){
-        shooter.setShooterMode(ShooterMode.SHOOT);
-    }
-    //else if(driver.getBButton()){
-        //shooter.setShooterMode(ShooterMode.SPIT);
-    //}
+ 
     else if(operator.getRawAxis(2)>.2){
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
     else
       intake.setOff();
 
-
+   if(driver.getAButton()){
+        shooter.setShooterMode(ShooterMode.SHOOT);
+    }
+    else if(driver.getBButton()){
+        shooter.setShooterMode(ShooterMode.SPIT);
+    }
     if(driver.getYButtonPressed())
         intake.toggleIntake();
   

@@ -243,6 +243,9 @@ public class Drive extends AbstractSubsystem{
     }
     
     public synchronized void setDriveState(DriveState state){
+        if(state == DriveState.VISION)
+            Intake.getInstance().toggleIntake(false);
+
         driveState= state;
     }
 
