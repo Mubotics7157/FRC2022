@@ -46,6 +46,7 @@ public class Climb extends AbstractSubsystem {
         OFF,
         ON,
         HOMING,
+        JOG,
         DONE
     }
 
@@ -72,6 +73,8 @@ public class Climb extends AbstractSubsystem {
             case ON:
                 updateRoutine();
                 break;
+            case JOG:
+                setMotors(-Robot.operator.getRawAxis(1));
 
 
         }

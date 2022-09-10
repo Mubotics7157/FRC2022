@@ -236,8 +236,10 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-    if(operator.getRawButton(1))
-        climb.setClimbState(ClimbState.ON);
+    if(operator.getRawButton(1)){
+        if(climb.getClimbState()!=ClimbState.DONE)
+            climb.setClimbState(ClimbState.ON);
+    }
     else
         climb.setClimbState(ClimbState.OFF);
     
@@ -299,7 +301,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         startSubsystems();
-        Climb.getInstance().setJog();
+        Climb.getInstance().setClimbState(ClimbState.JOG);
     }
 
     /**
