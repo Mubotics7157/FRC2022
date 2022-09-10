@@ -27,7 +27,6 @@ import frc.Subsystem.Intake;
 import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.VisionManager;
-import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.FiveBall;
@@ -37,11 +36,6 @@ import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
-import frc.util.ClimbRoutine.ActuateHigh;
-import frc.util.ClimbRoutine.ActuateMid;
-import frc.util.ClimbRoutine.ClimbCommand;
-import frc.util.ClimbRoutine.ClimbRoutine;
-import frc.util.ClimbRoutine.Delay;
 
 public class Robot extends TimedRobot {
 
@@ -107,9 +101,7 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-    ClimbRoutine routine = new ClimbRoutine();
 
-    Thread climbRoutine;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -140,7 +132,6 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
         Intake.getInstance().toggleInterpolated();
         VisionManager.getInstance().toggleLimelight(false);
         autoChooser.setDefaultOption("default","two");
@@ -157,7 +148,6 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
-        SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -234,11 +224,7 @@ public class Robot extends TimedRobot {
         //intake.toggleIntake(true);
         intake.setCargoColor(true);
          Climb.getInstance().toggleMidQuickRelease(false);
-         Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
-        climb.setClimbState(ClimbState.JOG);
-        climbRoutine = null;
-        routine = new ClimbRoutine();
         LED.getInstance().setORANGE();
 
     }
@@ -248,18 +234,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
-    if(operator.getRawButtonPressed(1)){
-        if(climbRoutine==null||climbRoutine.isInterrupted()){
-             climbRoutine = new Thread(routine);
-             climbRoutine.start();
-        }
-         else
-             climbRoutine.resume();  
-     }
-      else if(operator.getRawButtonReleased(1)){
-          if(climbRoutine!=null)
-             climbRoutine.suspend();
-    }
     if(driver.getLeftBumper())
       drive.resetHeading();
 
@@ -302,9 +276,6 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-        if(climbRoutine!=null)
-        climbRoutine.interrupt();
-        //climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);
      }
 
@@ -333,10 +304,6 @@ public class Robot extends TimedRobot {
             climb.toggleMidQuickRelease(true);
         else if(operator.getRawButtonPressed(1))
              climb.toggleMidQuickRelease(false);
-        else if(operator.getRawButtonPressed(6))
-            climb.toggleHighQuickRelease(true);
-        else if(operator.getRawButtonPressed(2))
-            climb.toggleHighQuickRelease(false);
     }
 
     private void startSubsystems() {
