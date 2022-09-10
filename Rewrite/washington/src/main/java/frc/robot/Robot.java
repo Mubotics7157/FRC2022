@@ -231,8 +231,8 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.FIELD_ORIENTED);
         compressor.enableDigital();
-        //intake.toggleIntake(true);
-        intake.setCargoColor(true);
+
+
          Climb.getInstance().toggleMidQuickRelease(false);
          Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
@@ -343,7 +343,8 @@ public class Robot extends TimedRobot {
         // odometry.start();
         // drive.start();
         intake.start();
-        // vision.start();
+        vision.start();
+
         //climb.start();
 
     }

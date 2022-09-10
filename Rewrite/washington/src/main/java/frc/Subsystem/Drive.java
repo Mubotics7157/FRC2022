@@ -18,7 +18,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.Subsystem.Intake.IntakeState;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -30,7 +29,6 @@ public class Drive extends AbstractSubsystem{
         FIELD_ORIENTED,
         ROBOT_ORIENTED,
         VISION,
-        BAGLE,
         AUTO,
         DONE
     }
@@ -44,7 +42,6 @@ public class Drive extends AbstractSubsystem{
     private Module rearRight = DriveConstants.REAR_RIGHT_MODULE;
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;
 
-    //AHRS gyro = new AHRS(SPI.Port.kMXP);
     WPI_Pigeon2 gyro =new WPI_Pigeon2(30, ModuleConstants.SWERVE_CANIVORE_ID);
 
 
@@ -88,7 +85,6 @@ public class Drive extends AbstractSubsystem{
         }
         switch(snapDriveState){
             case FIELD_ORIENTED:
-                VisionManager.getInstance().toggleLimelight(false);
                 updateManual(true);
                 break;
             case ROBOT_ORIENTED:
@@ -96,10 +92,6 @@ public class Drive extends AbstractSubsystem{
                 break;
             case VISION:
                 updateAlign();
-                VisionManager.getInstance().toggleLimelight(true);
-                break;
-            case BAGLE:
-                updateBagle();
                 break;
             case AUTO:
                 updateAuto();
@@ -168,24 +160,6 @@ public class Drive extends AbstractSubsystem{
         }
     }
 
-    private void updateBagle(){
-                if(VisionManager.getInstance().hasVisionTarget()){
-        Rotation2d onTarget = new Rotation2d(0);
-        double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
-        if(Math.abs(error)<Units.degreesToRadians(3))
-            error = 0;
-        double deltaSpeed = visionRotController.calculate(error);
-        updateManual(true,deltaSpeed);
-           if(visionRotController.atGoal()){
-                Intake.getInstance().setIntakeState(IntakeState.AUTO_SHOT);
-                setDriveState(DriveState.FIELD_ORIENTED);
-
-           }
-        }
-        else{
-            setDriveState(DriveState.FIELD_ORIENTED);
-        }
-    }
 
     private void driveFromChassis(ChassisSpeeds speeds){
         var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
