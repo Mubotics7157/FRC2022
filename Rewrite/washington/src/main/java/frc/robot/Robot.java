@@ -27,6 +27,7 @@ import frc.Subsystem.Intake;
 import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.VisionManager;
+import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.auton.FiveBall;
@@ -234,6 +235,12 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+
+    if(operator.getRawButton(1))
+        climb.setClimbState(ClimbState.ON);
+    else
+        climb.setClimbState(ClimbState.OFF);
+    
     if(driver.getLeftBumper())
       drive.resetHeading();
 
