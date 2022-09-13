@@ -3,6 +3,7 @@ package frc.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -30,7 +31,7 @@ public class Intake extends AbstractSubsystem {
     private static Intake instance = new Intake();
 
     private PhotoElectric photoElectric = new PhotoElectric(0);
-    private DigitalInput breakBeam = new DigitalInput(1);
+    private DigitalInput breakBeam = new DigitalInput(2);
 
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,IntakeConstants.INTAKE_SOLENOID_FORWARD,IntakeConstants.INTAKE_SOLENOID_REVERSE);
 
@@ -38,6 +39,7 @@ public class Intake extends AbstractSubsystem {
         super(40);
         intake.setInverted(false);
         indexer.setInverted(false);
+        indexer.setIdleMode(IdleMode.kBrake);
 
     }
 
