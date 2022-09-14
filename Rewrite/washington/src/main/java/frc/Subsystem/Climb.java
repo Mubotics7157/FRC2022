@@ -1,5 +1,7 @@
 package frc.Subsystem;
 
+import java.util.ResourceBundle.Control;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -12,6 +14,8 @@ import frc.robot.Robot;
 import frc.util.AbstractSubsystem;
 
 public class Climb extends AbstractSubsystem {
+    DigitalInput magSensor = new DigitalInput(3);
+    //True if not detected and false if it is
     
     DoubleSolenoid midQuickRelease = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
     DoubleSolenoid highQuickRelease = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,6,7);
@@ -117,6 +121,49 @@ public class Climb extends AbstractSubsystem {
 
             }
         }
+
+    private void midClimb(){
+        //same thing as updateSubRoutine but only midclimb
+        if(withinTolerance()){
+            synchronized(this){
+                climbState = ClimbState.DONE;
+            }
+        }
+
+        else{
+            midClimb.set(ControlMode.Position, midSetpoint);
+        }
+    }
+
+    private void resetClimb(){
+        //if magnet is not detected then go down at 40 percent speed until it is detected
+        //If it is detected then make the encoder reading 0
+        if(magSensor.get())
+        midClimb.set(ControlMode.PercentOutput, -0.4);
+        else if(!magSensor.get()){
+        midClimb.set(ControlMode.PercentOutput, 0);
+        midClimb.setSelectedSensorPosition(0);
+
+        //if this method function is to just home then remove the line below this comment
+        midClimb.set(ControlMode.Position, 0);
+        //^^^0 is just a placeholder, make it the encoder reading what it is to reset climb. 
+        //should be called in test periodic or something to zero in a systems check
+            //easter egg o.o
+        }
+    }
+    
+    private void zeroClimb(){
+        //if magnet is not detected then go down at 40 percent speed until it is detected
+        //If it is detected then make the encoder reading 0
+        if(magSensor.get())
+        midClimb.set(ControlMode.PercentOutput, -0.4);
+        else if(!magSensor.get()){
+        midClimb.set(ControlMode.PercentOutput, 0);
+        midClimb.setSelectedSensorPosition(0);
+        }
+        //just ctrl c ctrl v resetClimb but got rid of the last line
+        //should be called in test periodic or something to zero in a systems check
+    }
 
     private boolean withinTolerance(){
         double midTolerance =  Math.abs(midClimb.getSelectedSensorPosition()-midSetpoint);
