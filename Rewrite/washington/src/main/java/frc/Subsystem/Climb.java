@@ -15,7 +15,7 @@ import frc.robot.Robot;
 import frc.util.AbstractSubsystem;
 
 public class Climb extends AbstractSubsystem {
-    DigitalInput magSensor = new DigitalInput(3);
+    DigitalInput magSensor = new DigitalInput(0);
     //True if not detected and false if it is
     
     DoubleSolenoid midQuickRelease = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
@@ -78,13 +78,13 @@ public class Climb extends AbstractSubsystem {
         switch(snapClimbState){
             case OFF:
                 holdQuickReleases();
-                setMotors(0, 0);
+                setMotors(0);
                 break;
             case MANUAL:
-                setMotors(0, 0);
+                setMotors(0);
             break;
             case JOG:
-                setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
+                setMotors(Robot.operator.getRawAxis(1));
             break;
             case ROUTINE:
                 updateSubRoutine(1);
@@ -93,10 +93,10 @@ public class Climb extends AbstractSubsystem {
                 zeroClimb();
                 break;
             case RESET:
-                resetClimb();
+               resetClimb();
                 break;
             case DONE:
-                setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
+                setMotors(Robot.operator.getRawAxis(1));
                 break;
         }
 
@@ -112,9 +112,8 @@ public class Climb extends AbstractSubsystem {
         highQuickRelease.set(on?Value.kForward:Value.kReverse);
     }
 
-    private void setMotors(double mid, double high){
+    private void setMotors(double mid){
         midClimb.set(mid);
-        highClimb.set(high);
     }
 
     private void updateSubRoutine(int button){
@@ -134,10 +133,10 @@ public class Climb extends AbstractSubsystem {
 
     private void resetClimb(){
         if(magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) > 1000)
-      midClimb.set(ControlMode.Position, 600000);
-    else if(!magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000){
-      highQuickRelease.set(Value.kForward);
-        }
+            midClimb.set(ControlMode.Position, 600000);
+   else if(!magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000){
+     highQuickRelease.set(Value.kForward);
+    }
     }
     
     private void zeroClimb(){
@@ -201,7 +200,7 @@ public class Climb extends AbstractSubsystem {
     public synchronized void setJog(){
         midClimb.configFactoryDefault();
         highClimb.configFactoryDefault();
-        midClimb.setSelectedSensorPosition(0);
+        //midClimb.setSelectedSensorPosition(0);
         highClimb.setSelectedSensorPosition(0);
         climbState = ClimbState.JOG;
     }
@@ -209,11 +208,11 @@ public class Climb extends AbstractSubsystem {
         return climbState;
     }
 
-    public void setZero(){
+    public synchronized void setZero(){
         climbState = ClimbState.ZERO;
     }
 
-    public void setReset(){
+    public synchronized void setReset(){
         climbState = ClimbState.RESET;
     }
 
@@ -240,6 +239,11 @@ public class Climb extends AbstractSubsystem {
         //SmartDashboard.putBoolean("use limit switch", useLimitSwitch);
 
         SmartDashboard.putBoolean("within tolerance?", withinTolerance());
+        
+        SmartDashboard.putBoolean("condition 1 met", magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) > 1000);
+        SmartDashboard.putBoolean("condition 2 met", !magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000);
+        SmartDashboard.putString("mid solenoid", midQuickRelease.get().toString());
+        SmartDashboard.putString("high solenoid", highQuickRelease.get().toString());
         
     }
 

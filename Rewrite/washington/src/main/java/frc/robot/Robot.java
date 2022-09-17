@@ -7,6 +7,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
@@ -14,11 +17,14 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Climb;
@@ -50,6 +56,10 @@ public class Robot extends TimedRobot {
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
 
+    TalonFX midClimb = new TalonFX(29);
+    DigitalInput magSensor = new DigitalInput(3); 
+    DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
+  DoubleSolenoid midQuickRelease = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
     //GUI
     NetworkTableInstance instance = NetworkTableInstance.getDefault();
     NetworkTable autoDataTable = instance.getTable("autodata");
@@ -80,7 +90,7 @@ public class Robot extends TimedRobot {
     private final Intake intake = Intake.getInstance();
     private final Shooter shooter = Shooter.getInstance();
     private final VisionManager vision = VisionManager.getInstance();
-    Climb climb = Climb.getInstance();
+    //Climb climb = Climb.getInstance();
 
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
@@ -110,9 +120,9 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-    ClimbRoutine routine = new ClimbRoutine();
+    //ClimbRoutine routine = new ClimbRoutine();
 
-    Thread climbRoutine;
+    //Thread climbRoutine;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -160,7 +170,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
-        SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
+       // SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -239,9 +249,9 @@ public class Robot extends TimedRobot {
          Climb.getInstance().toggleMidQuickRelease(false);
          Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
-        climb.setClimbState(ClimbState.JOG);
-        climbRoutine = null;
-        routine = new ClimbRoutine();
+        //climb.setClimbState(ClimbState.JOG);
+        //climbRoutine = null;
+        //routine = new ClimbRoutine();
         LED.getInstance().setORANGE();
         shooter.setShooterMode(ShooterMode.SHOOT);
 
@@ -281,6 +291,53 @@ public class Robot extends TimedRobot {
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
+
+    if(operator.getRawAxis(2) > 0.5){
+        if(magSensor.get())
+          midClimb.set(ControlMode.PercentOutput, -0.4);
+          else if(!magSensor.get()){
+          midClimb.set(ControlMode.PercentOutput, 0);
+          midClimb.setSelectedSensorPosition(0);
+        }
+      }
+      else if(operator.getRawAxis(3) > 0.5)
+      resetClimb();
+      //midClimb.set(ControlMode.Position, SmartDashboard.getNumber("mid climb setpoint", 0));
+      else if(operator.getRawButton(10))
+      climbRoutine();
+      else 
+      midClimb.set(ControlMode.PercentOutput, operator.getRawAxis(1) * 0.4);
+      
+  
+      /*
+      //mid climb solenoid manual actuation
+      if(operator.getRawButtonPressed(1))
+        midQuickRelease.set(Value.kForward);
+      else if(operator.getRawButtonPressed(2))
+        midQuickRelease.set(Value.kReverse);
+      
+      //intake solenoid manual actuation
+      if(operator.getRawButtonPressed(3))
+        intakeSolenoid.set(Value.kForward);
+      else if(operator.getRawButtonPressed(4))
+        intakeSolenoid.set(Value.kReverse);
+      */
+  
+      //mid climb solenoid toggle
+      if(operator.getRawButtonPressed(5)){
+        if(midQuickRelease.get() != Value.kForward)
+          midQuickRelease.set(Value.kForward);
+        else if(midQuickRelease.get() != Value.kReverse)
+          midQuickRelease.set(Value.kReverse);
+        }
+      
+      //mid climb solenoid toggle
+      if(operator.getRawButtonPressed(6)){
+        if(intakeSolenoid.get() != Value.kForward)
+          intakeSolenoid.set(Value.kForward);
+        else if(intakeSolenoid.get() != Value.kReverse)
+          intakeSolenoid.set(Value.kReverse);
+      }
    
 
 
@@ -295,8 +352,8 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-        if(climbRoutine!=null)
-        climbRoutine.interrupt();
+        //if(climbRoutine!=null)
+        //climbRoutine.interrupt();
         //climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);
      }
@@ -322,6 +379,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+        /*
         if(operator.getRawButtonPressed(5)) 
             climb.toggleMidQuickRelease(true);
         else if(operator.getRawButtonPressed(1))
@@ -330,6 +388,13 @@ public class Robot extends TimedRobot {
             climb.toggleHighQuickRelease(true);
         else if(operator.getRawButtonPressed(2))
             climb.toggleHighQuickRelease(false);
+        else if(operator.getRawAxis(2) > 0.5)
+            climb.setZero();
+        else if(operator.getRawAxis(3) > 0.5)
+            climb.setReset();
+        else
+            climb.setJog();
+            */
     }
 
     private void startSubsystems() {
@@ -369,4 +434,20 @@ public class Robot extends TimedRobot {
         ClassInformationSender.updateReflectionInformation(
                 new File("C:/Users/60002/AppData/Roaming/AutoBuilder"+ "/robotCodeData.json"));
     }
+
+
+    public void climbRoutine(){
+        if(operator.getRawButton(10) && intakeSolenoid.get() != Value.kReverse)
+        intakeSolenoid.set(Value.kReverse);
+        else if(operator.getRawButton(10) && intakeSolenoid.get() ==Value.kReverse)
+        midClimb.set(ControlMode.Position, 160000);
+      }
+    
+      public void resetClimb(){
+        if(magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) > 1000)
+          midClimb.set(ControlMode.Position, 600000);
+        else if(!magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000){
+          intakeSolenoid.set(Value.kForward);
+        }
+}
 }
