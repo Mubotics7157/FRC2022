@@ -1,7 +1,45 @@
 {
-  "autonomousSteps" : [ {
+  "autonomousSteps" : [ 
+    {
     "type" : "script",
-    "script" : "Intake.toggleIntake true",
+    "script" : "sleep 1500",
+    "closed" : false,
+    "valid" : true,
+    "sendableScript" : {
+      "delayType" : "NONE",
+      "delay" : 0.0,
+      "commands" : [ {
+        "methodName" : "sleep",
+        "args" : [ "1500" ],
+        "argTypes" : [ "long" ],
+        "reflection" : false
+      } ]
+    }
+  } ,
+{
+    "type" : "script",
+    "script" : "Intake.index\nsleep 1700",
+    "closed" : false,
+    "valid" : true,
+    "sendableScript" : {
+      "delayType" : "NONE",
+      "delay" : 0.0,
+      "commands" : [  {
+        "methodName" : "frc.Subsystem.Intake.index",
+        "args" : [ ],
+        "argTypes" : [ ],
+        "reflection" : true
+      }, {
+        "methodName" : "sleep",
+        "args" : [ "1700" ],
+        "argTypes" : [ "long" ],
+        "reflection" : false
+      } ]
+    }
+  } ,
+    {
+    "type" : "script",
+    "script" : "Intake.toggleIntake",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
@@ -9,12 +47,13 @@
       "delay" : 0.0,
       "commands" : [ {
         "methodName" : "frc.Subsystem.Intake.toggleIntake",
-        "args" : [ "true" ],
-        "argTypes" : [ "boolean" ],
+        "args" : [  ],
+        "argTypes" : [  ],
         "reflection" : true
       } ]
     }
-  }, {
+  },
+ {
     "type" : "script",
     "script" : "Intake.setIntakeAndIndexing",
     "closed" : false,
@@ -1431,14 +1470,14 @@
     }
   }, {
     "type" : "script",
-    "script" : "@% 93\nIntake.setIndexBackwards",
+    "script" : "@% 93\nIntake.setOff",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "PERCENT",
       "delay" : 0.93,
       "commands" : [ {
-        "methodName" : "frc.Subsystem.Intake.setIndexBackwards",
+        "methodName" : "frc.Subsystem.Intake.setOff",
         "args" : [ ],
         "argTypes" : [ ],
         "reflection" : true
@@ -1858,19 +1897,14 @@
     }
   }, {
     "type" : "script",
-    "script" : "Intake.setShooterSpeeds 1350 1600\nIntake.setShooting\nsleep 1700",
+    "script" : "Intake.index\nsleep 1700",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "NONE",
       "delay" : 0.0,
-      "commands" : [ {
-        "methodName" : "frc.Subsystem.Intake.setShooterSpeeds",
-        "args" : [ "1350", "1600" ],
-        "argTypes" : [ "double", "double" ],
-        "reflection" : true
-      }, {
-        "methodName" : "frc.Subsystem.Intake.setShooting",
+      "commands" : [  {
+        "methodName" : "frc.Subsystem.Intake.index",
         "args" : [ ],
         "argTypes" : [ ],
         "reflection" : true

@@ -26,14 +26,13 @@ import frc.util.AbstractSubsystem;
 public class Drive extends AbstractSubsystem{
     
     public enum DriveState{
-        FIELD_ORIENTED,
-        ROBOT_ORIENTED,
+        TELE,
         VISION,
         AUTO,
         DONE
     }
 
-    private static DriveState driveState = DriveState.ROBOT_ORIENTED;
+    private static DriveState driveState = DriveState.TELE;
     private static final Drive driveInstance = new Drive();
     
 
@@ -84,11 +83,8 @@ public class Drive extends AbstractSubsystem{
             snapDriveState = driveState;
         }
         switch(snapDriveState){
-            case FIELD_ORIENTED:
-                updateManual(true);
-                break;
-            case ROBOT_ORIENTED:
-                updateManual(false);
+            case TELE:
+                updateManual();
                 break;
             case VISION:
                 updateAlign();
@@ -102,7 +98,7 @@ public class Drive extends AbstractSubsystem{
         }
     }
 
-    private void updateManual(boolean fieldOriented){
+    private void updateManual(){
         double str = Robot.driver.getLeftX();
         double fwd = Robot.driver.getLeftY();
         double rot = Robot.driver.getRightX();
@@ -113,15 +109,11 @@ public class Drive extends AbstractSubsystem{
             fwd = 0;
         if(Math.abs(rot) < .15)
             rot = 0;
-        if(fieldOriented)
-            driveFromChassis(ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
-            str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
-            rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY,
-            getDriveHeading()));
-        else  
-            driveFromChassis(new ChassisSpeeds (fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
-            str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
-            rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY));
+
+        driveFromChassis(ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
+        str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
+        rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY,
+        getDriveHeading()));
 
     }
 
@@ -151,12 +143,12 @@ public class Drive extends AbstractSubsystem{
             error = 0;
         double deltaSpeed = visionRotController.calculate(error);
            if(visionRotController.atGoal())
-            setDriveState(DriveState.FIELD_ORIENTED);
+            setDriveState(DriveState.TELE);
             
         updateManual(true,deltaSpeed);
         }
         else{
-           setDriveState(DriveState.FIELD_ORIENTED);
+           setDriveState(DriveState.TELE);
         }
     }
 
@@ -181,6 +173,7 @@ public class Drive extends AbstractSubsystem{
 
             driveFromChassis(desiredSpeeds);
 
+            SmartDashboard.putNumber("total time", currTrajectory.getTotalTimeSeconds());
 
             if(autoController.atReference()&&getAutoTime()>= currTrajectory.getTotalTimeSeconds()){
                 setDriveState(DriveState.DONE);
@@ -235,7 +228,6 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized Rotation2d getDriveHeading(){
         return gyro.getRotation2d();
-        //return Rotation2d.fromDegrees(-gyro.getAngle());
     }
 
     public synchronized void calibrateGyro(){
@@ -244,18 +236,14 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized void resetHeading(){
         gyro.reset();
-        //Odometry.getInstance().resetHeading();
-    }
-
-    public synchronized double getDriveRoll(){
-        return gyro.getRoll();
     }
 
     public synchronized boolean isFinished(){
-        return getDriveState()==DriveState.DONE || getDriveState() == DriveState.FIELD_ORIENTED;
+        return getDriveState()==DriveState.DONE || getDriveState() == DriveState.TELE;
     }
     
     public synchronized void setDriveState(DriveState state){
+
         driveState= state;
     }
 
@@ -264,7 +252,7 @@ public class Drive extends AbstractSubsystem{
     }
 
     public synchronized void setTeleop(){
-        driveState = DriveState.FIELD_ORIENTED;
+        driveState = DriveState.TELE;
     }
 
     public synchronized void setVisionAlign(){
@@ -285,11 +273,8 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putNumber("right rear", rearRight.getState().angle.getDegrees());
         SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
 
-        SmartDashboard.putNumber("drive pitch", gyro.getPitch());
-        SmartDashboard.putNumber("drive roll", gyro.getRoll());
 
         SmartDashboard.putBoolean("at reference",autoController.atReference());
     }
-
 
 }
