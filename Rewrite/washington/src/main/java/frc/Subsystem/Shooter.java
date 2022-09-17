@@ -79,13 +79,14 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public boolean atSpeed(){
-        boolean atSpeed =  (Math.abs(shooterSpeeds.topSpeed - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(shooterSpeeds.bottomSpeed-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
+        boolean atSpeed =  (Math.abs(shooterSpeeds.topSpeed * shotAdj - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(shooterSpeeds.bottomSpeed * shotAdj-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
         return atSpeed;
     }
     
     public void rev(){
-        flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed));//*shotAdj);
-        flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed));//*shotAdj);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
+        flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed)*shotAdj);
+        flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed)*shotAdj);
     }
 
     public synchronized void setSpitting(){
