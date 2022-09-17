@@ -232,7 +232,9 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
+
         VisionManager.getInstance().toggleLimelight(true);
+
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
@@ -256,12 +258,14 @@ public class Robot extends TimedRobot {
     else
       intake.setOff();
 
+
    if(driver.getAButton()){
        shooter.setInterpolating();
     }
     else if(driver.getBButton()){
         shooter.setSpitting();
     }
+
     if(driver.getYButtonPressed())
         intake.toggleIntake();
   
@@ -302,6 +306,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
+
         VisionManager.getInstance().toggleLimelight(false);
      }
 
@@ -325,22 +330,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-        /*
-        if(operator.getRawButtonPressed(5)) 
-            climb.toggleMidQuickRelease(true);
-        else if(operator.getRawButtonPressed(1))
-             climb.toggleMidQuickRelease(false);
-        else if(operator.getRawButtonPressed(6))
-            climb.toggleHighQuickRelease(true);
-        else if(operator.getRawButtonPressed(2))
-            climb.toggleHighQuickRelease(false);
-        else if(operator.getRawAxis(2) > 0.5)
-            climb.setZero();
-        else if(operator.getRawAxis(3) > 0.5)
-            climb.setReset();
-        else
-            climb.setJog();
-            */
+
     }
 
     private void startSubsystems() {
@@ -349,7 +339,8 @@ public class Robot extends TimedRobot {
         intake.start();
         vision.start();
         shooter.start();
-        //climb.start();
+
+        climb.start();
 
     }
 
