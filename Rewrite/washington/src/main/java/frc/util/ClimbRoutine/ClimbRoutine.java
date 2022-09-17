@@ -6,7 +6,6 @@ import java.util.Arrays;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Climb;
-import frc.Subsystem.Climb.ClimbState;
 
 public class ClimbRoutine implements Runnable {
 	boolean killFlag = false;
@@ -46,11 +45,11 @@ public class ClimbRoutine implements Runnable {
 					System.out.println("*********");
 				}
 				else{
-					Climb.getInstance().setClimbState(ClimbState.DONE);
+					//Climb.getInstance().setClimbState(ClimbState.DONE);
 					break;
 				}
 				if (!DriverStation.isTeleop()) {
-					Climb.getInstance().setClimbState(ClimbState.DONE);
+					//Climb.getInstance().setClimbState(ClimbState.DONE);
 					break;
 				}
 			//}
@@ -59,6 +58,6 @@ public class ClimbRoutine implements Runnable {
 		}
 
 		//else
-			Climb.getInstance().setClimbState(ClimbState.DONE);
+			//Climb.getInstance().setClimbState(ClimbState.DONE);
 	}
 }
