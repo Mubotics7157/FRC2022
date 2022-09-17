@@ -10,12 +10,13 @@ public class ActuateHigh extends ClimbCommand {
 
     @Override
     public void start() {
-     Climb.getInstance().toggleHighQuickRelease(true);   
+     //Climb.getInstance().toggleHighQuickRelease(true);   
     }
 
     @Override
     public boolean isFinished() {
-        return Climb.getInstance().isHighForward();
+       // return Climb.getInstance().isHighForward();
+       return true;
     }
     
 }
