@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.util.AbstractSubsystem;
@@ -60,6 +61,8 @@ public class Climb extends AbstractSubsystem {
         OFF,
         JOG,
         ROUTINE,
+        RESET,
+        ZERO,
         DONE
     }
 
@@ -84,7 +87,13 @@ public class Climb extends AbstractSubsystem {
                 setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
             break;
             case ROUTINE:
-                updateSubRoutine();
+                updateSubRoutine(1);
+                break;
+            case ZERO:
+                zeroClimb();
+                break;
+            case RESET:
+                resetClimb();
                 break;
             case DONE:
                 setMotors(Robot.operator.getRawAxis(1), Robot.operator.getRawAxis(5));
@@ -108,22 +117,7 @@ public class Climb extends AbstractSubsystem {
         highClimb.set(high);
     }
 
-    private void updateSubRoutine(){
-
-            if(withinTolerance()){
-                synchronized(this){
-                    climbState = ClimbState.DONE;
-                }
-            }
-            else{
-                midClimb.set(ControlMode.Position,midSetpoint);
-                highClimb.set(ControlMode.Position,highSetpoint);
-
-            }
-        }
-
-    private void midClimb(){
-        //same thing as updateSubRoutine but only midclimb
+    private void updateSubRoutine(int button){
         if(withinTolerance()){
             synchronized(this){
                 climbState = ClimbState.DONE;
@@ -131,24 +125,18 @@ public class Climb extends AbstractSubsystem {
         }
 
         else{
-            midClimb.set(ControlMode.Position, midSetpoint);
+             if(Robot.operator.getRawButton(button) && highQuickRelease.get() != Value.kReverse)
+        highQuickRelease.set(Value.kReverse);
+            else if(Robot.operator.getRawButton(button) && highQuickRelease.get() ==Value.kReverse)
+        midClimb.set(ControlMode.Position, 160000);
         }
-    }
+        }
 
     private void resetClimb(){
-        //if magnet is not detected then go down at 40 percent speed until it is detected
-        //If it is detected then make the encoder reading 0
-        if(magSensor.get())
-        midClimb.set(ControlMode.PercentOutput, -0.4);
-        else if(!magSensor.get()){
-        midClimb.set(ControlMode.PercentOutput, 0);
-        midClimb.setSelectedSensorPosition(0);
-
-        //if this method function is to just home then remove the line below this comment
-        midClimb.set(ControlMode.Position, 0);
-        //^^^0 is just a placeholder, make it the encoder reading what it is to reset climb. 
-        //should be called in test periodic or something to zero in a systems check
-            //easter egg o.o
+        if(magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) > 1000)
+      midClimb.set(ControlMode.Position, 600000);
+    else if(!magSensor.get() && highQuickRelease.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000){
+      highQuickRelease.set(Value.kForward);
         }
     }
     
@@ -219,6 +207,14 @@ public class Climb extends AbstractSubsystem {
     }
     public ClimbState getClimbState(){
         return climbState;
+    }
+
+    public void setZero(){
+        climbState = ClimbState.ZERO;
+    }
+
+    public void setReset(){
+        climbState = ClimbState.RESET;
     }
 
     public synchronized boolean isMidForward(){
