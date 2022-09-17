@@ -104,6 +104,14 @@ public interface Constants {
         public static final int INTAKE_SOLENOID_FORWARD = 3;
         public static final int INTAKE_SOLENOID_REVERSE = 1;
 
+
+        public static final boolean BEAMBREAK_OPEN = true;
+        public static final boolean BEAMBREAK_CLOSED = false;
+
+
+
+        }
+
     }
     public static final class ShooterConstants{
         public static final int DEVICE_ID_TOP_WHEEL = 19;

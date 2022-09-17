@@ -110,9 +110,7 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-    ClimbRoutine routine = new ClimbRoutine();
-
-    Thread climbRoutine;
+ 
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -144,7 +142,6 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
         VisionManager.getInstance().toggleLimelight(false);
         autoChooser.setDefaultOption("default","two");
         autoChooser.addOption("five ball","five");
@@ -160,7 +157,6 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
-        SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -235,13 +231,11 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
-        intake.toggleIntake(true);
-         Climb.getInstance().toggleMidQuickRelease(false);
-         Climb.getInstance().toggleHighQuickRelease(false);
+
+
+
         VisionManager.getInstance().toggleLimelight(true);
-        climb.setClimbState(ClimbState.JOG);
-        climbRoutine = null;
-        routine = new ClimbRoutine();
+
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
@@ -265,12 +259,14 @@ public class Robot extends TimedRobot {
     else
       intake.setOff();
 
+
    if(driver.getAButton()){
        shooter.setInterpolating();
     }
     else if(driver.getBButton()){
         shooter.setSpitting();
     }
+
     if(driver.getYButtonPressed())
         intake.toggleIntake();
   
@@ -296,9 +292,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-        if(climbRoutine!=null)
-        climbRoutine.interrupt();
-        //climbRoutine = null;  
+ 
         VisionManager.getInstance().toggleLimelight(false);
      }
 
@@ -315,7 +309,6 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         startSubsystems();
-        Climb.getInstance().setJog();
     }
 
     /**
@@ -323,14 +316,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-        if(operator.getRawButtonPressed(5)) 
-            climb.toggleMidQuickRelease(true);
-        else if(operator.getRawButtonPressed(1))
-             climb.toggleMidQuickRelease(false);
-        else if(operator.getRawButtonPressed(6))
-            climb.toggleHighQuickRelease(true);
-        else if(operator.getRawButtonPressed(2))
-            climb.toggleHighQuickRelease(false);
+
     }
 
     private void startSubsystems() {
@@ -339,7 +325,8 @@ public class Robot extends TimedRobot {
         intake.start();
         vision.start();
         shooter.start();
-        //climb.start();
+
+        climb.start();
 
     }
 
