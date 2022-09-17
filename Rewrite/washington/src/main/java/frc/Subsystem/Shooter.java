@@ -19,7 +19,6 @@ public class Shooter extends AbstractSubsystem {
 
     private static Shooter instance = new Shooter();
 
-    public ShooterState shooterState = ShooterState.OFF;
 
     private boolean interpolate = true;
     private ShotGenerator shotGen = new ShotGenerator();
@@ -64,11 +63,6 @@ public class Shooter extends AbstractSubsystem {
         flywheelBot.configVelocityMeasurementWindow(1, 1);
     }
 
-    public enum ShooterState{
-        OFF,
-        ON
-    }
-
     public enum ShooterMode{
         SHOOT,
         SPIT,
@@ -78,22 +72,10 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public void update() {
-        ShooterState snapShooterState;
-        synchronized(this){
-            snapShooterState = shooterState;
+        if(interpolate){
+            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         }
-        switch(snapShooterState){
-            case OFF:
-                flywheelBot.set(ControlMode.PercentOutput,0);
-                flywheelTop.set(ControlMode.PercentOutput,0);
-            break;
-            case ON:
-                if(interpolate){
-                    shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-                }
-                rev();
-            break;
-        }
+        rev();
     }
 
     public boolean atSpeed(){
@@ -102,9 +84,22 @@ public class Shooter extends AbstractSubsystem {
     }
     
     public void rev(){
-        //shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
         flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed));//*shotAdj);
         flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed));//*shotAdj);
+    }
+
+    public synchronized void setSpitting(){
+        interpolate = false;
+        shooterSpeeds = shotGen.generateArbitraryShot(1500, 300);
+    }
+
+    public synchronized void setInterpolating(){
+        interpolate = true;
+    }
+
+    public synchronized void setStatic(){
+        interpolate = false;
+        shooterSpeeds = shotGen.generateArbitraryShot(1500, 300);
     }
 
     public void editPorportionalGains(double top, double bot){
@@ -129,7 +124,6 @@ public class Shooter extends AbstractSubsystem {
         SmartDashboard.putNumber("top setpoint", shooterSpeeds.topSpeed);
         SmartDashboard.putNumber("bot setpoint", shooterSpeeds.bottomSpeed);
         
-        SmartDashboard.putString("Shooter State", shooterState.toString());
         SmartDashboard.putBoolean("interpolating", interpolate);
     }
 
@@ -139,7 +133,6 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public synchronized void setShooterMode(ShooterMode mode){
-        shooterState = ShooterState.ON;
         interpolate = false;
         SmartDashboard.putString("shooter mode", mode.toString());
         switch(mode){
