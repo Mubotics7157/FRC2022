@@ -236,8 +236,8 @@ public class Robot extends TimedRobot {
         drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
         intake.toggleIntake(true);
-         Climb.getInstance().toggleMidQuickRelease(false);
-         Climb.getInstance().toggleHighQuickRelease(false);
+         //Climb.getInstance().toggleMidQuickRelease(false);
+         //Climb.getInstance().toggleHighQuickRelease(false);
         VisionManager.getInstance().toggleLimelight(true);
         climb.setClimbState(ClimbState.JOG);
         climbRoutine = null;
