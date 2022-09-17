@@ -112,7 +112,6 @@ public class Robot extends TimedRobot {
             ));
 
 
-    //Thread climbRoutine;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -144,7 +143,6 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
-        //routine.addCommands(new ActuateMid(),new Delay(.4),new ActuateHigh(),new ClimbCommand(-642, 427685));
         VisionManager.getInstance().toggleLimelight(false);
         autoChooser.setDefaultOption("default","two");
         autoChooser.addOption("five ball","five");
@@ -160,7 +158,6 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
             SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
         }
-       // SmartDashboard.putBoolean("climb routine is null", climbRoutine==null);
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -235,11 +232,7 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
-        intake.toggleIntake(true);
         VisionManager.getInstance().toggleLimelight(true);
-        //climb.setClimbState(ClimbState.JOG);
-        //climbRoutine = null;
-        //routine = new ClimbRoutine();
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
@@ -309,9 +302,6 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         killAuto();
         enabled.setBoolean(false);
-        //if(climbRoutine!=null)
-        //climbRoutine.interrupt();
-        //climbRoutine = null;  
         VisionManager.getInstance().toggleLimelight(false);
      }
 
