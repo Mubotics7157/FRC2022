@@ -175,6 +175,7 @@ public class Robot extends TimedRobot {
 
         // SmartDashboard.putData("Auto choices", autoChooser);
         // SmartDashboard.putData("Red or Blue", sideChooser);  
+        SmartDashboard.putNumber("shot adjustment", 1);
     }
     
     @Override
