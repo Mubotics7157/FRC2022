@@ -43,7 +43,7 @@ public class Shooter extends AbstractSubsystem {
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
 
         botConfig.slot0.kP =.35;    
-        botConfig.slot0.kD = .045;
+        botConfig.slot0.kD = .048;
         botConfig.slot0.kF =.05;
         flywheelBot.configAllSettings(botConfig);
 
@@ -100,7 +100,7 @@ public class Shooter extends AbstractSubsystem {
 
     public synchronized void setStatic(){
         interpolate = false;
-        shooterSpeeds = shotGen.generateArbitraryShot(1500, 300);
+        shooterSpeeds = shotGen.generateArbitraryShot(1350, 1390);
     }
 
     public void editPorportionalGains(double top, double bot){

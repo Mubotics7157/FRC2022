@@ -185,7 +185,7 @@ public class Robot extends TimedRobot {
         LED.getInstance().setORANGE();
         VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
-        shooter.setInterpolating();
+        shooter.setStatic();
 
     networkAutoLock.lock();
        try {
@@ -238,6 +238,7 @@ public class Robot extends TimedRobot {
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
+        climb.setForward();
 
     }
 

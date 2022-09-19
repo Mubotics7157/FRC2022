@@ -34,21 +34,29 @@ public class Climb extends AbstractSubsystem {
 
     private Climb(){
         super(30,30);
-        midClimb.setSelectedSensorPosition(0);
+        
         midClimb.configFactoryDefault();
+        
         midClimb.config_kP(0, .5);
         midClimb.config_kD(0, .3);
         midClimb.configNeutralDeadband(.2);
         midClimb.setInverted(true);
         midClimb.setNeutralMode(NeutralMode.Brake);
+        midClimb.setSelectedSensorPosition(-600000);
     }
 
 
     public synchronized void climbRoutine(int button){
-        if(Robot.operator.getRawButton(button) && intakeSolenoid.get() != Value.kReverse)
-        intakeSolenoid.set(Value.kReverse);
-        else if(Robot.operator.getRawButton(button) && intakeSolenoid.get() ==Value.kReverse)
-        midClimb.set(ControlMode.Position, 160000);
+        if(Robot.operator.getRawButton(button) && intakeSolenoid.get() != Value.kReverse){
+          intakeSolenoid.set(Value.kReverse);
+        }
+        
+
+        else if(Robot.operator.getRawButton(button) && intakeSolenoid.get() ==Value.kReverse){
+          midClimb.set(ControlMode.Position, 160000);
+
+
+        }
       }
 
     public synchronized void manualClimb(){
@@ -84,6 +92,10 @@ public class Climb extends AbstractSubsystem {
         else if(intakeSolenoid.get() != Value.kReverse)
           intakeSolenoid.set(Value.kReverse);
       }
+    
+    public synchronized void setForward(){
+      intakeSolenoid.set(Value.kForward);
+    }
 
 
     @Override
@@ -104,7 +116,7 @@ public class Climb extends AbstractSubsystem {
 
     @Override
     public void selfTest() {
-        midClimb.configFactoryDefault();
+   
 
         
     }
