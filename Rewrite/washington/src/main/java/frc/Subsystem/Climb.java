@@ -47,12 +47,12 @@ public class Climb extends AbstractSubsystem {
 
 
     public synchronized void climbRoutine(int button){
-        if(Robot.operator.getRawButton(button) && intakeSolenoid.get() != Value.kReverse){
+        if(Robot.driver.getRawButton(button) && intakeSolenoid.get() != Value.kReverse){
           intakeSolenoid.set(Value.kReverse);
         }
         
 
-        else if(Robot.operator.getRawButton(button) && intakeSolenoid.get() ==Value.kReverse){
+        else if(Robot.driver.getRawButton(button) && intakeSolenoid.get() ==Value.kReverse){
           midClimb.set(ControlMode.Position, 160000);
 
 
@@ -60,7 +60,7 @@ public class Climb extends AbstractSubsystem {
       }
 
     public synchronized void manualClimb(){
-        midClimb.set(ControlMode.PercentOutput, Robot.operator.getRawAxis(1) * 0.4);
+        midClimb.set(ControlMode.PercentOutput, Robot.operator.getRawAxis(1));
     }
     
       public synchronized void resetClimb(){
