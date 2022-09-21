@@ -267,7 +267,7 @@ public class Robot extends TimedRobot {
         shooter.setSpitting();
     }
 
-    if(driver.getYButtonPressed())
+    if(driver.getRawButtonPressed(10))
         intake.toggleIntake();
   
     
@@ -288,8 +288,8 @@ public class Robot extends TimedRobot {
         climb.zeroClimb();
       else if(operator.getRawAxis(3) > 0.5)
         climb.resetClimb();
-    else if(operator.getRawButton(7))
-    climb.climbRoutine(7);
+    else if(driver.getRightBumper())
+    climb.climbRoutine(6);
       else
         climb.manualClimb();
 
