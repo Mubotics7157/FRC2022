@@ -238,7 +238,7 @@ public class Robot extends TimedRobot {
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
-        climb.setForward();
+        //climb.setForward();
 
     }
 
@@ -253,18 +253,18 @@ public class Robot extends TimedRobot {
      if(driver.getRawAxis(2)>.2)
        intake.setIntakeState(IntakeState.RUN_ALL);
  
-    else if(operator.getRawAxis(2)>.2){
+    else if(driver.getRawButton(9)){
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
     else
       intake.setOff();
 
 
-   if(driver.getAButton()){
+   if(operator.getRawButtonPressed(1)){
        shooter.setInterpolating();
     }
-    else if(driver.getBButton()){
-        shooter.setSpitting();
+    else if(operator.getRawButtonPressed(2)){
+        shooter.setStatic();
     }
 
     if(driver.getRawButtonPressed(10))
@@ -288,8 +288,8 @@ public class Robot extends TimedRobot {
         climb.zeroClimb();
       else if(operator.getRawAxis(3) > 0.5)
         climb.resetClimb();
-    else if(driver.getRightBumper())
-    climb.climbRoutine(6);
+    else if(driver.getRightBumper() || operator.getRawButton(7))
+    climb.climbRoutine();
       else
         climb.manualClimb();
 
