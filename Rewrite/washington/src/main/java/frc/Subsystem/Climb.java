@@ -43,7 +43,7 @@ public class Climb extends AbstractSubsystem {
         midClimb.configNeutralDeadband(.2);
         midClimb.setInverted(true);
         midClimb.setNeutralMode(NeutralMode.Brake);
-        midClimb.setSelectedSensorPosition(-600000);
+        midClimb.setSelectedSensorPosition(-608000);
     }
 
 
@@ -65,9 +65,9 @@ public class Climb extends AbstractSubsystem {
     }
     
       public synchronized void resetClimb(){
-        if(magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) > 1000)
-          midClimb.set(ControlMode.Position, 600000);
-        else if(!magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000){
+        if(magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 608000) > 1000)
+          midClimb.set(ControlMode.Position, 608000);
+        else if(!magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 608000) < 1000){
           intakeSolenoid.set(Value.kForward);
             }
         }
