@@ -115,6 +115,7 @@ public interface Constants {
         public static final int INDEXER_CURRENT_LIMIT = 30;
         }
 
+    }
     public static final class ShooterConstants{
         public static final int DEVICE_ID_TOP_WHEEL = 19;
         public static final int DEVICE_ID_BOT_WHEEL = 20;
