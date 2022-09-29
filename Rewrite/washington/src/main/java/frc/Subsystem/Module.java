@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.util.CommonConversions;
 
@@ -40,10 +42,13 @@ public class Module {
         driveConfig.closedloopRamp = ModuleConstants.CLOSED_LOOP_RAMP_RATE;
         driveMotor.configAllSettings(driveConfig);
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
+        driveMotor.configVoltageCompSaturation(ModuleConstants.MODULE_VOTLAGE_LIMIT);
+        driveMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, ModuleConstants.MODULE_CURRENT_LIMIT, ModuleConstants.MODULE_CURRENT_LIMIT, 0));
         driveMotor.setNeutralMode(NeutralMode.Brake);
 
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
         turnMotor.setNeutralMode(NeutralMode.Brake);
+        turnMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, ModuleConstants.MODULE_CURRENT_LIMIT, ModuleConstants.MODULE_CURRENT_LIMIT, 0));
         turnMotor.setInverted(false);
 
         absEncoder = new WPI_CANCoder(encoderPort,ModuleConstants.SWERVE_CANIVORE_ID);

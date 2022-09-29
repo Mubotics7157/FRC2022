@@ -75,6 +75,9 @@ public interface Constants {
 
         public static final String SWERVE_CANIVORE_ID = "swerve";
 
+        public static final int MODULE_CURRENT_LIMIT = 15;
+        public static final int MODULE_VOTLAGE_LIMIT = 12;
+
         public static final int TIMEOUT_MS = 25;
     }
 
