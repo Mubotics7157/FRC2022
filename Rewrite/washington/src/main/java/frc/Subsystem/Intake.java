@@ -38,8 +38,10 @@ public class Intake extends AbstractSubsystem {
     private Intake(){
         super(40);
         intake.setInverted(false);
+        intake.configVoltageCompSaturation(10);
         indexer.setInverted(false);
         indexer.setIdleMode(IdleMode.kBrake);
+        indexer.setSmartCurrentLimit(IntakeConstants.INDEXER_CURRENT_LIMIT);
 
     }
 

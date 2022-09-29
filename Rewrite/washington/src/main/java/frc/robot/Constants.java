@@ -101,6 +101,7 @@ public interface Constants {
         public static final double INDEX_SPEED = 0.85;
         public static final boolean STOWED = false;
 
+
         public static final Value INTAKE_DOWN = Value.kReverse;
         public static final Value INTAKE_UP = Value.kForward;
 
@@ -111,8 +112,7 @@ public interface Constants {
         public static final boolean BEAMBREAK_OPEN = true;
         public static final boolean BEAMBREAK_CLOSED = false;
 
-
-
+        public static final int INDEXER_CURRENT_LIMIT = 30;
         }
 
     public static final class ShooterConstants{
