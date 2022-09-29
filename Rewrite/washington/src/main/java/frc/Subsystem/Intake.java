@@ -73,6 +73,7 @@ public class Intake extends AbstractSubsystem {
         intake.set(IntakeConstants.INDEX_SPEED);
     }
     private void reverseIntake(){
+        indexer.set(-IntakeConstants.INDEX_SPEED);
         intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
@@ -117,7 +118,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(state == IntakeState.RUN_ALL || state == IntakeState.INTAKE_REVERSE)
+        if(state == IntakeState.RUN_ALL)
             toggleIntake(true);
          if(getIntakeState()!=state)
             stopMotors();

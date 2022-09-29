@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.util.AbstractSubsystem;
+import frc.util.OrangeUtility;
 
 public class Climb extends AbstractSubsystem {
     DoubleSolenoid intakeSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
@@ -34,7 +35,7 @@ public class Climb extends AbstractSubsystem {
 
     private Climb(){
         super(30,30);
-        
+        OrangeUtility.sleep(1000);
         midClimb.configFactoryDefault();
         
         midClimb.config_kP(0, .5);
@@ -42,17 +43,17 @@ public class Climb extends AbstractSubsystem {
         midClimb.configNeutralDeadband(.2);
         midClimb.setInverted(true);
         midClimb.setNeutralMode(NeutralMode.Brake);
-        midClimb.setSelectedSensorPosition(-600000);
+        midClimb.setSelectedSensorPosition(-608000);
     }
 
 
-    public synchronized void climbRoutine(int button){
-        if(Robot.operator.getRawButton(button) && intakeSolenoid.get() != Value.kReverse){
+    public synchronized void climbRoutine(){
+        if((Robot.driver.getRightBumper() || Robot.operator.getRawButton(7)) && intakeSolenoid.get() != Value.kReverse){
           intakeSolenoid.set(Value.kReverse);
         }
         
 
-        else if(Robot.operator.getRawButton(button) && intakeSolenoid.get() ==Value.kReverse){
+        else if((Robot.driver.getRightBumper() || Robot.operator.getRawButton(7)) && intakeSolenoid.get() ==Value.kReverse){
           midClimb.set(ControlMode.Position, 160000);
 
 
@@ -60,13 +61,13 @@ public class Climb extends AbstractSubsystem {
       }
 
     public synchronized void manualClimb(){
-        midClimb.set(ControlMode.PercentOutput, Robot.operator.getRawAxis(1) * 0.4);
+        midClimb.set(ControlMode.PercentOutput, Robot.operator.getRawAxis(1));
     }
     
       public synchronized void resetClimb(){
-        if(magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) > 1000)
-          midClimb.set(ControlMode.Position, 600000);
-        else if(!magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 600000) < 1000){
+        if(magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 608000) > 1000)
+          midClimb.set(ControlMode.Position, 608000);
+        else if(!magSensor.get() && intakeSolenoid.get() == Value.kReverse && Math.abs(midClimb.getSelectedSensorPosition() - 608000) < 1000){
           intakeSolenoid.set(Value.kForward);
             }
         }
@@ -106,10 +107,10 @@ public class Climb extends AbstractSubsystem {
   
 
 
-        SmartDashboard.putString("mid solenoid", midQuickRelease.get().toString());
-
+        SmartDashboard.putString("goofy solenoid", midQuickRelease.get().toString());
+        SmartDashboard.putString("mid quick release", intakeSolenoid.get().toString());
         SmartDashboard.putBoolean("magnet detected?", magSensor.get());
-        SmartDashboard.putString("midclimb", midQuickRelease.get().toString());
+        
         SmartDashboard.putNumber("mid climb encoder", midClimb.getSelectedSensorPosition());
         
     }
