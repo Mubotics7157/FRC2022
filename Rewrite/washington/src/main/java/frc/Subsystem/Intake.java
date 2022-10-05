@@ -119,6 +119,8 @@ public class Intake extends AbstractSubsystem {
     public synchronized void setIntakeState(IntakeState state){
         if(state == IntakeState.RUN_ALL || state == IntakeState.INTAKE_REVERSE)
             toggleIntake(true);
+        else
+            toggleIntake(false);
          if(getIntakeState()!=state)
             stopMotors();
         intakeState = state;
