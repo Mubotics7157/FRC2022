@@ -1,6 +1,7 @@
 package frc.util.ClimbRoutine;
 
 import frc.Subsystem.Climb;
+import frc.Subsystem.Climb.ClimbState;
 
 public class ClimbCommand {
     
@@ -23,14 +24,13 @@ public class ClimbCommand {
 
     }
     public void start(){
-        //Climb.getInstance().setRoutineStep(mid, high,useSwitch);
-        //Climb.getInstance().setClimbState(ClimbState.ROUTINE);
+        Climb.getInstance().setRoutineStep(mid, high,useSwitch);
+        Climb.getInstance().setClimbState(ClimbState.ROUTINE);
 
     }
 
     public boolean isFinished(){
-        //return Climb.getInstance().isFinished();
-        return true;
+        return Climb.getInstance().isFinished();
     }
 
 

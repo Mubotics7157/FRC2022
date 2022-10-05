@@ -10,13 +10,12 @@ public class ActuateMid extends ClimbCommand {
 
     @Override
     public void start() {
-     //Climb.getInstance().toggleMidQuickRelease(true);   
+     Climb.getInstance().toggleMidQuickRelease(true);   
     }
 
     @Override
     public boolean isFinished() {
-        //return Climb.getInstance().isMidForward();
-        return true;
+        return Climb.getInstance().isMidForward();
     }
 
     

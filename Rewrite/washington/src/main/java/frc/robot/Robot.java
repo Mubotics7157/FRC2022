@@ -7,9 +7,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
@@ -17,14 +14,11 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Climb;
@@ -34,6 +28,7 @@ import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.Shooter;
 import frc.Subsystem.VisionManager;
+import frc.Subsystem.Climb.ClimbState;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
 import frc.Subsystem.Shooter.ShooterMode;
@@ -44,7 +39,11 @@ import frc.auton.WeakSide;
 import frc.auton.guiauto.NetworkAuto;
 import frc.auton.guiauto.serialization.reflection.ClassInformationSender;
 import frc.util.OrangeUtility;
-
+import frc.util.ClimbRoutine.ActuateHigh;
+import frc.util.ClimbRoutine.ActuateMid;
+import frc.util.ClimbRoutine.ClimbCommand;
+import frc.util.ClimbRoutine.ClimbRoutine;
+import frc.util.ClimbRoutine.Delay;
 
 public class Robot extends TimedRobot {
 
@@ -111,6 +110,7 @@ public class Robot extends TimedRobot {
                     }
             ));
 
+ 
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -231,7 +231,11 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
+
+
+
         VisionManager.getInstance().toggleLimelight(true);
+
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
@@ -274,25 +278,10 @@ public class Robot extends TimedRobot {
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
 
-
-  
-  
    
-   
-    
-      if(operator.getRawAxis(2) > 0.5)
-        climb.zeroClimb();
-      else if(operator.getRawAxis(3) > 0.5)
-        climb.resetClimb();
-    else if(operator.getRawButton(7))
-    climb.climbRoutine(7);
-      else
-        climb.manualClimb();
 
-     if(operator.getRawButtonPressed(5))
-        climb.toggleClimbSolenoid();
-    else if(operator.getRawButtonPressed(6))
-        climb.toggleHighSolenoid();
+
+
 }
 
 
@@ -327,6 +316,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+
     }
 
     private void startSubsystems() {
@@ -367,7 +357,4 @@ public class Robot extends TimedRobot {
         ClassInformationSender.updateReflectionInformation(
                 new File("C:/Users/60002/AppData/Roaming/AutoBuilder"+ "/robotCodeData.json"));
     }
-
-
-
 }
