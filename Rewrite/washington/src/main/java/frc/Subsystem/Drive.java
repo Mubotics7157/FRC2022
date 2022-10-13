@@ -36,7 +36,7 @@ public class Drive extends AbstractSubsystem{
     private static final Drive driveInstance = new Drive();
     
 
-    private Module frontLeft = DriveConstants.FRONT_LEFT_MODULE;
+    private Module frontLeft = new Module(1,2,3,0);
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
     private Module rearRight = DriveConstants.REAR_RIGHT_MODULE;
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;

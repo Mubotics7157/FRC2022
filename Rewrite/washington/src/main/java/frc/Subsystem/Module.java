@@ -27,8 +27,7 @@ public class Module {
     PIDController turnPID;
 
 
-
-       public Module(int drivePort, int turnPort, int encoderPort, double angleOffset, boolean isInverted){
+       public Module(int drivePort, int turnPort, int encoderPort, double angleOffset){
         turnPID = new PIDController(.39, 0, 0); 
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -42,8 +41,7 @@ public class Module {
         driveMotor.configAllSettings(driveConfig);
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
         driveMotor.setNeutralMode(NeutralMode.Brake);
-        driveMotor.setInverted(isInverted);
-        
+
         turnMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,0,ModuleConstants.TIMEOUT_MS);
         turnMotor.setNeutralMode(NeutralMode.Brake);
         turnMotor.setInverted(false);
