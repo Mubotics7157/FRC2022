@@ -72,10 +72,10 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public void update() {
-        if(interpolate){
-            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-        }
-        rev();
+        //if(interpolate){
+        //    shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+        //}
+        //rev();
     }
 
     public boolean atSpeed(){
