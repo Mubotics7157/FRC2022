@@ -23,7 +23,8 @@ public class Intake extends AbstractSubsystem {
         OFF,
         INTAKE_REVERSE,
         RUN_ALL,
-        INDEX
+        INDEX,
+        INDEX_REVERSE
     }
 
     IntakeState intakeState = IntakeState.OFF;
@@ -66,6 +67,9 @@ public class Intake extends AbstractSubsystem {
                 break;
             case INDEX:
                 index();
+                break;
+            case INDEX_REVERSE:
+                reverseIndexer();
                 break;
         }
     }
@@ -118,7 +122,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(state == IntakeState.RUN_ALL || state == IntakeState.INTAKE_REVERSE)
+        if(state == IntakeState.RUN_ALL || state == IntakeState.INTAKE_REVERSE || state == IntakeState.INDEX_REVERSE)
             toggleIntake(true);
         else
             toggleIntake(false);

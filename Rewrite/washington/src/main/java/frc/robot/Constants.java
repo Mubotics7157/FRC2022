@@ -9,8 +9,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.Subsystem.Module;
 
-public interface Constants {
+public class Constants {
     
+    public static final class ShooterConstants{
+        public static final int DEVICE_ID_TOP_WHEEL = 19;
+        public static final int DEVICE_ID_BOT_WHEEL = 20;
+
+        public static final double TOLERANCE_RPM = 50;
+    }
     public static class DriveConstants{
         public static final int MAX_TANGENTIAL_VELOCITY = 4; 
         public static final double MAX_TELE_TANGENTIAL_VELOCITY = 3.5; 
@@ -113,10 +119,5 @@ public interface Constants {
         }
 
     }
-    public static final class ShooterConstants{
-        public static final int DEVICE_ID_TOP_WHEEL = 19;
-        public static final int DEVICE_ID_BOT_WHEEL = 20;
 
-        public static final double TOLERANCE_RPM = 50;
-    }
-}
+
