@@ -1,6 +1,7 @@
 package frc.Subsystem;
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
 import frc.util.AbstractSubsystem;
 import frc.util.OrangeUtility;
@@ -28,6 +30,7 @@ public class Intake extends AbstractSubsystem {
     IntakeState intakeState = IntakeState.OFF;
     WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
+    //WPI_TalonSRX pumpkin = new WPI_TalonSRX(40);
     private static Intake instance = new Intake();
 
     private PhotoElectric photoElectric = new PhotoElectric(0);
@@ -49,6 +52,7 @@ public class Intake extends AbstractSubsystem {
 
     @Override
     public void update() {
+        //pumpkin.set(ControlMode.PercentOutput, Robot.operator.getRawAxis(4) * 0.5);
         IntakeState snapIntakeState;       
         synchronized(this){
             snapIntakeState = intakeState;
@@ -118,8 +122,12 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(state == IntakeState.RUN_ALL)
+        if(state == IntakeState.RUN_ALL){
             toggleIntake(true);
+            Drive.getInstance().togggleRotationSpeed(false);
+        }
+        else
+            Drive.getInstance().togggleRotationSpeed(true);
          if(getIntakeState()!=state)
             stopMotors();
         intakeState = state;

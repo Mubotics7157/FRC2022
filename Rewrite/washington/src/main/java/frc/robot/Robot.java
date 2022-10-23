@@ -257,7 +257,7 @@ public class Robot extends TimedRobot {
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
     else
-      intake.setOff();
+      Intake.getInstance().setIntakeState(IntakeState.OFF);
 
 
    if(operator.getRawButtonPressed(1)){
