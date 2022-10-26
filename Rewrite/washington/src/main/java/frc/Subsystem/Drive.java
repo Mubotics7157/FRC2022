@@ -36,7 +36,7 @@ public class Drive extends AbstractSubsystem{
     private static final Drive driveInstance = new Drive();
     
 
-    private Module frontLeft = new Module(1,2,3,0);
+    private Module frontLeft = DriveConstants.FRONT_LEFT_MODULE;
     private Module frontRight = DriveConstants.FRONT_RIGHT_MODULE;
     private Module rearRight = DriveConstants.REAR_RIGHT_MODULE;
     private Module rearLeft = DriveConstants.REAR_LEFT_MODULE;
@@ -60,6 +60,7 @@ public class Drive extends AbstractSubsystem{
     Trajectory currTrajectory;
     private volatile Rotation2d desiredAutoHeading;
     private double autoStartTime;
+    double maxAngVel = 2 * Math.PI;
 
         
     private Drive() {
@@ -112,7 +113,7 @@ public class Drive extends AbstractSubsystem{
 
         driveFromChassis(ChassisSpeeds.fromFieldRelativeSpeeds(fwd*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
         str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
-        rot*DriveConstants.MAX_TELE_ANGULAR_VELOCITY,
+        rot*maxAngVel,
         getDriveHeading()));
 
     }
@@ -259,6 +260,14 @@ public class Drive extends AbstractSubsystem{
         driveState = DriveState.VISION;
     }
 
+    public synchronized void togggleRotationSpeed(boolean max){
+        if(max)
+            maxAngVel = 2*Math.PI;
+        else
+            maxAngVel = .85*Math.PI;
+
+    }
+
     @Override
     public void selfTest() {
     }
@@ -273,6 +282,7 @@ public class Drive extends AbstractSubsystem{
         SmartDashboard.putNumber("right rear", rearRight.getState().angle.getDegrees());
         SmartDashboard.putNumber("front right", frontRight.getState().angle.getDegrees());
 
+        SmartDashboard.putNumber("rotation speed", maxAngVel);
 
         SmartDashboard.putBoolean("at reference",autoController.atReference());
     }

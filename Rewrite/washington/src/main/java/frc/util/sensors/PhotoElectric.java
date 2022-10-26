@@ -49,9 +49,4 @@ public class PhotoElectric {
         else
         return true;
     }
-
-    public boolean chagedState(){
-
-        return Math.abs(photoElectric.getAverageValue())-lastState > 10;
-    }
 }
