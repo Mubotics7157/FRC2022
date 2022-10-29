@@ -111,11 +111,6 @@ public class Robot extends TimedRobot {
                     }
             ));
 
-<<<<<<<<< Temporary merge branch 1
- 
-=========
-
->>>>>>>>> Temporary merge branch 2
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
