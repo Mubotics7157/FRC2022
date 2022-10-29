@@ -262,7 +262,7 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized void togggleRotationSpeed(boolean max){
         if(max)
-            maxAngVel = 2*Math.PI;
+            maxAngVel = 1.5*Math.PI;
         else
             maxAngVel = .85*Math.PI;
 
