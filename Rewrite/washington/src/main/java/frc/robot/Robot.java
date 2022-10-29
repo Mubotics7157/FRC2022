@@ -256,6 +256,8 @@ public class Robot extends TimedRobot {
     else if(driver.getRawButton(9)){
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
+    else if(driver.getRawAxis(3)>.2)// && shooter.atSpeed())
+        intake.setIntakeState(IntakeState.INDEX);
     else
       Intake.getInstance().setIntakeState(IntakeState.OFF);
 
@@ -271,8 +273,7 @@ public class Robot extends TimedRobot {
         intake.toggleIntake();
   
     
-    if(driver.getRawAxis(3)>.2)// && shooter.atSpeed())
-        intake.index();
+    
 
 
     if(driver.getXButtonPressed())

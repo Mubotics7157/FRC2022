@@ -262,10 +262,21 @@ public class Drive extends AbstractSubsystem{
 
     public synchronized void togggleRotationSpeed(boolean max){
         if(max)
-            maxAngVel = 2*Math.PI;
+            maxAngVel = 1.5*Math.PI;
         else
             maxAngVel = .85*Math.PI;
 
+    }
+
+    public synchronized boolean isAligned(){
+        if(VisionManager.getInstance().hasVisionTarget()){
+            Rotation2d onTarget = Rotation2d.fromDegrees(3);
+            double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+            return(Math.abs(error)<Units.degreesToRadians(3));
+        }
+        else
+            return false;
+           
     }
 
     @Override
