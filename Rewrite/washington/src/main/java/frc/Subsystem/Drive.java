@@ -268,6 +268,17 @@ public class Drive extends AbstractSubsystem{
 
     }
 
+    public synchronized boolean isAligned(){
+        if(VisionManager.getInstance().hasVisionTarget()){
+            Rotation2d onTarget = Rotation2d.fromDegrees(3);
+            double error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+            return(Math.abs(error)<Units.degreesToRadians(3));
+        }
+        else
+            return false;
+           
+    }
+
     @Override
     public void selfTest() {
     }
