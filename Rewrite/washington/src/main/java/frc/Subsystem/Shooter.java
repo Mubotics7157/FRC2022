@@ -43,7 +43,7 @@ public class Shooter extends AbstractSubsystem {
         TalonFXConfiguration botConfig = new TalonFXConfiguration();
 
         botConfig.slot0.kP =.35;    
-        botConfig.slot0.kD = .045;
+        botConfig.slot0.kD = .048;
         botConfig.slot0.kF =.05;
         flywheelBot.configAllSettings(botConfig);
 
@@ -79,13 +79,14 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public boolean atSpeed(){
-        boolean atSpeed =  (Math.abs(shooterSpeeds.topSpeed - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(shooterSpeeds.bottomSpeed-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
+        boolean atSpeed =  (Math.abs(shooterSpeeds.topSpeed * shotAdj - getTopRPM()) < ShooterConstants.TOLERANCE_RPM) && (Math.abs(shooterSpeeds.bottomSpeed * shotAdj-getBotRPM())<ShooterConstants.TOLERANCE_RPM);
         return atSpeed;
     }
     
     public void rev(){
-        flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed));//*shotAdj);
-        flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed));//*shotAdj);
+        shotAdj = SmartDashboard.getNumber("shot adjustment", 1);
+        flywheelBot.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.bottomSpeed)*shotAdj);
+        flywheelTop.set(ControlMode.Velocity, CommonConversions.RPMToStepsPerDecisec(shooterSpeeds.topSpeed)*shotAdj);
     }
 
     public synchronized void setSpitting(){
@@ -99,7 +100,7 @@ public class Shooter extends AbstractSubsystem {
 
     public synchronized void setStatic(){
         interpolate = false;
-        shooterSpeeds = shotGen.generateArbitraryShot(1500, 300);
+        shooterSpeeds = shotGen.generateArbitraryShot(1350, 1390);
     }
 
     public void editPorportionalGains(double top, double bot){

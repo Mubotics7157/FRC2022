@@ -111,6 +111,11 @@ public class Robot extends TimedRobot {
                     }
             ));
 
+<<<<<<<<< Temporary merge branch 1
+ 
+=========
+
+>>>>>>>>> Temporary merge branch 2
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -184,7 +189,7 @@ public class Robot extends TimedRobot {
         LED.getInstance().setORANGE();
         VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
-        shooter.setInterpolating();
+        shooter.setStatic();
 
     networkAutoLock.lock();
        try {
@@ -231,10 +236,15 @@ public class Robot extends TimedRobot {
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
         compressor.enableDigital();
+
+
+
         VisionManager.getInstance().toggleLimelight(true);
-        LED.getInstance().setORANGE();
+
+        VisionManager.getInstance().toggleLimelight(true);
         shooter.setInterpolating();
         
+        //climb.setForward();
 
     }
 
@@ -249,21 +259,21 @@ public class Robot extends TimedRobot {
      if(driver.getRawAxis(2)>.2)
        intake.setIntakeState(IntakeState.RUN_ALL);
  
-    else if(operator.getRawAxis(2)>.2){
+    else if(driver.getRawButton(9)){
         Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
     }
     else
-      intake.setOff();
+      Intake.getInstance().setIntakeState(IntakeState.OFF);
 
 
-   if(driver.getAButton()){
+   if(operator.getRawButtonPressed(1)){
        shooter.setInterpolating();
     }
-    else if(driver.getBButton()){
-        shooter.setSpitting();
+    else if(operator.getRawButtonPressed(2)){
+        shooter.setStatic();
     }
 
-    if(driver.getYButtonPressed())
+    if(driver.getRawButtonPressed(10))
         intake.toggleIntake();
   
     
@@ -284,8 +294,8 @@ public class Robot extends TimedRobot {
         climb.zeroClimb();
       else if(operator.getRawAxis(3) > 0.5)
         climb.resetClimb();
-    else if(operator.getRawButton(7))
-    climb.climbRoutine(7);
+    else if(driver.getRightBumper() || operator.getRawButton(7))
+    climb.climbRoutine();
       else
         climb.manualClimb();
 
@@ -327,6 +337,23 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
+
+        /*
+        if(operator.getRawButtonPressed(5)) 
+            climb.toggleMidQuickRelease(true);
+        else if(operator.getRawButtonPressed(1))
+             climb.toggleMidQuickRelease(false);
+        else if(operator.getRawButtonPressed(6))
+            climb.toggleHighQuickRelease(true);
+        else if(operator.getRawButtonPressed(2))
+            climb.toggleHighQuickRelease(false);
+        else if(operator.getRawAxis(2) > 0.5)
+            climb.setZero();
+        else if(operator.getRawAxis(3) > 0.5)
+            climb.setReset();
+        else
+            climb.setJog();
+            */
     }
 
     private void startSubsystems() {
