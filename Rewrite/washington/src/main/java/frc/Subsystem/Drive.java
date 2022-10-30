@@ -28,6 +28,7 @@ public class Drive extends AbstractSubsystem{
     public enum DriveState{
         TELE,
         VISION,
+        LOCKED,
         AUTO,
         DONE
     }
@@ -45,7 +46,7 @@ public class Drive extends AbstractSubsystem{
 
 
 
-    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
+    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(2*Math.PI,8*Math.PI);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
@@ -90,6 +91,9 @@ public class Drive extends AbstractSubsystem{
             case VISION:
                 updateAlign();
                 break;
+            case LOCKED:
+                updateLocked();
+                break;
             case AUTO:
                 updateAuto();
                 break;
@@ -115,6 +119,17 @@ public class Drive extends AbstractSubsystem{
         str*DriveConstants.MAX_TELE_TANGENTIAL_VELOCITY,
         rot*maxAngVel,
         getDriveHeading()));
+
+    }
+
+    private void updateLocked(){
+        frontLeft.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        frontRight.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        rearLeft.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        rearRight.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+
+        if(Math.abs(Robot.driver.getLeftX()) > .1 || Math.abs(Robot.driver.getLeftY())>.1 || Math.abs(Robot.driver.getRightX())>.15)
+            setDriveState(DriveState.TELE);
 
     }
 
@@ -144,7 +159,7 @@ public class Drive extends AbstractSubsystem{
             error = 0;
         double deltaSpeed = visionRotController.calculate(error);
            if(visionRotController.atGoal())
-            setDriveState(DriveState.TELE);
+            setDriveState(DriveState.LOCKED);
             
         updateManual(true,deltaSpeed);
         }

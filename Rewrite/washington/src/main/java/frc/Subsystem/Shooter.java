@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -18,6 +19,7 @@ public class Shooter extends AbstractSubsystem {
     
     private TalonFX flywheelBot;
     private TalonFX flywheelTop;
+
 
     private static Shooter instance = new Shooter();
 
@@ -78,11 +80,6 @@ public class Shooter extends AbstractSubsystem {
             shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
         }
         rev();
-        
-        if(Drive.getInstance().isAligned()&&atSpeed()){
-            Robot.driver.setRumble(RumbleType.kLeftRumble, .5);
-            Robot.driver.setRumble(RumbleType.kRightRumble, .5);
-        }
     }
 
     public boolean atSpeed(){
@@ -124,6 +121,7 @@ public class Shooter extends AbstractSubsystem {
 
     @Override
     public void logData() {
+        SmartDashboard.putBoolean("vibration", Drive.getInstance().isAligned() && atSpeed());
         SmartDashboard.putNumber("actual top", getTopRPM());
         SmartDashboard.putNumber("actual bot", getBotRPM());
         
