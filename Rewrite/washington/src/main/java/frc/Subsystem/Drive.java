@@ -46,7 +46,7 @@ public class Drive extends AbstractSubsystem{
 
 
 
-    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(2*Math.PI,8*Math.PI);
+    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
@@ -127,7 +127,7 @@ public class Drive extends AbstractSubsystem{
         frontRight.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
         rearLeft.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
         rearRight.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-
+        //setModuleStates(DriveConstants.LOCKED_MODULE_STATES);
         if(Math.abs(Robot.driver.getLeftX()) > .1 || Math.abs(Robot.driver.getLeftY())>.1 || Math.abs(Robot.driver.getRightX())>.15)
             setDriveState(DriveState.TELE);
 
