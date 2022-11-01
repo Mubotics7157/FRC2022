@@ -123,12 +123,14 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(state == IntakeState.RUN_ALL){
+        if(state == IntakeState.RUN_ALL || state==IntakeState.INTAKE_REVERSE){
             toggleIntake(true);
             Drive.getInstance().togggleRotationSpeed(false);
         }
-        else
+        else{
             Drive.getInstance().togggleRotationSpeed(true);
+            toggleIntake(false);
+        }
          if(getIntakeState()!=state)
             stopMotors();
         intakeState = state;
