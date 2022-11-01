@@ -238,6 +238,7 @@ public class Robot extends TimedRobot {
 
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
+        shooter.setShooterMode(ShooterMode.DEBUG);
         
         //climb.setForward();
 

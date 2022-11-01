@@ -2,6 +2,7 @@ package frc.Subsystem;
 
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -28,7 +29,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     IntakeState intakeState = IntakeState.OFF;
-    WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+    WPI_TalonFX intake = new WPI_TalonFX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     //WPI_TalonSRX pumpkin = new WPI_TalonSRX(40);
     private static Intake instance = new Intake();

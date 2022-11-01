@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -29,6 +30,7 @@ public class Drive extends AbstractSubsystem{
         TELE,
         VISION,
         LOCKED,
+        ODOM_ALIGN,
         AUTO,
         DONE
     }
@@ -46,7 +48,7 @@ public class Drive extends AbstractSubsystem{
 
 
 
-    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(4,4);
+    TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(2*Math.PI,8*Math.PI);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
@@ -90,6 +92,9 @@ public class Drive extends AbstractSubsystem{
                 break;
             case VISION:
                 updateAlign();
+                break;
+            case ODOM_ALIGN:
+                updateOdomAlign();
                 break;
             case LOCKED:
                 updateLocked();
@@ -167,6 +172,24 @@ public class Drive extends AbstractSubsystem{
            setDriveState(DriveState.TELE);
         }
     }
+
+    private void updateOdomAlign(){
+        Rotation2d onTarget = Rotation2d.fromDegrees(3);
+        double error;
+        if(VisionManager.getInstance().hasVisionTarget())
+            error = onTarget.rotateBy(VisionManager.getInstance().getTargetYawRotation2d()).getRadians();
+        else
+            error = onTarget.rotateBy(Odometry.getInstance().getAngleToTarget()).getRadians();
+
+
+        if(Math.abs(error)<Units.degreesToRadians(3))
+            error = 0;
+        double deltaSpeed = visionRotController.calculate(error);
+           if(visionRotController.atGoal())
+            setDriveState(DriveState.TELE);
+            
+        updateManual(true,deltaSpeed);
+        }
 
 
     private void driveFromChassis(ChassisSpeeds speeds){
