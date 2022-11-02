@@ -77,7 +77,10 @@ public class Shooter extends AbstractSubsystem {
     @Override
     public void update() {
         if(interpolate){
-            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+            //shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+            
+            shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
+            //SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1)
         }
         rev();
     }

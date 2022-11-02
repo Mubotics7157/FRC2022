@@ -232,13 +232,12 @@ public class Robot extends TimedRobot {
         drive.setDriveState(DriveState.TELE);
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
-        compressor.enableDigital();
+        //Zxcompressor.enableDigital();
 
         VisionManager.getInstance().toggleLimelight(true);
 
         LED.getInstance().setORANGE();
         shooter.setInterpolating();
-        shooter.setShooterMode(ShooterMode.DEBUG);
         
         //climb.setForward();
 
