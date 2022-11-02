@@ -21,7 +21,7 @@ public class ShotGenerator {
     //log data as {top wheel RPM, distance it made it in}
     private Double[][] topRPM = {
         {1.81,2.2,2.41,2.92,3.28,3.96},
-        {1315d,1460d,1525d,1675d,1790d,3250d}//#region}
+        {1315d,1445d,1525d,1675d,1790d,3250d}//#region}
     };
     private Double[][] ratio = {
         {1.81,2.2,2.41,2.92,3.28,3.96},
