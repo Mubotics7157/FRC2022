@@ -20,12 +20,12 @@ public class ShotGenerator {
     
     //log data as {top wheel RPM, distance it made it in}
     private Double[][] topRPM = {
-        {2.41,3.28,3.96},
-        {1525d,1790d,3250d}//#region}
+        {1.81,2.2,2.41,2.92,3.28,3.96},
+        {1315d,1460d,1525d,1675d,1790d,3250d}//#region}
     };
     private Double[][] ratio = {
-        {2.41,3.28,3.96},
-        {1.92,.725,.025}
+        {1.81,2.2,2.41,2.92,3.28,3.96},
+        {1d,.94,.92,.825,.725,.025}
     };
     SplineInterpolator normalInterpolator = SplineInterpolator.createMonotoneCubicSpline(Arrays.asList(topRPM[0]), Arrays.asList(topRPM[1]));
     SplineInterpolator ratioInterpolator = SplineInterpolator.createMonotoneCubicSpline(Arrays.asList(ratio[0]), Arrays.asList(ratio[1]));
