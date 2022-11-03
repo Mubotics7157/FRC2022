@@ -49,6 +49,7 @@ public class Odometry extends AbstractSubsystem{
 
 
 
+
     private double getDistanceToTarget(){
         return FieldConstants.HUB_POSITION.minus(getOdometry()).getTranslation().getNorm();
     }
@@ -65,6 +66,7 @@ public class Odometry extends AbstractSubsystem{
         SmartDashboard.putNumber("Pose X", odometry.getPoseMeters().getX());
         SmartDashboard.putNumber("Pose Y", odometry.getPoseMeters().getY());
         SmartDashboard.putNumber("Pose R", odometry.getPoseMeters().getRotation().getDegrees());
+        SmartDashboard.putNumber("odom dist", getDistanceToTarget());
 
     }
 

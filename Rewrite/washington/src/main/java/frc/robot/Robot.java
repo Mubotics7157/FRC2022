@@ -267,12 +267,15 @@ public class Robot extends TimedRobot {
    if(operator.getRawButtonPressed(1)){
        shooter.setInterpolating();
     }
-    else if(operator.getRawButtonPressed(2)){
+    //else if(operator.getRawButton(2)){
         shooter.setStatic();
-    }
+    //}
 
     if(driver.getRawButtonPressed(10))
         intake.toggleIntake();
+
+    if(operator.getRawButtonPressed(4))
+        odometry.setOdometry(new Pose2d());
   
     
     

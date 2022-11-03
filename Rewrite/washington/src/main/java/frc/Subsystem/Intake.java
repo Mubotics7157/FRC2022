@@ -75,25 +75,28 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void intake(){
-        intake.set(IntakeConstants.INDEX_SPEED);
+        intake.set(1);
     }
     private void reverseIntake(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
         intake.set(-IntakeConstants.INDEX_SPEED);
     }
     public synchronized void index(){
-        indexer.set(.85);
+        indexer.set(IntakeConstants.INDEX_SPEED);
     }
     public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
     public synchronized void runBoth(){
+        boolean firstBall = false;
         intake();
         photoElectric.check();
 
-        if(!photoElectric.isBroken() || !breakBeam.get())
+        if(!photoElectric.isBroken() || !breakBeam.get()){
             indexer.set(0);
+            
+        }
         else    
             index();
         }
