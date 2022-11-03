@@ -77,9 +77,9 @@ public class Shooter extends AbstractSubsystem {
     @Override
     public void update() {
         if(interpolate){
-            //shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+            shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
             
-            shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
+            //shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
             //SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1)
         }
         rev();
@@ -106,8 +106,13 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public synchronized void setStatic(){
+        if(Robot.operator.getRawButton(2)){
         interpolate = false;
-        shooterSpeeds = shotGen.generateArbitraryShot(1350, 1390);
+        //shooterSpeeds = shotGen.generateArbitraryShot(3750, -75);
+        shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
+        }
+        else
+        interpolate = true; 
     }
 
     public void editPorportionalGains(double top, double bot){

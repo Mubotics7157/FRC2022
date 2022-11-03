@@ -51,8 +51,8 @@ public class Drive extends AbstractSubsystem{
     TrapezoidProfile.Constraints visionRotProfile = new TrapezoidProfile.Constraints(2*Math.PI,8*Math.PI);
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
-    //TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
-    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
+    TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
+    //TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController rotController = new ProfiledPIDController(-4, 0, 0,rotProfile);
 
     PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
