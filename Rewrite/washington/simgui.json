@@ -4,6 +4,8 @@
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Ungrouped/DigitalInput[0]": "Digital Input",
       "/LiveWindow/Ungrouped/DigitalInput[1]": "Digital Input",
+      "/LiveWindow/Ungrouped/DigitalInput[2]": "Digital Input",
+      "/LiveWindow/Ungrouped/DigitalInput[3]": "Digital Input",
       "/LiveWindow/Ungrouped/DigitalInput[9]": "Digital Input",
       "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
       "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
@@ -20,6 +22,7 @@
       "/LiveWindow/Ungrouped/Talon FX [1]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [29]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [2]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [32]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [40]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [4]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [5]": "Motor Controller",
@@ -28,6 +31,7 @@
       "/LiveWindow/Ungrouped/Talon SRX [32]": "Motor Controller",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
       "/SmartDashboard/Auto choices": "String Chooser",
+      "/SmartDashboard/Red or Blue": "String Chooser",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/field": "Field2d"
     }
