@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Climb;
 import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
-import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.Shooter;
 import frc.Subsystem.VisionManager;
@@ -52,67 +51,18 @@ public class Robot extends TimedRobot {
     public static XboxController driver = new XboxController(0);
     public static Joystick operator = new Joystick(1);
 
-    //GUI
-    NetworkTableInstance instance = NetworkTableInstance.getDefault();
-    NetworkTable autoDataTable = instance.getTable("autodata");
-    NetworkTableEntry autoPath = autoDataTable.getEntry("autoPath");
-
-    NetworkTableEntry enabled = autoDataTable.getEntry("enabled");
-    NetworkTableEntry pathProcessingStatusEntry = autoDataTable.getEntry("processing");
-    NetworkTableEntry pathProcessingStatusIdEntry = autoDataTable.getEntry("processingid");
-
-    private final Lock networkAutoLock = new ReentrantLock();
-    NetworkAuto networkAuto;
-
-    String lastAutoPath = null;
-
-    ExecutorService deserializerExecutor = Executors.newSingleThreadExecutor();
-
-    //Auto
-    WeakSide weakSideAuto = new WeakSide();
-    TwoBall twoBallAuto;
-    FiveBall fiveBallAuto; 
-    TemplateAuto selectedAuto;
-    Thread autoThread;
-    private final SendableChooser<String> autoChooser = new SendableChooser<>();
-
     //Subsystems
     private final Odometry odometry = Odometry.getInstance();
     private final Drive drive = Drive.getInstance();
     private final Intake intake = Intake.getInstance();
     private final Shooter shooter = Shooter.getInstance();
     private final VisionManager vision = VisionManager.getInstance();
-    Climb climb = Climb.getInstance();
+    private final Climb climb = Climb.getInstance();
 
-    Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+    private final Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
-
-    //Control loop states
-    boolean limelightTakeSnapshots;
-
-    Consumer<EntryNotification> autoPathListener = (event ->
-            deserializerExecutor.execute(() -> { //Start deserializing on another thread
-                        System.out.println("starting to parse autonomous");
-                        //Set networktable entries for the gui notifications
-                        pathProcessingStatusEntry.setDouble(1);
-                        pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-                        networkAutoLock.lock();
-                        try {
-                            networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json
-                            // and the auto
-                        } finally {
-                            networkAutoLock.unlock();
-                        }
-
-                        // ready to be run
-                        System.out.println("done parsing autonomous");
-                        //Set networktable entries for the gui notifications
-                        pathProcessingStatusEntry.setDouble(2);
-                        pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-                    }
-            ));
-
-
+    private final SendableChooser<String> autoChooser = new SendableChooser<>();
+    private final SendableChooser<String> sideChooser = new SendableChooser<>();
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -120,24 +70,12 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         OrangeUtility.sleep(1500);
-        try{
-            twoBallAuto = new TwoBall();
-            fiveBallAuto = new FiveBall();
-        }
-        finally{}
 
         SmartDashboard.putNumber("top wheel setpoint", 1000);
         SmartDashboard.putNumber("shooter ratio", 1);
         SmartDashboard.putNumber("shot adjustment", 1);
         SmartDashboard.putNumber("flywheel kP",.01);
-        selectedAuto = twoBallAuto;
-        if (autoPath.getString(null) != null) {
-            autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
-       
-        }
-
-        autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
+        
 
 
         startSubsystems();
@@ -145,72 +83,47 @@ public class Robot extends TimedRobot {
         OrangeUtility.sleep(50);
         odometry.setOdometry(new Pose2d());
         VisionManager.getInstance().toggleLimelight(false);
-        autoChooser.setDefaultOption("default","two");
-        autoChooser.addOption("five ball","five");
-        autoChooser.addOption("weak side","weak");
-        SmartDashboard.putData(autoChooser);
-        LED.getInstance().setOFF();
+
+        AutonomousContainer.getInstance().initialize(
+                true,
+                new CommandTranslator(
+                        drive::setAutoPath, //The consumer to call to set the new trajectory
+                        drive::stopMotors, //The runnable to call to stop the robot from moving
+                        drive::setAutoRotation, //The consumer to call to set the autonomous rotation (can be null is the robot is not holonomic)
+                        drive::isFinished, //The boolean supplier to call to check if the trajectory is done. This lambada should return false until the path has been fully (and is within error of the final position/rotation) driven.
+                        drive::getAutoTime, //The double supplier to call to get the elapsed time of the trajectory. This lambada must return 0.0 immediately after a new trajectory is set and should return the elapsed time of the current trajectory that is being driven.
+                        odometry::resetPosition, //The consumer to call to set the initial pose of the robot at the start of autonomous
+                        null //Whether to run the commands on the main thread. If this is true, the commands will be run on the main thread. If this is false, the commands will be run on the autonomous thread. If you are unsure, it is safer to leave this as true. If you've designed your robot code to be thread safe, you can set this to false. It will allow the methods you call to be blocking which can simplify some code.
+                ), 
+                false, //crashOnError – Should the robot crash on error? If this is enabled, and an auto fails to load, the robot will crash. If this is disabled, the robot will skip the invalid auto and continue to the next one.
+                this //timedRobot – The timed robot (should be able to just use the 'this' keyword) to use to create the period function for the autos. This can be null if you're running autos asynchronously.
+        );
+
+        AutonomousContainer.getInstance().getAutonomousNames().forEach(name -> autoChooser.addOption(name, name));
+        sideChooser.setDefaultOption("Blue", "blue"); 
+        sideChooser.addOption("Red", "red");
+
+        SmartDashboard.putData("Auto choices", autoChooser);
+        SmartDashboard.putData("Red or Blue", sideChooser); 
+
     }
     
     @Override
     public void robotPeriodic() {
-        if (isEnabled()) {
-            //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
-            SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
-        }
-
-        //Listen changes in the network auto
-        if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
-            lastAutoPath = autoPath.getString(null);
-            deserializerExecutor.execute(() -> { //Start deserializing on another thread
-                System.out.println("**************************");
-                System.out.println("start parsing autonomous");
-                //Set networktable entries for the gui notifications
-                pathProcessingStatusEntry.setDouble(1);
-                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-                networkAuto = new NetworkAuto(); //Create the auto object which will start deserializing the json and the auto
-                // ready to be run
-                System.out.println("**************************");
-                System.out.println("done parsing autonomous");
-                //Set networktable entries for the gui notifications
-                pathProcessingStatusEntry.setDouble(2);
-                pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
-            });
-        }
-
     }
 
     @Override
     public void autonomousInit() {
-        LED.getInstance().setORANGE();
+
+        String selectedAuto = autoChooser.getSelected();
+
+        if(selectedAuto == null)
+            selectedAuto = "twoBall";
+
         VisionManager.getInstance().toggleLimelight(true);
-        enabled.setBoolean(true);
         shooter.setStatic();
+        AutonomousContainer.getInstance().runAutonomous(autoName, sideChooser.getSelected(), true);
 
-    networkAutoLock.lock();
-       try {
-            if (networkAuto == null) {
-                System.out.println("Using normal autos");
-            } else {
-                System.out.println("Using autos from network tables");
-                selectedAuto = networkAuto;
-            }
-        } finally {
-            networkAutoLock.unlock();
-        }
-        
-        if( selectedAuto != null){
-            selectedAuto.reset();
-
-            autoThread = new Thread(selectedAuto);
-            autoThread.start();
-        }
-
-    if(autoPath.getString(null)!=null)
-      autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(),1,1,"",null,12));
-    
-    autoPath.addListener(autoPathListener, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 
     /**
@@ -225,18 +138,16 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopInit() {
-        killAuto();
-        enabled.setBoolean(true);
+        
         startSubsystems();
         compressor.enableDigital();
         drive.setDriveState(DriveState.TELE);
         drive.resetHeading();
         drive.setDriveState(DriveState.TELE);
-        //Zxcompressor.enableDigital();
+        compressor.enableDigital();
 
         VisionManager.getInstance().toggleLimelight(true);
 
-        LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
         //climb.setForward();
@@ -267,27 +178,15 @@ public class Robot extends TimedRobot {
    if(operator.getRawButtonPressed(1)){
        shooter.setInterpolating();
     }
-    //else if(operator.getRawButton(2)){
+    else if(operator.getRawButtonPressed(2)){
         shooter.setStatic();
-    //}
+    }
 
     if(driver.getRawButtonPressed(10))
         intake.toggleIntake();
 
-    if(operator.getRawButtonPressed(4))
-        odometry.setOdometry(new Pose2d());
-  
-    
-    
-
-
     if(driver.getXButtonPressed())
       drive.setDriveState(DriveState.VISION);
-
-
-  
-  
-   
    
     
       if(operator.getRawAxis(2) > 0.5)
@@ -311,8 +210,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
-        killAuto();
-        enabled.setBoolean(false);
+       
+    
 
         VisionManager.getInstance().toggleLimelight(false);
      }
@@ -346,7 +245,6 @@ public class Robot extends TimedRobot {
         intake.start();
         vision.start();
         shooter.start();
-
         climb.start();
 
     }
@@ -375,10 +273,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationInit() {
-        ClassInformationSender.updateReflectionInformation(
-                new File("C:/Users/60002/AppData/Roaming/AutoBuilder"+ "/robotCodeData.json"));
+        ClassInformationSender.updateReflectionInformation("frc");
     }
-
-
-
 }
