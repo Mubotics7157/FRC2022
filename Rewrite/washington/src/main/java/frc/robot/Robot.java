@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.dacubeking.AutoBuilder.robot.robotinterface.AutonomousContainer;
+import com.dacubeking.AutoBuilder.robot.robotinterface.CommandTranslator;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.EntryListenerFlags;
@@ -93,10 +95,10 @@ public class Robot extends TimedRobot {
                         drive::isFinished, //The boolean supplier to call to check if the trajectory is done. This lambada should return false until the path has been fully (and is within error of the final position/rotation) driven.
                         drive::getAutoTime, //The double supplier to call to get the elapsed time of the trajectory. This lambada must return 0.0 immediately after a new trajectory is set and should return the elapsed time of the current trajectory that is being driven.
                         odometry::resetPosition, //The consumer to call to set the initial pose of the robot at the start of autonomous
-                        null //Whether to run the commands on the main thread. If this is true, the commands will be run on the main thread. If this is false, the commands will be run on the autonomous thread. If you are unsure, it is safer to leave this as true. If you've designed your robot code to be thread safe, you can set this to false. It will allow the methods you call to be blocking which can simplify some code.
+                        false //Whether to run the commands on the main thread. If this is true, the commands will be run on the main thread. If this is false, the commands will be run on the autonomous thread. If you are unsure, it is safer to leave this as true. If you've designed your robot code to be thread safe, you can set this to false. It will allow the methods you call to be blocking which can simplify some code.
                 ), 
                 false, //crashOnError – Should the robot crash on error? If this is enabled, and an auto fails to load, the robot will crash. If this is disabled, the robot will skip the invalid auto and continue to the next one.
-                this //timedRobot – The timed robot (should be able to just use the 'this' keyword) to use to create the period function for the autos. This can be null if you're running autos asynchronously.
+                null //timedRobot – The timed robot (should be able to just use the 'this' keyword) to use to create the period function for the autos. This can be null if you're running autos asynchronously.
         );
 
         AutonomousContainer.getInstance().getAutonomousNames().forEach(name -> autoChooser.addOption(name, name));
@@ -122,7 +124,7 @@ public class Robot extends TimedRobot {
 
         VisionManager.getInstance().toggleLimelight(true);
         shooter.setStatic();
-        AutonomousContainer.getInstance().runAutonomous(autoName, sideChooser.getSelected(), true);
+        AutonomousContainer.getInstance().runAutonomous(selectedAuto, sideChooser.getSelected(), true);
 
     }
 
@@ -249,30 +251,10 @@ public class Robot extends TimedRobot {
 
     }
 
-    public synchronized void killAuto() {
-        if (selectedAuto != null&&autoThread!=null) {
-            autoThread.interrupt();
-            double nextStackTracePrint = Timer.getFPGATimestamp() + 1;
-            while (!(selectedAuto.isFinished() || autoThread.getState() == Thread.State.TERMINATED)) {
-                if (Timer.getFPGATimestamp() > nextStackTracePrint) {
-                    Exception throwable = new Exception(
-                            "Waiting for auto to die. selectedAuto.isFinished() = " + selectedAuto.isFinished() +
-                                    " autoThread.getState() = " + autoThread.getState());
-                    throwable.setStackTrace(autoThread.getStackTrace());
-                    throwable.printStackTrace();
-                    nextStackTracePrint = Timer.getFPGATimestamp() + 5;
-                }
 
-
-                OrangeUtility.sleep(10);
-            }
-            drive.stopMotors();
-            drive.setTeleop();
-        }
-    }
 
     @Override
     public void simulationInit() {
-        ClassInformationSender.updateReflectionInformation("frc");
+        com.dacubeking.AutoBuilder.robot.reflection.ClassInformationSender.updateReflectionInformation("frc");
     }
 }

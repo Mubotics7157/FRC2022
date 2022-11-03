@@ -39,7 +39,7 @@ public class Odometry extends AbstractSubsystem{
     }
     
     public synchronized void resetPosition(Pose2d pose){
-        setOdometry(new Pose2d(0,0));
+        setOdometry(new Pose2d(0,0,Rotation2d.fromDegrees(0)));
     }
 
     public synchronized Pose2d getOdometry(){
