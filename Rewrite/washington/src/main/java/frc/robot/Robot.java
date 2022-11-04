@@ -286,6 +286,10 @@ public class Robot extends TimedRobot {
 
 
   
+      if(operator.getRawButtonPressed(1))
+        shooter.setLaunchPad();
+      else if(operator.getRawButtonPressed(2))
+        shooter.setInterpolating();
   
    
    

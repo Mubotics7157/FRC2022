@@ -105,6 +105,11 @@ public class Shooter extends AbstractSubsystem {
         interpolate = true;
     }
 
+    public synchronized void setLaunchPad(){
+        interpolate = false;
+        shooterSpeeds = shotGen.generateArbitraryShot(3250, 3250/-.02);
+    }
+
     public synchronized void setStatic(){
         if(Robot.operator.getRawButton(2)){
         interpolate = false;
@@ -163,6 +168,8 @@ public class Shooter extends AbstractSubsystem {
 
         }
     }
+
+    
 
 
 }
