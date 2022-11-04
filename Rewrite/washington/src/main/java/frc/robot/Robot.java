@@ -162,48 +162,73 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-    if(driver.getLeftBumper())
-      drive.resetHeading();
-
-     if(driver.getRawAxis(2)>.2)
-       intake.setIntakeState(IntakeState.RUN_ALL);
- 
-    else if(driver.getRawButton(9)){
-        Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
-    }
-    else if(driver.getRawAxis(3)>.2)// && shooter.atSpeed())
-        intake.setIntakeState(IntakeState.INDEX);
-    else
-      Intake.getInstance().setIntakeState(IntakeState.OFF);
-
-
-   if(operator.getRawButtonPressed(1)){
-       shooter.setInterpolating();
-    }
-    else if(operator.getRawButtonPressed(2)){
-        shooter.setStatic();
-    }
-
-    if(driver.getRawButtonPressed(10))
-        intake.toggleIntake();
-
-    if(driver.getXButtonPressed())
-      drive.setDriveState(DriveState.VISION);
+        if(driver.getLeftBumper())
+        drive.resetHeading();
+  
+       if(driver.getRawAxis(2)>.2)
+         intake.setIntakeState(IntakeState.RUN_ALL);
    
-    
-      if(operator.getRawAxis(2) > 0.5)
-        climb.zeroClimb();
-      else if(operator.getRawAxis(3) > 0.5)
-        climb.resetClimb();
-    else if(driver.getRightBumper() || operator.getRawButton(7))
-    climb.climbRoutine();
+      else if(driver.getRawButton(9)){
+          Intake.getInstance().setIntakeState(IntakeState.INTAKE_REVERSE);
+      }
+      else if(driver.getRawAxis(3)>.2)// && shooter.atSpeed())
+          intake.setIntakeState(IntakeState.INDEX);
       else
-        climb.manualClimb();
-
-     if(operator.getRawButtonPressed(5))
-        climb.toggleClimbSolenoid();
-    else if(operator.getRawButtonPressed(6))
-        climb.toggleHighSolenoid();
+        Intake.getInstance().setIntakeState(IntakeState.OFF);
+  
+  
+     if(operator.getRawButtonPressed(1)){
+         shooter.setInterpolating();
+      }
+      //else if(operator.getRawButton(2)){
+          shooter.setStatic();
+      //}
+  
+      if(driver.getRawButtonPressed(10))
+          intake.toggleIntake();
+  
+      if(operator.getRawButtonPressed(4))
+          odometry.setOdometry(new Pose2d());
+    
+      
+      
+  
+  
+      if(driver.getXButtonPressed())
+        drive.setDriveState(DriveState.VISION);
+  
+  
+    
+    
+     
+     
+      if(!driver.getRightBumper() || !operator.getRawButton(7)){
+        if(operator.getRawAxis(2) > 0.5)
+          climb.zeroMidClimb();
+          //^^ left trigger mid zero
+        else if(operator.getRawButton(5))
+          climb.resetMidClimb();
+          //^^ left bumper mid reset
+        else
+          climb.manualMidClimb();
+  
+        if(operator.getRawAxis(3) > 0.5)
+          climb.zeroHighClimb();
+          //^^ right trigger high zero
+        else if(operator.getRawButton(6))
+          climb.resetHighClimb();
+        else
+          climb.manualHighClimb();
+      }
+      else //(driver.getRightBumper() || operator.getRawButton(7))
+      climb.climbRoutine();
+      
+   
+  
+       if(operator.getRawButtonPressed(5))
+          climb.toggleHighSolenoid();
+      else if(operator.getRawButtonPressed(6))
+          climb.toggleMidSolenoid();
 }
 
 
