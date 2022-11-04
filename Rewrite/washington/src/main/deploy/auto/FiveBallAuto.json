@@ -1,20 +1,25 @@
 {
   "autonomousSteps" : [ {
     "type" : "script",
-    "script" : "Drive.setVisionAlign\nsleep 100\nIntake.toggleIntake true\nsleep 500\nIntake.index\nsleep 400",
+    "script" : "sleep 200\nDrive.setVisionAlign\nsleep 300\nIntake.toggleIntake true\nsleep 900\nIntake.index\nsleep 400",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
       "delayType" : "NONE",
       "delay" : 0.0,
       "commands" : [ {
+        "methodName" : "sleep",
+        "args" : [ "200" ],
+        "argTypes" : [ "long" ],
+        "reflection" : false
+      }, {
         "methodName" : "frc.Subsystem.Drive.setVisionAlign",
         "args" : [ ],
         "argTypes" : [ ],
         "reflection" : true
       }, {
         "methodName" : "sleep",
-        "args" : [ "100" ],
+        "args" : [ "300" ],
         "argTypes" : [ "long" ],
         "reflection" : false
       }, {
@@ -24,7 +29,7 @@
         "reflection" : true
       }, {
         "methodName" : "sleep",
-        "args" : [ "500" ],
+        "args" : [ "900" ],
         "argTypes" : [ "long" ],
         "reflection" : false
       }, {
