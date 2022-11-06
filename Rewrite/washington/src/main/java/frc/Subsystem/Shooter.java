@@ -111,13 +111,16 @@ public class Shooter extends AbstractSubsystem {
     }
 
     public synchronized void setStatic(){
-        if(Robot.operator.getRawButton(2)){
+        interpolate = false;
+        shooterSpeeds = shotGen.generateArbitraryShot(1400, 1300);
+        //shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
+       
+    }
+
+    public synchronized void setTesting(){
         interpolate = false;
         //shooterSpeeds = shotGen.generateArbitraryShot(3750, -75);
         shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
-        }
-        else
-        interpolate = true; 
     }
 
     public void editPorportionalGains(double top, double bot){

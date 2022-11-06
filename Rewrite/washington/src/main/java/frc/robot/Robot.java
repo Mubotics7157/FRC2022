@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
 
     private final Lock networkAutoLock = new ReentrantLock();
     NetworkAuto networkAuto;
+    
 
     String lastAutoPath = null;
 
@@ -130,7 +131,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("shooter ratio", 1);
         SmartDashboard.putNumber("shot adjustment", 1);
         SmartDashboard.putNumber("flywheel kP",.01);
-        selectedAuto = twoBallAuto;
+        selectedAuto = fiveBallAuto;
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -177,6 +178,7 @@ public class Robot extends TimedRobot {
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
             });
+            //peepee
         }
 
     }
@@ -190,12 +192,14 @@ public class Robot extends TimedRobot {
 
     networkAutoLock.lock();
        try {
-            if (networkAuto == null) {
-                System.out.println("Using normal autos");
-            } else {
-                System.out.println("Using autos from network tables");
-                selectedAuto = networkAuto;
-            }
+            if(autoChooser.getSelected() =="five ball")
+                selectedAuto = fiveBallAuto;
+            
+            else if(autoChooser.getSelected() == "default")
+                selectedAuto = twoBallAuto;
+
+                SmartDashboard.putString("which auto?", autoChooser.getSelected());
+            
         } finally {
             networkAutoLock.unlock();
         }
@@ -264,10 +268,10 @@ public class Robot extends TimedRobot {
       Intake.getInstance().setIntakeState(IntakeState.OFF);
 
 
-   if(operator.getRawButtonPressed(1)){
+   if(operator.getRawButtonPressed(2)){
        shooter.setInterpolating();
     }
-    //else if(operator.getRawButton(2)){
+    //else if(operator.getRawButton(1)){
         shooter.setStatic();
     //}
 
@@ -286,27 +290,51 @@ public class Robot extends TimedRobot {
 
 
   
-      if(operator.getRawButtonPressed(1))
-        shooter.setLaunchPad();
-      else if(operator.getRawButtonPressed(2))
+      if(operator.getRawButton(2))
+        shooter.setTesting();
+      else// if(operator.getRawButtonPressed(2))
         shooter.setInterpolating();
   
    
+    if(!driver.getRightBumper() || !operator.getRawButton(7)){
+        if(operator.getRawAxis(2) > 0.5)
+          climb.zeroMidClimb();
+          //^^ left trigger mid zero
+        else if(operator.getRawButton(5))
+          climb.resetMidClimb();
+          //^^ left bumper mid reset
+        else
+          climb.manualMidClimb();
+  
+        if(operator.getRawAxis(3) > 0.5)
+          climb.zeroHighClimb();
+          //^^ right trigger high zero
+        else if(operator.getRawButton(6))
+          climb.resetHighClimb();
+        else
+          climb.manualHighClimb();
+      }
+      
    
-    
-      if(operator.getRawAxis(2) > 0.5)
-        climb.zeroClimb();
-      else if(operator.getRawAxis(3) > 0.5)
-        climb.resetClimb();
-    else if(driver.getRightBumper() || operator.getRawButton(7))
-    climb.climbRoutine();
-      else
-        climb.manualClimb();
+  
+       if(operator.getRawButtonPressed(1))
+          climb.toggleHighSolenoid();
+       if(operator.getRawButtonPressed(3))
+          climb.toggleMidSolenoid();
 
-     if(operator.getRawButtonPressed(5))
-        climb.toggleClimbSolenoid();
-    else if(operator.getRawButtonPressed(6))
-        climb.toggleHighSolenoid();
+        if(operator.getRawButtonPressed(7)){
+            drive.resetModule();
+        }
+          
+
+          /*
+          if(operator.getRawButtonPressed(3))
+          climb.setHighReverse();
+          else if(operator.getRawButtonPressed(2))
+          climb.sethighForward();
+          */
+
+
 }
 
 

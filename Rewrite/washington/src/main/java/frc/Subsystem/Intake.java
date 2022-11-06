@@ -75,11 +75,11 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void intake(){
-        intake.set(1);
+        intake.set(.6);
     }
     private void reverseIntake(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
-        intake.set(-IntakeConstants.INDEX_SPEED);
+        intake.set(-1);
     }
     public synchronized void index(){
         indexer.set(IntakeConstants.INDEX_SPEED);
