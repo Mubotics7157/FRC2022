@@ -28,7 +28,7 @@ public class Climb extends AbstractSubsystem {
     //PlZ CHANGE DIGITAL INPUT PORT ONCE ITS FOUND :P
   
     TalonFX midClimb = new TalonFX(29);
-    TalonFX highClimb = new TalonFX(40);
+    //TalonFX highClimb = new TalonFX(40);
     //PLZ CHANGE ID FOR HIGH CLIMB ONCE ITS FOUND :P
 
     private static Climb instance = new Climb();
@@ -53,14 +53,14 @@ public class Climb extends AbstractSubsystem {
         //highClimb.configReverseSoftLimitEnable(true);
         //highClimb.configReverseSoftLimitThreshold(-1468417);//-1302192
         //highClimb.configForwardSoftLimitThreshold(5000);
-        highClimb.configFactoryDefault();
+        //highClimb.configFactoryDefault();
 
-        highClimb.config_kP(0, .5);
-        highClimb.config_kD(0, .05);
-        highClimb.configNeutralDeadband(.2);
-        highClimb.setInverted(true);
-        highClimb.setNeutralMode(NeutralMode.Brake);
-        highClimb.setSelectedSensorPosition(0);
+       // highClimb.config_kP(0, .5);
+        //highClimb.config_kD(0, .05);
+        //highClimb.configNeutralDeadband(.2);
+        //highClimb.setInverted(true);
+        //highClimb.setNeutralMode(NeutralMode.Brake);
+        //highClimb.setSelectedSensorPosition(0);
         //PLZ CHAGE SENSOR POSITION ONCE ITS FOUND :P
     }
 
@@ -83,7 +83,7 @@ public class Climb extends AbstractSubsystem {
     }
 
     public synchronized void manualHighClimb(){
-        highClimb.set(ControlMode.PercentOutput, -Robot.operator.getRawAxis(5));
+       // highClimb.set(ControlMode.PercentOutput, -Robot.operator.getRawAxis(5));
     }
     
     public synchronized void resetMidClimb(){
@@ -160,7 +160,7 @@ public class Climb extends AbstractSubsystem {
     public void logData() {
         SmartDashboard.putString("high quick release", highQuickRelease.get().toString());
         //SmartDashboard.putBoolean("high magnet detected?", highMagSensor.get());
-        SmartDashboard.putNumber("high climb encoder", highClimb.getSelectedSensorPosition());
+       // SmartDashboard.putNumber("high climb encoder", highClimb.getSelectedSensorPosition());
 
         SmartDashboard.putString("mid quick release", midQuickRelease.get().toString());
         //SmartDashboard.putBoolean("mid magnet detected?", midMagSensor.get());

@@ -1,7 +1,7 @@
 {
   "autonomousSteps" : [ {
     "type" : "script",
-    "script" : "sleep 1500",
+    "script" : "sleep 4500",
     "closed" : false,
     "valid" : true,
     "sendableScript" : {
@@ -9,7 +9,7 @@
       "delay" : 0.0,
       "commands" : [ {
         "methodName" : "sleep",
-        "args" : [ "1500" ],
+        "args" : [ "4500" ],
         "argTypes" : [ "long" ],
         "reflection" : false
       } ]

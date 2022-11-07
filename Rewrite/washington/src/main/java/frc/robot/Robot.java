@@ -131,7 +131,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("shooter ratio", 1);
         SmartDashboard.putNumber("shot adjustment", 1);
         SmartDashboard.putNumber("flywheel kP",.01);
-        selectedAuto = fiveBallAuto;
+        selectedAuto = twoBallAuto;    
         if (autoPath.getString(null) != null) {
             autoPathListener.accept(new EntryNotification(NetworkTableInstance.getDefault(), 1, 1, "", null, 12));
        
@@ -268,11 +268,13 @@ public class Robot extends TimedRobot {
       Intake.getInstance().setIntakeState(IntakeState.OFF);
 
 
-   if(operator.getRawButtonPressed(2)){
+    if(driver.getYButton())
+        shooter.setTesting();
+    else
        shooter.setInterpolating();
-    }
+    
     //else if(operator.getRawButton(1)){
-        shooter.setStatic();
+      
     //}
 
     if(driver.getRawButtonPressed(10))
@@ -290,10 +292,7 @@ public class Robot extends TimedRobot {
 
 
   
-      if(operator.getRawButton(2))
-        shooter.setTesting();
-      else// if(operator.getRawButtonPressed(2))
-        shooter.setInterpolating();
+      
   
    
     if(!driver.getRightBumper() || !operator.getRawButton(7)){
