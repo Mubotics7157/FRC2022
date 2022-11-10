@@ -78,6 +78,9 @@ public class Shooter extends AbstractSubsystem {
     public void update() {
         if(interpolate){
             shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
+            
+            //shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
+            //SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1)
         }
         rev();
     }
@@ -102,9 +105,22 @@ public class Shooter extends AbstractSubsystem {
         interpolate = true;
     }
 
+    public synchronized void setLaunchPad(){
+        interpolate = false;
+        shooterSpeeds = shotGen.generateArbitraryShot(3250, 3250/-.02);
+    }
+
     public synchronized void setStatic(){
         interpolate = false;
-        shooterSpeeds = shotGen.generateArbitraryShot(1350, 1390);
+        shooterSpeeds = shotGen.generateArbitraryShot(1400, 1300);
+        //shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
+       
+    }
+
+    public synchronized void setTesting(){
+        interpolate = false;
+        //shooterSpeeds = shotGen.generateArbitraryShot(3750, -75);
+        shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 700), SmartDashboard.getNumber("top wheel setpoint", 700)*SmartDashboard.getNumber("shooter ratio", 1));
     }
 
     public void editPorportionalGains(double top, double bot){
@@ -155,6 +171,8 @@ public class Shooter extends AbstractSubsystem {
 
         }
     }
+
+    
 
 
 }

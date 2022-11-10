@@ -114,4 +114,8 @@ public interface Constants {
 
         public static final double TOLERANCE_RPM = 50;
     }
+
+    public static final class FieldConstants{
+        public static final Pose2d HUB_POSITION  = new Pose2d(new Translation2d(Units.inchesToMeters((54*12)/2),Units.inchesToMeters((12*27)/2)),Rotation2d.fromDegrees(0));
+    }
 }

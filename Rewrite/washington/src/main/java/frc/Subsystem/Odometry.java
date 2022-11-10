@@ -1,12 +1,16 @@
 package frc.Subsystem;
 
 
+import java.lang.reflect.Field;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.util.AbstractSubsystem;
 
 public class Odometry extends AbstractSubsystem{
@@ -15,10 +19,10 @@ public class Odometry extends AbstractSubsystem{
     Field2d m_field;
     private static Odometry instance = new Odometry();
 
+
+
     private Odometry(){
         super(20,20);
-        
-
     }
 
     public static Odometry getInstance(){
@@ -44,12 +48,25 @@ public class Odometry extends AbstractSubsystem{
     }
 
 
+
+
+    private double getDistanceToTarget(){
+        return FieldConstants.HUB_POSITION.minus(getOdometry()).getTranslation().getNorm();
+    }
+
+    public synchronized Rotation2d getAngleToTarget(){
+        Pose2d relativePose = getOdometry().relativeTo(FieldConstants.HUB_POSITION);
+        return Rotation2d.fromDegrees(Math.atan2(relativePose.getY(), relativePose.getY()));
+    }
+
+
     
     @Override
     public void logData() {
         SmartDashboard.putNumber("Pose X", odometry.getPoseMeters().getX());
         SmartDashboard.putNumber("Pose Y", odometry.getPoseMeters().getY());
         SmartDashboard.putNumber("Pose R", odometry.getPoseMeters().getRotation().getDegrees());
+        SmartDashboard.putNumber("odom dist", getDistanceToTarget());
 
     }
 

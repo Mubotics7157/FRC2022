@@ -102,6 +102,10 @@ public class Module {
         turnPID.setD(val);
     }
 
+    public void flip(double angle){
+        absEncoder.configMagnetOffset(absEncoder.configGetMagnetOffset()+angle);
+        
+    }
     public void overrideMotors(){
         driveMotor.set(ControlMode.PercentOutput,0);
         turnMotor.set(ControlMode.PercentOutput,0);

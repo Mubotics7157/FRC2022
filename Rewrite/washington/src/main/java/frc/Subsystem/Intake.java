@@ -2,6 +2,7 @@ package frc.Subsystem;
 
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -28,7 +29,7 @@ public class Intake extends AbstractSubsystem {
     }
 
     IntakeState intakeState = IntakeState.OFF;
-    WPI_TalonSRX intake = new WPI_TalonSRX(IntakeConstants.DEVICE_ID_INTAKE);
+    WPI_TalonFX intake = new WPI_TalonFX(IntakeConstants.DEVICE_ID_INTAKE);
     CANSparkMax indexer = new CANSparkMax(IntakeConstants.DEVICE_ID_INDEXER,MotorType.kBrushless);
     //WPI_TalonSRX pumpkin = new WPI_TalonSRX(40);
     private static Intake instance = new Intake();
@@ -74,25 +75,28 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void intake(){
-        intake.set(IntakeConstants.INDEX_SPEED);
+        intake.set(.6);
     }
     private void reverseIntake(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
-        intake.set(-IntakeConstants.INDEX_SPEED);
+        intake.set(-1);
     }
     public synchronized void index(){
-        indexer.set(.85);
+        indexer.set(IntakeConstants.INDEX_SPEED);
     }
     public synchronized void reverseIndexer(){
         indexer.set(-IntakeConstants.INDEX_SPEED);
     }
 
     public synchronized void runBoth(){
+        boolean firstBall = false;
         intake();
         photoElectric.check();
 
-        if(!photoElectric.isBroken() || !breakBeam.get())
+        if(!photoElectric.isBroken() || !breakBeam.get()){
             indexer.set(0);
+            
+        }
         else    
             index();
         }
@@ -122,12 +126,14 @@ public class Intake extends AbstractSubsystem {
     }
 
     public synchronized void setIntakeState(IntakeState state){
-        if(state == IntakeState.RUN_ALL){
+        if(state == IntakeState.RUN_ALL || state==IntakeState.INTAKE_REVERSE){
             toggleIntake(true);
             Drive.getInstance().togggleRotationSpeed(false);
         }
-        else
+        else{
             Drive.getInstance().togggleRotationSpeed(true);
+            toggleIntake(false);
+        }
          if(getIntakeState()!=state)
             stopMotors();
         intakeState = state;
