@@ -7,9 +7,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
@@ -17,27 +14,21 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Subsystem.Climb;
 import frc.Subsystem.Drive;
 import frc.Subsystem.Intake;
-import frc.Subsystem.LED;
 import frc.Subsystem.Odometry;
 import frc.Subsystem.Shooter;
 import frc.Subsystem.VisionManager;
 import frc.Subsystem.Drive.DriveState;
 import frc.Subsystem.Intake.IntakeState;
-import frc.Subsystem.Shooter.ShooterMode;
 import frc.auton.FiveBall;
 import frc.auton.TemplateAuto;
 import frc.auton.TwoBall;
@@ -150,16 +141,10 @@ public class Robot extends TimedRobot {
         autoChooser.addOption("five ball","five");
         autoChooser.addOption("weak side","weak");
         SmartDashboard.putData(autoChooser);
-        LED.getInstance().setOFF();
     }
     
     @Override
     public void robotPeriodic() {
-        if (isEnabled()) {
-            //Get data from the robot tracker and upload it to the robot tracker (Units must be in meters)
-            SmartDashboard.putNumber("X meters", odometry.getOdometry().getX());
-            SmartDashboard.putNumber("Y meters", odometry.getOdometry().getY());
-        }
 
         //Listen changes in the network auto
         if (autoPath.getString(null) != null && !autoPath.getString(null).equals(lastAutoPath)) {
@@ -178,14 +163,12 @@ public class Robot extends TimedRobot {
                 pathProcessingStatusEntry.setDouble(2);
                 pathProcessingStatusIdEntry.setDouble(pathProcessingStatusIdEntry.getDouble(0) + 1);
             });
-            //peepee
         }
 
     }
 
     @Override
     public void autonomousInit() {
-        LED.getInstance().setORANGE();
         VisionManager.getInstance().toggleLimelight(true);
         enabled.setBoolean(true);
         shooter.setStatic();
@@ -240,7 +223,6 @@ public class Robot extends TimedRobot {
 
         VisionManager.getInstance().toggleLimelight(true);
 
-        LED.getInstance().setORANGE();
         shooter.setInterpolating();
         
         //climb.setForward();
@@ -273,9 +255,7 @@ public class Robot extends TimedRobot {
     else
        shooter.setInterpolating();
     
-    //else if(operator.getRawButton(1)){
       
-    //}
 
     if(driver.getRawButtonPressed(10))
         intake.toggleIntake();
@@ -326,12 +306,6 @@ public class Robot extends TimedRobot {
         }
           
 
-          /*
-          if(operator.getRawButtonPressed(3))
-          climb.setHighReverse();
-          else if(operator.getRawButtonPressed(2))
-          climb.sethighForward();
-          */
 
 
 }

@@ -16,7 +16,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -53,7 +52,6 @@ public class Drive extends AbstractSubsystem{
     ProfiledPIDController visionRotController = new ProfiledPIDController(DriveConstants.TURN_kP, 0, DriveConstants.TURN_kD,visionRotProfile);
 
     TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(2*Math.PI,Math.PI);
-    //TrapezoidProfile.Constraints rotProfile = new TrapezoidProfile.Constraints(4,4);
     ProfiledPIDController rotController = new ProfiledPIDController(-4, 0, 0,rotProfile);
 
     PIDController xController = new PIDController(DriveConstants.AUTO_CONTROLLER_kP, 0, 0);
@@ -137,11 +135,7 @@ public class Drive extends AbstractSubsystem{
     }
 
     private void updateLocked(){
-        frontLeft.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-        frontRight.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        rearLeft.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        rearRight.setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-        //setModuleStates(DriveConstants.LOCKED_MODULE_STATES);
+        setModuleStates(DriveConstants.LOCKED_MODULE_STATES);
         if(Math.abs(Robot.driver.getLeftX()) > .1 || Math.abs(Robot.driver.getLeftY())>.1 || Math.abs(Robot.driver.getRightX())>.15)
             setDriveState(DriveState.TELE);
 
@@ -321,7 +315,6 @@ public class Drive extends AbstractSubsystem{
                 frontLeft.flip(90); 
                 break;
         }
-        //rearLeft.flip(90);
     }
     public synchronized void setVisionAlign(){
         driveState = DriveState.VISION;

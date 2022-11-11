@@ -5,10 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants;
 import frc.util.AbstractSubsystem;
 import frc.util.CommonConversions;
@@ -78,9 +75,6 @@ public class Shooter extends AbstractSubsystem {
     public void update() {
         if(interpolate){
             shooterSpeeds = shotGen.getShot(VisionManager.getInstance().getDistanceToTarget());
-            
-            //shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
-            //SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1)
         }
         rev();
     }
@@ -113,13 +107,11 @@ public class Shooter extends AbstractSubsystem {
     public synchronized void setStatic(){
         interpolate = false;
         shooterSpeeds = shotGen.generateArbitraryShot(1400, 1300);
-        //shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 1500), SmartDashboard.getNumber("top wheel setpoint", 1500)*SmartDashboard.getNumber("shooter ratio", 1));
        
     }
 
     public synchronized void setTesting(){
         interpolate = false;
-        //shooterSpeeds = shotGen.generateArbitraryShot(3750, -75);
         shooterSpeeds = shotGen.generateArbitraryShot(SmartDashboard.getNumber("top wheel setpoint", 700), SmartDashboard.getNumber("top wheel setpoint", 700)*SmartDashboard.getNumber("shooter ratio", 1));
     }
 
